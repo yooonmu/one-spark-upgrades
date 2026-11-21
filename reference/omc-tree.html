@@ -1,0 +1,308 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>One Million Coins — 강화 노드 전체 (v1.2)</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#0d0f0f;color:#ece8de;font:15px/1.55 "Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+header{padding:40px 20px 16px;max-width:1180px;margin:auto}h1{font-size:30px;margin:0 0 6px;color:#ffc74d}header p{margin:4px 0;color:#a3a69f}
+nav{position:sticky;top:0;z-index:2;background:#0d0f0fee;backdrop-filter:blur(6px);border-bottom:1px solid #2a2e2d}
+nav div{max-width:1180px;margin:auto;padding:10px 20px;display:flex;gap:8px;overflow-x:auto}
+nav a{flex:none;color:#ece8de;text-decoration:none;font-size:14px;padding:6px 12px;border:1px solid #333837;border-radius:99px}nav a:hover{border-color:#ffc74d;color:#ffc74d}
+main{max-width:1180px;margin:auto;padding:0 20px 80px}section{scroll-margin-top:60px}h2{font-size:22px;margin:36px 0 8px}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.sum div{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 16px}.sum b{display:block;font-size:22px;color:#fff}.sum span{font-size:13px;color:#a3a69f}
+ul.t{padding-left:20px}ul.t li{margin:5px 0}ul.t b{color:#ffc74d}
+.br{margin-top:18px;border:1px solid #2a2e2d;border-left:4px solid var(--c);border-radius:8px;background:#151818;overflow:hidden}
+h3{margin:0;padding:12px 16px;font-size:19px;color:var(--c);display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}h3 small{font-size:13px;font-weight:400;color:#a3a69f}h3 span{margin-left:auto;font-size:13px;font-weight:400;color:#8e918b}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:900px}
+th{font-size:12px;font-weight:600;color:#8e918b;text-align:left;padding:6px 10px;background:#111313;border-top:1px solid #2a2e2d;white-space:nowrap}
+td{padding:8px 10px;border-top:1px solid #232727;vertical-align:top}td small{color:#7f837c}
+td.n{white-space:nowrap;color:#a3a69f;text-align:center;width:1%}td.pre{font-size:13px;color:#a3a69f;min-width:150px}
+em{font-style:normal;font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-left:4px;white-space:nowrap}em.k{background:#ffc74d;color:#15130c}em.m{background:#5fd39a;color:#0d0f0f}
+table.pt{min-width:0;max-width:720px}table.pt td{text-align:center;font-size:13px;color:#a3a69f}table.pt b{color:#ece8de}
+.note{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 14px;color:#c9c6bd;font-size:14px;margin-top:12px}
+</style></head><body>
+<header><h1>One Million Coins — 강화 노드 전체</h1>
+<p>게임 v1.2.2의 스킬 트리 데이터(SkillCatalog)를 게임 파일에서 직접 뽑아 정리했습니다. 효과 문구는 게임 안 설명 그대로이며, 직접 만든 한국어 번역을 붙였습니다.</p>
+<p><a href="./" style="color:#8fb8ff">← 참고 게임 강화 시스템</a> · <a href="../" style="color:#8fb8ff">불씨 하나 강화 목록</a></p></header>
+<nav><div><a href="#rules">구조와 규칙</a><a href="#points">포인트 획득</a><a href="#b0">탄력</a><a href="#b1">가방</a><a href="#b2">입금</a><a href="#b3">회수</a><a href="#b4">굴착</a><a href="#b5">끌림</a><a href="#b6">슈트</a><a href="#infra">금고 시설</a></div></nav>
+<main>
+<section id="rules"><h2>구조와 규칙</h2>
+<div class="sum"><div><b>238</b><span>노드</span></div><div><b>7</b><span>갈래</span></div><div><b>409</b><span>전부 사는 데 드는 포인트</span></div><div><b>125</b><span>첫 금고에서 버는 포인트</span></div><div><b>1,000,000</b><span>금고의 동전</span></div></div>
+<ul class="t">
+<li><b>재화는 숙련 포인트.</b> 동전을 "모은 양"(입금이 아니라 수집량)이 정해진 기준을 넘을 때마다 1포인트. 첫 금고에서 최대 125포인트이고, 마지막 포인트는 동전 900,000개째에 들어옵니다.</li>
+<li><b>전부는 못 산다.</b> 전체 409포인트 중 125포인트만 벌 수 있어 약 30%만 고를 수 있습니다. 그래서 빌드를 골라야 합니다. 완료 뒤 "계속 플레이"(자유 플레이)에서는 포인트를 더 벌 수 있지만 순위표에서 빠집니다.</li>
+<li><b>모양.</b> 갈래마다 시작 노드 하나에서 왼쪽·가운데·오른쪽 세 줄로 갈라지고, 단계(0~12)를 따라 내려갑니다. 슈트 갈래만 가운데 한 줄(13개)입니다.</li>
+<li><b>노드 종류.</b> 일반 강화, <em class="m">새 기능</em>(새 조작이나 효과가 생김), <em class="k">마스터리</em>(줄 끝의 큰 노드). 노드마다 비용은 1~3포인트.</li>
+<li><b>해금 조건.</b> 바로 위 선행 노드를 사야 열립니다. 6개 노드는 다른 노드를 추가로 요구하고, 슈트 오버드라이브는 동전 10,000개를 모아야 열립니다. v1.2에는 고르면 다른 노드가 잠기는 배타 노드가 없습니다.</li>
+<li><b>도구 해금.</b> 삽은 동전 1,500개, 자석은 동전 3,000개를 모으면 각각 1포인트로 열립니다. 세 도구 갈래(탄력·굴착·끌림)에서 산 강화는 모든 도구에 적용됩니다.</li>
+</ul>
+<div class="note">같은 이름에 숫자가 붙은 노드(예: 빠른 손가락 1·2·3)는 같은 능력치를 여러 번 올리는 연속 노드입니다. 효과 수치는 앞 단계까지 산 상태 기준의 증가분이라 소수점이 붙어 있습니다.</div>
+</section>
+<section id="points"><h2>포인트 획득 기준 (수집한 동전 수)</h2>
+<div class="tw"><table class="pt"><tr><td>5포인트<br><b>270</b></td><td>10포인트<br><b>1,220</b></td><td>15포인트<br><b>2,432</b></td><td>20포인트<br><b>3,725</b></td><td>25포인트<br><b>5,443</b></td></tr>
+<tr><td>30포인트<br><b>7,477</b></td><td>35포인트<br><b>10,147</b></td><td>40포인트<br><b>12,970</b></td><td>45포인트<br><b>18,636</b></td><td>50포인트<br><b>25,309</b></td></tr>
+<tr><td>55포인트<br><b>33,120</b></td><td>60포인트<br><b>41,121</b></td><td>65포인트<br><b>49,280</b></td><td>70포인트<br><b>57,480</b></td><td>75포인트<br><b>66,459</b></td></tr>
+<tr><td>80포인트<br><b>76,504</b></td><td>85포인트<br><b>96,158</b></td><td>90포인트<br><b>140,360</b></td><td>95포인트<br><b>203,724</b></td><td>100포인트<br><b>283,972</b></td></tr>
+<tr><td>105포인트<br><b>379,682</b></td><td>110포인트<br><b>489,843</b></td><td>115포인트<br><b>613,679</b></td><td>120포인트<br><b>750,570</b></td><td>125포인트<br><b>900,000</b></td></tr></table></div>
+<p style="color:#a3a69f;font-size:14px">초반은 25·60·110·180개처럼 아주 빨리 주고, 80포인트 이후로는 간격이 점점 벌어집니다. 처음 1포인트는 동전 25개, 절반(63포인트)은 약 46,000개, 마지막 125포인트는 900,000개입니다.</p>
+</section>
+<section id="b0"><div class="br" style="--c:#ffb347"><h3>탄력 <small>MOMENTUM · 모든 도구로 탄력을 쌓으세요.</small><span>노드 38개 · 전부 사면 61포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>두 개씩</b> <br><small>Two at a time</small></td><td class="n">1</td><td>손이 잡을 때마다 동전을 1개 대신 2개 모읍니다.</td><td class="pre">시작점</td></tr>
+<tr><td class="n">1</td><td class="n">왼쪽</td><td><b>다루기 기초</b> <br><small>Handling basics</small></td><td class="n">1</td><td>도구 속도 +20.02%.<br>도구 닿는 거리 기본의 +15%.</td><td class="pre">두 개씩</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>연타 1</b> <br><small>Flurry 1</small></td><td class="n">1</td><td>도구 속도 +5.23%.<br>손 잡기당 동전 +11.05%.</td><td class="pre">두 개씩</td></tr>
+<tr><td class="n">1</td><td class="n">오른쪽</td><td><b>두 손 기술</b> <br><small>Two-handed technique</small></td><td class="n">1</td><td>손으로 {Secondary}를 누르고 타이밍 구간에서 떼면 크게 수확합니다. 잡기가 강하고 가방이 클수록 동전 한도가 커집니다. 근처에 금과 가방 자리가 있어야 합니다.</td><td class="pre">두 개씩</td></tr>
+<tr><td class="n">2</td><td class="n">왼쪽</td><td><b>빠른 손가락 1</b> <br><small>Quick fingers 1</small></td><td class="n">1</td><td>도구 속도 +8.55%.</td><td class="pre">다루기 기초</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>연타 2</b> <br><small>Flurry 2</small></td><td class="n">1</td><td>도구 속도 +5.23%.<br>손 잡기당 동전 +11.05%.</td><td class="pre">연타 1</td></tr>
+<tr><td class="n">2</td><td class="n">오른쪽</td><td><b>흔들림 없는 손</b> <br><small>Steady hands</small></td><td class="n">1</td><td>잡기 타이밍 구간이 0.015초 더 깁니다.</td><td class="pre">두 손 기술</td></tr>
+<tr><td class="n">3</td><td class="n">왼쪽</td><td><b>빠른 손가락 2</b> <br><small>Quick fingers 2</small></td><td class="n">1</td><td>도구 속도 +8.55%.</td><td class="pre">빠른 손가락 1</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>연타 3</b> <br><small>Flurry 3</small></td><td class="n">1</td><td>도구 속도 +5.23%.<br>손 잡기당 동전 +11.05%.</td><td class="pre">연타 2</td></tr>
+<tr><td class="n">3</td><td class="n">오른쪽</td><td><b>깊은 손아귀</b> <br><small>Deep grip</small></td><td class="n">2</td><td>완벽한 잡기로 모을 수 있는 양을 늘립니다. 수확은 여전히 근처 금과 남은 가방 자리에 달려 있습니다.</td><td class="pre">흔들림 없는 손</td></tr>
+<tr><td class="n">4</td><td class="n">왼쪽</td><td><b>리듬 찾기</b> <em class="m">새 기능</em><br><small>Find your rhythm</small></td><td class="n">1</td><td>꾸준히 모아 몰입을 쌓으세요: 손 속도 최대 +60%, 다른 도구 +30%. 도구 속도 +20.02%; 손 잡기당 동전 +108.14%.</td><td class="pre">빠른 손가락 2</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>연타 4</b> <br><small>Flurry 4</small></td><td class="n">1</td><td>도구 속도 +5.23%.<br>손 잡기당 동전 +11.05%.</td><td class="pre">연타 3</td></tr>
+<tr><td class="n">4</td><td class="n">오른쪽</td><td><b>빠른 움켜쥐기</b> <br><small>Quick clasp</small></td><td class="n">2</td><td>잡기 타이밍 구간이 0.12초 일찍 시작됩니다.</td><td class="pre">깊은 손아귀</td></tr>
+<tr><td class="n">5</td><td class="n">왼쪽</td><td><b>빠른 손가락 3</b> <br><small>Quick fingers 3</small></td><td class="n">1</td><td>도구 속도 +8.55%.</td><td class="pre">리듬 찾기</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>도움의 손</b> <em class="m">새 기능</em><br><small>Helping hand</small></td><td class="n">1</td><td>{Primary}를 누르고 있으면 유령 손으로 모읍니다. 강하고 빠른 도구일수록 잡기가 좋아집니다. 배운 강타와 번개 효과를 발동할 수 있습니다.</td><td class="pre">연타 4</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>리듬 손아귀</b> <em class="m">새 기능</em><br><small>Rhythm grip</small></td><td class="n">1</td><td>몰입 중이고 가방이 절반 이상이면 25% 빨리 모읍니다. 잡기 타이밍이 쉬워지고, 그 뒤 일반 줍기도 빨리 재개됩니다.</td><td class="pre">깊은 손아귀, 작업 장갑, 리듬 찾기</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>달인의 손아귀</b> <em class="k">마스터리</em><br><small>Master grip</small></td><td class="n">3</td><td>완벽한 잡기가 이후 잡기를 더 강하고 넓게 만들지만 타이밍은 어려워집니다. 타이밍을 놓치면 보너스가 초기화됩니다. 가방을 150%까지 넘치게 채울 수 있으니 가득 차기 전에 시작하세요.</td><td class="pre">빠른 움켜쥐기</td></tr>
+<tr><td class="n">6</td><td class="n">왼쪽</td><td><b>행운의 손길</b> <br><small>Lucky touch</small></td><td class="n">1</td><td>도구 속도 +5%. 배운 강타와 번개: 기본 확률 +4%p.</td><td class="pre">빠른 손가락 3</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>숙련된 손아귀</b> <br><small>Practiced grip</small></td><td class="n">1</td><td>도구 속도 +3.9%.<br>손 잡기당 동전 +8.18%.</td><td class="pre">도움의 손</td></tr>
+<tr><td class="n">6</td><td class="n">오른쪽</td><td><b>넓은 손아귀</b> <br><small>Wide grip</small></td><td class="n">2</td><td>잡기 수집 반경 +50%.</td><td class="pre">달인의 손아귀</td></tr>
+<tr><td class="n">7</td><td class="n">왼쪽</td><td><b>계속 굴러가기</b> <em class="m">새 기능</em><br><small>Keep rolling</small></td><td class="n">3</td><td>도구가 준비된 뒤 1.5초까지는 빗나간 잡기와 멈춤에도 몰입이 유지됩니다. 도구 닿는 거리 기본의 +40%.</td><td class="pre">행운의 손길</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>한 쌍 더</b> <em class="m">새 기능</em><br><small>Extra pair</small></td><td class="n">3</td><td>{Primary}를 누르고 모으는 동안 유령 손 셋이 번갈아 금을 모읍니다.</td><td class="pre">숙련된 손아귀</td></tr>
+<tr><td class="n">7</td><td class="n">오른쪽</td><td><b>손바닥 받침</b> <br><small>Palm brace</small></td><td class="n">2</td><td>완벽한 잡기로 모을 수 있는 양을 늘립니다. 수확은 여전히 근처 금과 남은 가방 자리에 달려 있습니다.</td><td class="pre">넓은 손아귀</td></tr>
+<tr><td class="n">8</td><td class="n">왼쪽</td><td><b>빠른 손목</b> <br><small>Quick wrists</small></td><td class="n">1</td><td>도구 속도 +6.35%.</td><td class="pre">계속 굴러가기</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>황금 손길</b> <br><small>Golden touch</small></td><td class="n">1</td><td>도구 속도 +3.9%.<br>손 잡기당 동전 +8.18%.</td><td class="pre">한 쌍 더</td></tr>
+<tr><td class="n">8</td><td class="n">오른쪽</td><td><b>묵직한 수확</b> <br><small>Heavy haul</small></td><td class="n">1</td><td>완벽한 잡기로 모을 수 있는 양을 늘립니다. 수확은 여전히 근처 금과 남은 가방 자리에 달려 있습니다.</td><td class="pre">손바닥 받침</td></tr>
+<tr><td class="n">9</td><td class="n">왼쪽</td><td><b>완벽한 리듬</b> <br><small>Perfect rhythm</small></td><td class="n">1</td><td>도구 속도 +6.81%.</td><td class="pre">빠른 손목</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>바쁜 손</b> <em class="m">새 기능</em><br><small>Busy hands</small></td><td class="n">3</td><td>유령 손 다섯이 직접 조준하지 않아도 근처 금을 찾습니다. {Primary}를 계속 누르고 모으세요.</td><td class="pre">황금 손길</td></tr>
+<tr><td class="n">9</td><td class="n">오른쪽</td><td><b>주먹 고정</b> <br><small>Knuckle lock</small></td><td class="n">1</td><td>완벽한 잡기로 모을 수 있는 양을 늘립니다. 수확은 여전히 근처 금과 남은 가방 자리에 달려 있습니다.</td><td class="pre">묵직한 수확</td></tr>
+<tr><td class="n">10</td><td class="n">왼쪽</td><td><b>무아지경</b> <em class="k">마스터리</em><br><small>In the zone</small></td><td class="n">3</td><td>몰입이 줍기당 동전과 줍기 반경을 늘려, 최대 몰입에서 동전 +100%, 반경 +20%.</td><td class="pre">완벽한 리듬</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>총동원</b> <em class="k">마스터리</em><br><small>All hands on deck</small></td><td class="n">2</td><td>최대 몰입에서는 여섯 번째 유령 손이 합류하고 일손이 더 빨리 잡습니다. {Primary}를 계속 누르고 모으세요.</td><td class="pre">바쁜 손, 리듬 찾기</td></tr>
+<tr><td class="n">10</td><td class="n">오른쪽</td><td><b>단단한 손아귀</b> <br><small>Locked grip</small></td><td class="n">1</td><td>완벽한 잡기로 모을 수 있는 양을 늘립니다. 수확은 여전히 근처 금과 남은 가방 자리에 달려 있습니다.</td><td class="pre">주먹 고정</td></tr>
+<tr><td class="n">11</td><td class="n">왼쪽</td><td><b>황금 손아귀</b> <br><small>Golden grip</small></td><td class="n">2</td><td>손 잡기당 동전 +19.54%.</td><td class="pre">무아지경</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>일손 돕기</b> <br><small>Helping crew</small></td><td class="n">2</td><td>유령 손이 동전을 25% 더 모읍니다.</td><td class="pre">총동원</td></tr>
+<tr><td class="n">11</td><td class="n">오른쪽</td><td><b>금 쪼개기</b> <br><small>Goldbreaker</small></td><td class="n">2</td><td>완벽한 잡기로 모을 수 있는 양을 늘립니다. 수확은 여전히 근처 금과 남은 가방 자리에 달려 있습니다.</td><td class="pre">단단한 손아귀</td></tr>
+<tr><td class="n">12</td><td class="n">왼쪽</td><td><b>한 줌의 금</b> <em class="k">마스터리</em><br><small>A handful of gold</small></td><td class="n">3</td><td>손 잡기당 동전 +30.89%.</td><td class="pre">황금 손아귀</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>황금 일꾼</b> <em class="k">마스터리</em><br><small>Golden helpers</small></td><td class="n">3</td><td>유령 손이 동전을 40% 더 모읍니다.</td><td class="pre">일손 돕기</td></tr>
+<tr><td class="n">12</td><td class="n">오른쪽</td><td><b>완벽한 자세</b> <br><small>Perfect form</small></td><td class="n">2</td><td>달인의 손아귀는 보너스 레벨 6까지 오릅니다. 타이밍 구간이 일찍 오지만 조금 짧아집니다. 타이밍을 놓치면 여전히 보너스가 초기화됩니다.</td><td class="pre">금 쪼개기</td></tr></table></div></div></section>
+<section id="b1"><div class="br" style="--c:#7fd17f"><h3>가방 <small>BAGS · 걸어 다니는 금고를 만드세요.</small><span>노드 37개 · 전부 사면 60포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>첫 가방</b> <br><small>Your first bag</small></td><td class="n">1</td><td>가방 용량 +100%.</td><td class="pre">시작점</td></tr>
+<tr><td class="n">1</td><td class="n">왼쪽</td><td><b>깊은 가방 1</b> <br><small>Deeper bag 1</small></td><td class="n">1</td><td>가방 용량 +65%.</td><td class="pre">첫 가방</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>꽉 채운 짐 1</b> <br><small>Tight packing 1</small></td><td class="n">1</td><td>가방 용량 +30%.<br>입금 속도 +16%.</td><td class="pre">첫 가방</td></tr>
+<tr><td class="n">1</td><td class="n">오른쪽</td><td><b>쉬운 비우기 1</b> <br><small>Easy unloading 1</small></td><td class="n">1</td><td>가방 용량 +15%.<br>0.15m 더 멀리서 비울 수 있습니다.</td><td class="pre">첫 가방</td></tr>
+<tr><td class="n">2</td><td class="n">왼쪽</td><td><b>깊은 가방 2</b> <br><small>Deeper bag 2</small></td><td class="n">1</td><td>가방 용량 +65%.</td><td class="pre">깊은 가방 1</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>꽉 채운 짐 2</b> <br><small>Tight packing 2</small></td><td class="n">1</td><td>가방 용량 +30%.<br>입금 속도 +16%.</td><td class="pre">꽉 채운 짐 1</td></tr>
+<tr><td class="n">2</td><td class="n">오른쪽</td><td><b>쉬운 비우기 2</b> <br><small>Easy unloading 2</small></td><td class="n">1</td><td>가방 용량 +15%.<br>0.15m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 1</td></tr>
+<tr><td class="n">3</td><td class="n">왼쪽</td><td><b>깊은 가방 3</b> <br><small>Deeper bag 3</small></td><td class="n">2</td><td>가방 용량 +150%.</td><td class="pre">깊은 가방 2</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>꽉 채운 짐 3</b> <br><small>Tight packing 3</small></td><td class="n">2</td><td>가방 용량 +30%.<br>입금 속도 +16%.</td><td class="pre">꽉 채운 짐 2</td></tr>
+<tr><td class="n">3</td><td class="n">오른쪽</td><td><b>쉬운 비우기 3</b> <br><small>Easy unloading 3</small></td><td class="n">1</td><td>가방 용량 +15%.<br>0.15m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 2</td></tr>
+<tr><td class="n">4</td><td class="n">왼쪽</td><td><b>깊은 가방 4</b> <br><small>Deeper bag 4</small></td><td class="n">2</td><td>가방 용량 +53.06%.</td><td class="pre">깊은 가방 3</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>꽉 채운 짐 4</b> <br><small>Tight packing 4</small></td><td class="n">2</td><td>가방 용량 +24.98%.<br>입금 속도 +10.13%.</td><td class="pre">꽉 채운 짐 3</td></tr>
+<tr><td class="n">4</td><td class="n">오른쪽</td><td><b>쉬운 비우기 4</b> <br><small>Easy unloading 4</small></td><td class="n">1</td><td>가방 용량 +12.61%.<br>0.15m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 3</td></tr>
+<tr><td class="n">5</td><td class="n">왼쪽</td><td><b>깊은 가방 5</b> <br><small>Deeper bag 5</small></td><td class="n">3</td><td>가방 용량 +117.9%.</td><td class="pre">깊은 가방 4</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>꽉 채운 짐 5</b> <br><small>Tight packing 5</small></td><td class="n">2</td><td>가방 용량 +24.98%.<br>입금 속도 +10.13%.</td><td class="pre">꽉 채운 짐 4</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>쉬운 비우기 5</b> <br><small>Easy unloading 5</small></td><td class="n">1</td><td>가방 용량 +12.61%.<br>0.15m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 4</td></tr>
+<tr><td class="n">6</td><td class="n">왼쪽</td><td><b>깊은 가방 6</b> <br><small>Deeper bag 6</small></td><td class="n">2</td><td>가방 용량 +53.06%.</td><td class="pre">깊은 가방 5</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>꽉 채운 짐 6</b> <br><small>Tight packing 6</small></td><td class="n">2</td><td>가방 용량 +24.98%.<br>입금 속도 +10.13%.</td><td class="pre">꽉 채운 짐 5</td></tr>
+<tr><td class="n">6</td><td class="n">오른쪽</td><td><b>쉬운 비우기 6</b> <br><small>Easy unloading 6</small></td><td class="n">1</td><td>가방 용량 +12.61%.<br>0.15m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 5</td></tr>
+<tr><td class="n">7</td><td class="n">왼쪽</td><td><b>깊은 비축</b> <br><small>Deep reserves</small></td><td class="n">3</td><td>가방 용량 +79.34%.</td><td class="pre">깊은 가방 6</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>가지런한 더미</b> <br><small>Neat stacks</small></td><td class="n">1</td><td>가방 용량 +18.21%.<br>입금 속도 +7.5%.</td><td class="pre">꽉 채운 짐 6</td></tr>
+<tr><td class="n">7</td><td class="n">오른쪽</td><td><b>남는 자리</b> <br><small>Room to spare</small></td><td class="n">1</td><td>가방 용량 +9.32%.<br>0.11m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 6</td></tr>
+<tr><td class="n">8</td><td class="n">왼쪽</td><td><b>깊은 가방 7</b> <br><small>Deeper bag 7</small></td><td class="n">1</td><td>가방 용량 +21.5%.</td><td class="pre">깊은 비축</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>꽉 채운 짐 7</b> <br><small>Tight packing 7</small></td><td class="n">1</td><td>가방 용량 +18.21%.<br>입금 속도 +7.5%.</td><td class="pre">가지런한 더미</td></tr>
+<tr><td class="n">8</td><td class="n">오른쪽</td><td><b>쉬운 비우기 7</b> <br><small>Easy unloading 7</small></td><td class="n">1</td><td>가방 용량 +9.32%.<br>0.11m 더 멀리서 비울 수 있습니다.</td><td class="pre">남는 자리</td></tr>
+<tr><td class="n">9</td><td class="n">왼쪽</td><td><b>강화 안감</b> <br><small>Reinforced lining</small></td><td class="n">2</td><td>가방 용량 +37.61%.</td><td class="pre">깊은 가방 7</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>배송 준비 완료</b> <br><small>Packed for delivery</small></td><td class="n">1</td><td>가방 용량 +18.21%.<br>입금 속도 +7.5%.</td><td class="pre">꽉 채운 짐 7</td></tr>
+<tr><td class="n">9</td><td class="n">오른쪽</td><td><b>비울 준비</b> <br><small>Ready to unload</small></td><td class="n">1</td><td>가방 용량 +9.32%.<br>0.11m 더 멀리서 비울 수 있습니다.</td><td class="pre">쉬운 비우기 7</td></tr>
+<tr><td class="n">10</td><td class="n">왼쪽</td><td><b>걸어 다니는 금고</b> <em class="k">마스터리</em><br><small>Walking vault</small></td><td class="n">3</td><td>가방 용량 +182.99%.<br>입금 속도 -20%.</td><td class="pre">강화 안감</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>꽉 채운 짐 8</b> <br><small>Tight packing 8</small></td><td class="n">1</td><td>가방 용량 +18.21%.<br>입금 속도 +7.5%.</td><td class="pre">배송 준비 완료</td></tr>
+<tr><td class="n">10</td><td class="n">오른쪽</td><td><b>급행 가방</b> <em class="k">마스터리</em><br><small>Express bag</small></td><td class="n">2</td><td>입금 속도 +30.15%.<br>0.04m 더 멀리서 비울 수 있습니다.</td><td class="pre">비울 준비</td></tr>
+<tr><td class="n">11</td><td class="n">왼쪽</td><td><b>금고 안감</b> <br><small>Vault liner</small></td><td class="n">2</td><td>가방 용량 +33.11%.</td><td class="pre">걸어 다니는 금고</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>완벽한 짐 싸기</b> <br><small>Perfect packing</small></td><td class="n">3</td><td>가방 용량 +49.11%.<br>입금 속도 +15.61%.</td><td class="pre">꽉 채운 짐 8</td></tr>
+<tr><td class="n">11</td><td class="n">오른쪽</td><td><b>빠른 비우기</b> <br><small>Quick release</small></td><td class="n">2</td><td>가방 용량 +20.89%.<br>입금 속도 +24.45%.</td><td class="pre">급행 가방</td></tr>
+<tr><td class="n">12</td><td class="n">왼쪽</td><td><b>바닥 없는 짐칸</b> <em class="k">마스터리</em><br><small>Bottomless hold</small></td><td class="n">2</td><td>가방 용량 +49.11%.</td><td class="pre">금고 안감</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>한 뼘도 아깝다</b> <em class="k">마스터리</em><br><small>Every inch counts</small></td><td class="n">3</td><td>가방 용량 +80.25%.<br>입금 속도 +15.61%.</td><td class="pre">완벽한 짐 싸기</td></tr>
+<tr><td class="n">12</td><td class="n">오른쪽</td><td><b>급속 하역</b> <em class="k">마스터리</em><br><small>Rapid unloading</small></td><td class="n">2</td><td>입금 속도 +35.73%.</td><td class="pre">빠른 비우기</td></tr></table></div></div></section>
+<section id="b2"><div class="br" style="--c:#6fb7ff"><h3>입금 <small>DEPOSITS · 눈 깜짝할 새 비우세요.</small><span>노드 37개 · 전부 사면 66포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>빠른 입금</b> <br><small>Quick deposit</small></td><td class="n">1</td><td>입금 속도 +100%.</td><td class="pre">시작점</td></tr>
+<tr><td class="n">1</td><td class="n">왼쪽</td><td><b>빠른 비우기 1</b> <br><small>Fast unloading 1</small></td><td class="n">1</td><td>입금 속도 +80%.</td><td class="pre">빠른 입금</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>하층 호퍼 01</b> <em class="m">새 기능</em><br><small>Lower hopper 01</small></td><td class="n">1</td><td>01층 입금소를 해금합니다. 그 구역을 드러내면 사용할 수 있습니다.<br>입금 속도 +15%.<br>0.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">빠른 입금</td></tr>
+<tr><td class="n">1</td><td class="n">오른쪽</td><td><b>효율적 배송 1</b> <br><small>Efficient delivery 1</small></td><td class="n">1</td><td>입금 속도 +15%.<br>가방 용량 +10%.</td><td class="pre">빠른 입금</td></tr>
+<tr><td class="n">2</td><td class="n">왼쪽</td><td><b>빠른 비우기 2</b> <br><small>Fast unloading 2</small></td><td class="n">1</td><td>입금 속도 +80%.</td><td class="pre">빠른 비우기 1</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>호퍼 접근</b> <br><small>Hopper access</small></td><td class="n">1</td><td>입금 속도 +15%.<br>0.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">하층 호퍼 01</td></tr>
+<tr><td class="n">2</td><td class="n">오른쪽</td><td><b>휴대용 은행</b> <em class="m">새 기능</em><br><small>Pocket Bank</small></td><td class="n">1</td><td>{Tool4}로 휴대용 은행을 장착합니다. {Primary}를 누르고 떼면 설치; 근처에서 {Relocate}를 누르고 있으면 챙깁니다. 근처의 보이는 금을 자동 입금합니다. 가방이 클수록 속도가 빨라집니다.</td><td class="pre">효율적 배송 1</td></tr>
+<tr><td class="n">3</td><td class="n">왼쪽</td><td><b>입금소 강화 I</b> <br><small>Station upgrade I</small></td><td class="n">2</td><td>입금 속도 +100%.<br>1.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">빠른 비우기 2</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>하층 호퍼 02</b> <br><small>Lower hopper 02</small></td><td class="n">2</td><td>입금 속도 +15%.<br>0.5m 더 멀리서 비울 수 있습니다.<br>02층 입금소를 해금합니다. 드러난 뒤 사용할 수 있습니다.</td><td class="pre">호퍼 접근</td></tr>
+<tr><td class="n">3</td><td class="n">오른쪽</td><td><b>효율적 배송 2</b> <br><small>Efficient delivery 2</small></td><td class="n">1</td><td>가방 용량 +10%.<br>입금 속도 +15%.</td><td class="pre">휴대용 은행</td></tr>
+<tr><td class="n">4</td><td class="n">왼쪽</td><td><b>빠른 비우기 3</b> <br><small>Fast unloading 3</small></td><td class="n">2</td><td>입금 속도 +71.84%.</td><td class="pre">입금소 강화 I</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>하층 호퍼 03</b> <br><small>Lower hopper 03</small></td><td class="n">2</td><td>03층 입금소를 해금합니다. 드러난 뒤 사용할 수 있습니다.<br>입금 속도 +9.51%.<br>0.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">하층 호퍼 02</td></tr>
+<tr><td class="n">4</td><td class="n">오른쪽</td><td><b>근거리 지점</b> <em class="m">새 기능</em><br><small>Local branch</small></td><td class="n">2</td><td>휴대용 은행이 더 멀리서 모읍니다. 3m 안에서 {Interact}를 누르고 있으면 평소의 절반 속도로 비웁니다.</td><td class="pre">효율적 배송 2</td></tr>
+<tr><td class="n">5</td><td class="n">왼쪽</td><td><b>빠른 비우기 4</b> <br><small>Fast unloading 4</small></td><td class="n">3</td><td>입금 속도 +86.09%.</td><td class="pre">빠른 비우기 3</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>하층 호퍼 04</b> <br><small>Lower hopper 04</small></td><td class="n">2</td><td>04층 입금소를 해금합니다. 드러난 뒤 사용할 수 있습니다.<br>입금 속도 +9.51%.<br>0.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">하층 호퍼 03</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>캐시 플로우</b> <br><small>Cash flow</small></td><td class="n">3</td><td>용량 25% 이상 찬 가방을 손으로 비우면 (최대 동전 10,000개) 8초간 휴대용 은행 수집이 50% 빨라집니다.</td><td class="pre">근거리 지점</td></tr>
+<tr><td class="n">6</td><td class="n">왼쪽</td><td><b>입금소 강화 II</b> <br><small>Station upgrade II</small></td><td class="n">3</td><td>입금 속도 +104.23%.<br>1.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">빠른 비우기 4</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>하층 호퍼 05</b> <br><small>Lower hopper 05</small></td><td class="n">2</td><td>05층 입금소를 해금합니다. 드러난 뒤 사용할 수 있습니다.<br>입금 속도 +9.51%.<br>0.5m 더 멀리서 비울 수 있습니다.</td><td class="pre">하층 호퍼 04</td></tr>
+<tr><td class="n">6</td><td class="n">오른쪽</td><td><b>급행 창구</b> <em class="m">새 기능</em><br><small>Express counter</small></td><td class="n">3</td><td>휴대용 은행에 일반 입금소 속도의 75%로 비웁니다.</td><td class="pre">캐시 플로우</td></tr>
+<tr><td class="n">7</td><td class="n">왼쪽</td><td><b>수문 개방</b> <br><small>Open floodgates</small></td><td class="n">3</td><td>입금 속도 +84.18%.</td><td class="pre">입금소 강화 II</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>확장 투입구</b> <br><small>Extended intake</small></td><td class="n">1</td><td>입금 속도 +7.05%.<br>0.38m 더 멀리서 비울 수 있습니다.</td><td class="pre">하층 호퍼 05</td></tr>
+<tr><td class="n">7</td><td class="n">오른쪽</td><td><b>대량 배송</b> <br><small>Bulk delivery</small></td><td class="n">1</td><td>가방 용량 +6.26%.<br>입금 속도 +7.05%.</td><td class="pre">급행 창구</td></tr>
+<tr><td class="n">8</td><td class="n">왼쪽</td><td><b>빠른 비우기 5</b> <br><small>Fast unloading 5</small></td><td class="n">1</td><td>입금 속도 +22.58%.</td><td class="pre">수문 개방</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>금고 집사</b> <em class="m">새 기능</em><br><small>Vault valet</small></td><td class="n">1</td><td>드러나고 해금된 입금소 근처에서 자동 입금. 비우는 동안 도구를 계속 쓰세요.<br>입금 속도 +2.3%.<br>0.13m 더 멀리서 비울 수 있습니다.</td><td class="pre">확장 투입구</td></tr>
+<tr><td class="n">8</td><td class="n">오른쪽</td><td><b>효율적 배송 3</b> <br><small>Efficient delivery 3</small></td><td class="n">1</td><td>가방 용량 +6.26%.<br>입금 속도 +7.05%.</td><td class="pre">대량 배송</td></tr>
+<tr><td class="n">9</td><td class="n">왼쪽</td><td><b>빠른 이송</b> <br><small>Rapid transfer</small></td><td class="n">3</td><td>입금 속도 +84.18%.</td><td class="pre">빠른 비우기 5</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>매끄러운 인계</b> <br><small>Smooth handoff</small></td><td class="n">1</td><td>입금 속도 +7.05%.<br>0.38m 더 멀리서 비울 수 있습니다.</td><td class="pre">금고 집사</td></tr>
+<tr><td class="n">9</td><td class="n">오른쪽</td><td><b>간소화 화물</b> <br><small>Streamlined cargo</small></td><td class="n">1</td><td>가방 용량 +6.26%.<br>입금 속도 +7.05%.</td><td class="pre">효율적 배송 3</td></tr>
+<tr><td class="n">10</td><td class="n">왼쪽</td><td><b>골드 러시</b> <em class="k">마스터리</em><br><small>Gold Rush</small></td><td class="n">3</td><td>입금소에 용량의 10% 이상을 입금한 뒤 가방을 비우세요. 골드 러시 동안 드러나고 해금된 입금소가 금을 모으고 슈트가 두 배로 빨리 모읍니다.</td><td class="pre">빠른 이송</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>호퍼 마스터리</b> <br><small>Hopper mastery</small></td><td class="n">1</td><td>입금 속도 +7.05%.<br>0.38m 더 멀리서 비울 수 있습니다.</td><td class="pre">매끄러운 인계</td></tr>
+<tr><td class="n">10</td><td class="n">오른쪽</td><td><b>효율적 배송 4</b> <br><small>Efficient delivery 4</small></td><td class="n">1</td><td>가방 용량 +6.26%.<br>입금 속도 +7.05%.</td><td class="pre">간소화 화물</td></tr>
+<tr><td class="n">11</td><td class="n">왼쪽</td><td><b>긴 러시</b> <br><small>Longer rush</small></td><td class="n">2</td><td>입금 속도 +15.61%.<br>골드 러시 지속 시간 +5초.</td><td class="pre">골드 러시</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>빠른 호퍼</b> <br><small>Fast hoppers</small></td><td class="n">2</td><td>입금 속도 +24.45%.<br>1m 더 멀리서 비울 수 있습니다.</td><td class="pre">호퍼 마스터리</td></tr>
+<tr><td class="n">11</td><td class="n">오른쪽</td><td><b>두 배 수익</b> <br><small>Double returns</small></td><td class="n">3</td><td>휴대용 은행 자동 수집 속도 +100%, 최대 속도 포함. 범위 안의 보이는 금으로 제한됩니다.</td><td class="pre">효율적 배송 4</td></tr>
+<tr><td class="n">12</td><td class="n">왼쪽</td><td><b>오래가는 러시</b> <em class="k">마스터리</em><br><small>Lasting rush</small></td><td class="n">2</td><td>입금 속도 +30.15%.<br>골드 러시 지속 시간 +5초.</td><td class="pre">긴 러시</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>호퍼 급행</b> <em class="k">마스터리</em><br><small>Hopper express</small></td><td class="n">2</td><td>입금 속도 +35.73%.<br>1m 더 멀리서 비울 수 있습니다.</td><td class="pre">빠른 호퍼</td></tr>
+<tr><td class="n">12</td><td class="n">오른쪽</td><td><b>지점장</b> <em class="k">마스터리</em><br><small>Branch manager</small></td><td class="n">3</td><td>휴대용 은행 자동 수집 속도 +100%, 최대 속도 포함. 은행 반경: 9 → 12m. 가방 용량 +33.11%.</td><td class="pre">두 배 수익</td></tr></table></div></div></section>
+<section id="b3"><div class="br" style="--c:#d9a6ff"><h3>회수 <small>SALVAGE · 보조 장갑, 범위, 가방 자동 비우기.</small><span>노드 37개 · 전부 사면 56포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>작업 장갑</b> <em class="m">새 기능</em><br><small>Work gloves</small></td><td class="n">1</td><td>도구 속도 +5.89%.</td><td class="pre">시작점</td></tr>
+<tr><td class="n">1</td><td class="n">왼쪽</td><td><b>가벼운 장갑</b> <br><small>Light gloves</small></td><td class="n">1</td><td>도구 속도 +27.54%.</td><td class="pre">작업 장갑</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>넓은 손아귀 1</b> <br><small>Wider grip 1</small></td><td class="n">1</td><td>줍기 반경 +15%.<br>도구 닿는 거리 기본의 +8%.</td><td class="pre">작업 장갑</td></tr>
+<tr><td class="n">1</td><td class="n">오른쪽</td><td><b>가방 펌프</b> <em class="m">새 기능</em><br><small>Bag pump</small></td><td class="n">1</td><td>들고 있는 동전을 자동으로 은행에 옮깁니다: 20초마다 가방 용량의 5% (최소 1개). 옮기는 데 1초. 입금소 보너스는 발동하지 않습니다.</td><td class="pre">작업 장갑</td></tr>
+<tr><td class="n">2</td><td class="n">왼쪽</td><td><b>미끄럼 방지 장갑</b> <br><small>Grippy gloves</small></td><td class="n">1</td><td>줍기당 동전 +12.61%.<br>그 뒤 줍기당 동전 +1개.</td><td class="pre">가벼운 장갑</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>긴 손길 1</b> <br><small>Long reach 1</small></td><td class="n">1</td><td>도구 닿는 거리 기본의 +8%.</td><td class="pre">넓은 손아귀 1</td></tr>
+<tr><td class="n">2</td><td class="n">오른쪽</td><td><b>큰 펌프실</b> <br><small>Large pump chamber</small></td><td class="n">1</td><td>펌프 주기마다 가방 용량의 5%를 추가로 가방에서 은행으로 옮깁니다.</td><td class="pre">가방 펌프</td></tr>
+<tr><td class="n">3</td><td class="n">왼쪽</td><td><b>행운의 장갑</b> <br><small>Lucky gloves</small></td><td class="n">1</td><td>도구 속도 +5%. 배운 강타와 번개: 기본 확률 +3%p.</td><td class="pre">미끄럼 방지 장갑</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>넓은 손아귀 2</b> <br><small>Wider grip 2</small></td><td class="n">2</td><td>줍기 반경 +15%.<br>도구 닿는 거리 기본의 +8%.</td><td class="pre">긴 손길 1</td></tr>
+<tr><td class="n">3</td><td class="n">오른쪽</td><td><b>빠른 펌프</b> <br><small>Quick pump</small></td><td class="n">2</td><td>펌프 간격 -3초.</td><td class="pre">큰 펌프실</td></tr>
+<tr><td class="n">4</td><td class="n">왼쪽</td><td><b>재빠른 장갑</b> <br><small>Quick gloves</small></td><td class="n">3</td><td>도구 속도 +39.9%.</td><td class="pre">행운의 장갑</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>긴 손길 2</b> <br><small>Long reach 2</small></td><td class="n">1</td><td>도구 닿는 거리 기본의 +8%.</td><td class="pre">넓은 손아귀 2</td></tr>
+<tr><td class="n">4</td><td class="n">오른쪽</td><td><b>깊은 펌프실</b> <br><small>Deep pump chamber</small></td><td class="n">1</td><td>펌프 주기마다 가방 용량의 5%를 추가로 가방에서 은행으로 옮깁니다.</td><td class="pre">빠른 펌프</td></tr>
+<tr><td class="n">5</td><td class="n">왼쪽</td><td><b>강화 장갑</b> <br><small>Reinforced gloves</small></td><td class="n">2</td><td>줍기당 동전 +12.61%.<br>그 뒤 줍기당 동전 +1개.</td><td class="pre">재빠른 장갑</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>넓은 손아귀 3</b> <br><small>Wider grip 3</small></td><td class="n">2</td><td>줍기 반경 +15%.<br>도구 닿는 거리 기본의 +8%.</td><td class="pre">긴 손길 2</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>급속 펌프</b> <br><small>Rapid pump</small></td><td class="n">2</td><td>펌프 간격 -3초.</td><td class="pre">깊은 펌프실</td></tr>
+<tr><td class="n">6</td><td class="n">왼쪽</td><td><b>부자 장갑</b> <br><small>Fortune gloves</small></td><td class="n">1</td><td>도구 속도 +5%. 배운 강타와 번개: 기본 확률 +3%p.</td><td class="pre">강화 장갑</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>긴 손길 3</b> <br><small>Long reach 3</small></td><td class="n">1</td><td>도구 닿는 거리 기본의 +8%.</td><td class="pre">넓은 손아귀 3</td></tr>
+<tr><td class="n">6</td><td class="n">오른쪽</td><td><b>대용량 펌프</b> <br><small>High-capacity pump</small></td><td class="n">1</td><td>펌프 주기마다 가방 용량의 10%를 추가로 가방에서 은행으로 옮깁니다.</td><td class="pre">급속 펌프</td></tr>
+<tr><td class="n">7</td><td class="n">왼쪽</td><td><b>빠른 반사신경</b> <br><small>Fast reflexes</small></td><td class="n">3</td><td>도구 속도 +36.6%.</td><td class="pre">부자 장갑</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>쓸어 담는 손길</b> <br><small>Sweeping reach</small></td><td class="n">1</td><td>줍기 반경 +11.05%.<br>도구 닿는 거리 기본의 +6%.</td><td class="pre">긴 손길 3</td></tr>
+<tr><td class="n">7</td><td class="n">오른쪽</td><td><b>짧은 주기</b> <br><small>Short cycle</small></td><td class="n">2</td><td>펌프 간격 -2.25초.</td><td class="pre">대용량 펌프</td></tr>
+<tr><td class="n">8</td><td class="n">왼쪽</td><td><b>날쌘 장갑</b> <br><small>Swift gloves</small></td><td class="n">1</td><td>도구 속도 +10.96%.</td><td class="pre">빠른 반사신경</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>넓은 손아귀 4</b> <br><small>Wider grip 4</small></td><td class="n">1</td><td>줍기 반경 +11.05%.<br>도구 닿는 거리 기본의 +6%.</td><td class="pre">쓸어 담는 손길</td></tr>
+<tr><td class="n">8</td><td class="n">오른쪽</td><td><b>빠른 펌프 주기</b> <br><small>Fast pump cycle</small></td><td class="n">1</td><td>펌프 간격 -0.75초.</td><td class="pre">짧은 주기</td></tr>
+<tr><td class="n">9</td><td class="n">왼쪽</td><td><b>가벼운 손길</b> <br><small>Light touch</small></td><td class="n">1</td><td>도구 속도 +9.18%.</td><td class="pre">날쌘 장갑</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>넓은 폭</b> <br><small>Open span</small></td><td class="n">2</td><td>줍기 반경 +21.75%.<br>도구 닿는 거리 기본의 +6%.</td><td class="pre">넓은 손아귀 4</td></tr>
+<tr><td class="n">9</td><td class="n">오른쪽</td><td><b>준비된 펌프</b> <br><small>Primed pump</small></td><td class="n">1</td><td>펌프 간격 -1.5초.</td><td class="pre">빠른 펌프 주기</td></tr>
+<tr><td class="n">10</td><td class="n">왼쪽</td><td><b>자석 발걸음</b> <em class="k">마스터리</em><br><small>Magnetic footsteps</small></td><td class="n">2</td><td>금 위를 걸으면 도구 수집 속도의 20%가 더해집니다. 0.75초마다 가방으로 들어갑니다 (최소 1개). 멈춰 있거나 가득 차면 멈춥니다.</td><td class="pre">가벼운 손길</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>넓은 범위</b> <br><small>Wide coverage</small></td><td class="n">1</td><td>줍기 반경 +15%.<br>도구 닿는 거리 기본의 +8%.</td><td class="pre">넓은 폭</td></tr>
+<tr><td class="n">10</td><td class="n">오른쪽</td><td><b>넘침 펌프</b> <em class="k">마스터리</em><br><small>Overflow pump</small></td><td class="n">2</td><td>가방이 가득 차면 펌프 주기가 한 번 더 돕니다. 재사용 대기: 60초.</td><td class="pre">준비된 펌프</td></tr>
+<tr><td class="n">11</td><td class="n">왼쪽</td><td><b>전문가 장갑</b> <br><small>Expert gloves</small></td><td class="n">2</td><td>도구 속도 +14.33%.</td><td class="pre">자석 발걸음</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>넉넉한 손아귀</b> <br><small>Spacious grip</small></td><td class="n">2</td><td>줍기 반경 +20%. 닿는 거리 기본의 +20%.</td><td class="pre">넓은 범위</td></tr>
+<tr><td class="n">11</td><td class="n">오른쪽</td><td><b>깊은 펌프</b> <br><small>Deep pump</small></td><td class="n">1</td><td>펌프 주기마다 가방 용량의 5%를 추가로 가방에서 은행으로 옮깁니다.</td><td class="pre">넘침 펌프</td></tr>
+<tr><td class="n">12</td><td class="n">왼쪽</td><td><b>명품 장갑</b> <em class="k">마스터리</em><br><small>Masterwork gloves</small></td><td class="n">2</td><td>도구 속도 +22.37%.</td><td class="pre">전문가 장갑</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>완전한 범위</b> <em class="k">마스터리</em><br><small>Full coverage</small></td><td class="n">3</td><td>줍기 반경 +35%. 닿는 거리 기본의 +30%.</td><td class="pre">넉넉한 손아귀</td></tr>
+<tr><td class="n">12</td><td class="n">오른쪽</td><td><b>급속 펌프</b> <em class="k">마스터리</em><br><small>Rapid pump</small></td><td class="n">2</td><td>펌프 간격 -3초.</td><td class="pre">깊은 펌프</td></tr></table></div></div></section>
+<section id="b4"><div class="br" style="--c:#ff7b6b"><h3>굴착 <small>EXCAVATION · 모든 도구가 동전 더미를 부수게 하세요.</small><span>노드 38개 · 전부 사면 69포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>삽 해금</b> <em class="m">새 기능</em><br><small>Unlock shovel</small></td><td class="n">1</td><td>{Tool2}로 삽을 장착해 금을 퍼냅니다. 이 도구로는 배운 강타가 더 강하고 더 자주 발동합니다.</td><td class="pre">시작점<br>수집 동전 1,500개 필요</td></tr>
+<tr><td class="n">1</td><td class="n">왼쪽</td><td><b>퍼내기 리듬</b> <br><small>Scoop rhythm</small></td><td class="n">1</td><td>도구 속도 +8.55%.</td><td class="pre">삽 해금</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>강한 퍼내기</b> <em class="m">새 기능</em><br><small>Power scoop</small></td><td class="n">1</td><td>삽으로 {Secondary}를 0.65초 누른 뒤 떼면 더 강하고 넓게 퍼냅니다. 근처 금과 가방 자리에 따라 제한됩니다.</td><td class="pre">삽 해금</td></tr>
+<tr><td class="n">1</td><td class="n">오른쪽</td><td><b>넓은 삽 1</b> <br><small>Broad shovel 1</small></td><td class="n">1</td><td>줍기 반경 +25%. 강타도 넓어진 줍기 범위를 받습니다.<br>강타 기본 확률 +3%p (배우면).</td><td class="pre">삽 해금, 강타</td></tr>
+<tr><td class="n">2</td><td class="n">왼쪽</td><td><b>강타</b> <em class="m">새 기능</em><br><small>Heavy strike</small></td><td class="n">1</td><td>줍기가 강타를 일으켜 근처 금을 추가로 모을 수 있습니다. 삽으로는 더 자주, 더 많이 모읍니다.</td><td class="pre">퍼내기 리듬</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>착암기</b> <em class="m">새 기능</em><br><small>Jackhammer</small></td><td class="n">1</td><td>삽으로 {Secondary}를 0.65초 누르면 조준한 쪽으로 도약해 착지하며 내려찍습니다. 높이 떨어질수록 충격이 강합니다. 강한 퍼내기를 대체합니다. 최대 반경: 낙하 포함 15m.</td><td class="pre">강한 퍼내기</td></tr>
+<tr><td class="n">2</td><td class="n">오른쪽</td><td><b>넓은 삽 2</b> <br><small>Broad shovel 2</small></td><td class="n">1</td><td>줍기 반경 +25%.<br>삽 최대 반경 +0.05m.</td><td class="pre">넓은 삽 1</td></tr>
+<tr><td class="n">3</td><td class="n">왼쪽</td><td><b>충격 확산 1</b> <br><small>Impact spread 1</small></td><td class="n">2</td><td>줍기당 동전 +16.76%.<br>강타 반경 +15%.</td><td class="pre">강타</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>수북한 삽날 1</b> <br><small>Heaped blade 1</small></td><td class="n">2</td><td>줍기당 동전 +18.41%.</td><td class="pre">착암기</td></tr>
+<tr><td class="n">3</td><td class="n">오른쪽</td><td><b>넓은 삽 3</b> <br><small>Broad shovel 3</small></td><td class="n">2</td><td>줍기 반경 +25%.<br>강타 기본 확률 +3%p (배우면).</td><td class="pre">넓은 삽 2</td></tr>
+<tr><td class="n">4</td><td class="n">왼쪽</td><td><b>여진</b> <em class="m">새 기능</em><br><small>Aftershock</small></td><td class="n">2</td><td>강타가 두 번째 동전 더미도 칩니다.<br>강타 반경 +10%.</td><td class="pre">충격 확산 1</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>묵직한 피스톤</b> <em class="m">새 기능</em><br><small>Heavy piston</small></td><td class="n">2</td><td>착암기가 더 많은 금을 모으고, 더 깊이 파고, 더 빨리 재충전됩니다. 닿는 금과 가방 자리에 따라 제한됩니다.</td><td class="pre">수북한 삽날 1</td></tr>
+<tr><td class="n">4</td><td class="n">오른쪽</td><td><b>넓은 삽 4</b> <br><small>Broad shovel 4</small></td><td class="n">2</td><td>줍기 반경 +25%.<br>삽 최대 반경 +0.1m.</td><td class="pre">넓은 삽 3</td></tr>
+<tr><td class="n">5</td><td class="n">왼쪽</td><td><b>충격 확산 2</b> <br><small>Impact spread 2</small></td><td class="n">3</td><td>줍기당 동전 +24.98%.<br>강타 반경 +15%.</td><td class="pre">여진</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>수북한 삽날 2</b> <br><small>Heaped blade 2</small></td><td class="n">2</td><td>줍기당 동전 +18.41%.</td><td class="pre">묵직한 피스톤</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>넓은 삽 5</b> <br><small>Broad shovel 5</small></td><td class="n">2</td><td>줍기 반경 +25%.<br>강타 기본 확률 +3%p (배우면).</td><td class="pre">넓은 삽 4</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>짐 가득 퍼내기</b> <em class="m">새 기능</em><br><small>Heavy load scoop</small></td><td class="n">1</td><td>배운 강타가 동전을 최소치 포함 7.92% 더 모읍니다. 가방이 절반 이상이면 +50% 더.</td><td class="pre">넓은 삽 3, 첫 가방, 강타</td></tr>
+<tr><td class="n">6</td><td class="n">왼쪽</td><td><b>깊은 충격</b> <br><small>Deep impact</small></td><td class="n">3</td><td>강타가 더 넓은 범위에서 더 많은 금을 모으고, 최소 동전 한도도 오릅니다.</td><td class="pre">충격 확산 2</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>망치 쓸기</b> <em class="m">새 기능</em><br><small>Hammer sweep</small></td><td class="n">3</td><td>착암기 수집 반경을 늘립니다. 강타 빌드도 이득을 봅니다. 전체 반경은 낙하 포함 15m를 넘지 않습니다.</td><td class="pre">수북한 삽날 2</td></tr>
+<tr><td class="n">6</td><td class="n">오른쪽</td><td><b>넓은 호</b> <br><small>Wide arc</small></td><td class="n">2</td><td>줍기 반경 +18.22%.<br>삽 최대 반경 +0.1m.</td><td class="pre">넓은 삽 5</td></tr>
+<tr><td class="n">7</td><td class="n">왼쪽</td><td><b>실린 무게</b> <br><small>Weight behind it</small></td><td class="n">3</td><td>줍기당 동전 +23.92%.<br>강타 반경 +11.05%.</td><td class="pre">깊은 충격</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>가득 찬 퍼내기</b> <br><small>Loaded scoop</small></td><td class="n">1</td><td>줍기당 동전 +13.52%.</td><td class="pre">망치 쓸기</td></tr>
+<tr><td class="n">7</td><td class="n">오른쪽</td><td><b>넓은 삽 6</b> <br><small>Broad shovel 6</small></td><td class="n">1</td><td>줍기 반경 +5.74%.<br>강타 기본 확률 +3%p (배우면).</td><td class="pre">넓은 호</td></tr>
+<tr><td class="n">8</td><td class="n">왼쪽</td><td><b>충격 확산 3</b> <br><small>Impact spread 3</small></td><td class="n">1</td><td>줍기당 동전 +7.41%.<br>강타 반경 +3.56%.</td><td class="pre">실린 무게</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>수북한 삽날 3</b> <br><small>Heaped blade 3</small></td><td class="n">1</td><td>줍기당 동전 +13.52%.</td><td class="pre">가득 찬 퍼내기</td></tr>
+<tr><td class="n">8</td><td class="n">오른쪽</td><td><b>완전한 쓸기</b> <br><small>Full sweep</small></td><td class="n">2</td><td>줍기 반경 +18.22%.<br>삽 최대 반경 +0.1m.</td><td class="pre">넓은 삽 6</td></tr>
+<tr><td class="n">9</td><td class="n">왼쪽</td><td><b>분쇄력</b> <br><small>Crushing force</small></td><td class="n">1</td><td>강타 동전 +12.12%.</td><td class="pre">충격 확산 3</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>풍성한 수확</b> <br><small>Bountiful haul</small></td><td class="n">1</td><td>줍기당 동전 +13.52%.</td><td class="pre">수북한 삽날 3</td></tr>
+<tr><td class="n">9</td><td class="n">오른쪽</td><td><b>넓은 삽 7</b> <br><small>Broad shovel 7</small></td><td class="n">1</td><td>줍기 반경 +5.74%.<br>삽 최대 반경 +0.05m.</td><td class="pre">완전한 쓸기</td></tr>
+<tr><td class="n">10</td><td class="n">왼쪽</td><td><b>세계 파괴자</b> <em class="k">마스터리</em><br><small>World breaker</small></td><td class="n">3</td><td>강타가 더 많은 금을 모으고 충격 주변 최소 4m까지 닿습니다. 더 확실하게 발동하고 더 빨리 재충전됩니다.</td><td class="pre">분쇄력</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>굴착기</b> <em class="k">마스터리</em><br><small>Excavator</small></td><td class="n">3</td><td>도구 속도 -22.78%.<br>줍기당 동전 +88.03%.</td><td class="pre">풍성한 수확</td></tr>
+<tr><td class="n">10</td><td class="n">오른쪽</td><td><b>넓은 휘두르기</b> <br><small>Wider swing</small></td><td class="n">2</td><td>줍기 반경 +20%.<br>삽 최대 반경 +0.1m.</td><td class="pre">넓은 삽 7</td></tr>
+<tr><td class="n">11</td><td class="n">왼쪽</td><td><b>단층선</b> <br><small>Fault line</small></td><td class="n">2</td><td>강타 동전 +31.95%.</td><td class="pre">세계 파괴자</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>말뚝 박기</b> <br><small>Pile driver</small></td><td class="n">3</td><td>착암기가 동전을 두 배 모을 수 있고 더 깊이 팝니다. 닿는 금과 가방 자리에 따라 제한됩니다.</td><td class="pre">굴착기</td></tr>
+<tr><td class="n">11</td><td class="n">오른쪽</td><td><b>분쇄 쓸기</b> <br><small>Crushing sweep</small></td><td class="n">1</td><td>강타 기본 확률 +4%p (배우면).<br>강타 동전 +9.34%.</td><td class="pre">넓은 휘두르기</td></tr>
+<tr><td class="n">12</td><td class="n">왼쪽</td><td><b>땅 고르개</b> <em class="k">마스터리</em><br><small>Earth mover</small></td><td class="n">3</td><td>줍기당 동전 +41.15%.<br>강타 동전 +31.95%.</td><td class="pre">단층선</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>지진 내려찍기</b> <em class="k">마스터리</em><br><small>Seismic slam</small></td><td class="n">3</td><td>착암기가 동전을 50% 더 모을 수 있고, 더 깊이 파고, 더 빨리 재충전됩니다. 닿는 금과 가방 자리에 따라 제한됩니다.</td><td class="pre">말뚝 박기</td></tr>
+<tr><td class="n">12</td><td class="n">오른쪽</td><td><b>우르릉 천둥</b> <em class="k">마스터리</em><br><small>Rolling thunder</small></td><td class="n">2</td><td>줍기 반경 +25%.<br>강타 동전 +14.41%.</td><td class="pre">분쇄 쓸기</td></tr></table></div></div></section>
+<section id="b5"><div class="br" style="--c:#5fe0e0"><h3>끌림 <small>ATTRACTION · 모든 도구가 연쇄 번개를 쏘게 하세요.</small><span>노드 38개 · 전부 사면 72포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>자석 해금</b> <em class="m">새 기능</em><br><small>Unlock magnet</small></td><td class="n">1</td><td>자석 [3]: 5.5m 안에서 0.7초마다 표면 동전을 최대 3개 끌어옵니다.</td><td class="pre">시작점<br>수집 동전 3,000개 필요</td></tr>
+<tr><td class="n">1</td><td class="n">왼쪽</td><td><b>코일 조율</b> <br><small>Coil tuning</small></td><td class="n">1</td><td>도구 속도 +8.55%.</td><td class="pre">자석 해금</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>전도 전류 1</b> <br><small>Conductive current 1</small></td><td class="n">1</td><td>번개 기본 확률 +8%p (배우면).<br>튕김당 번개 동전 +10%.</td><td class="pre">자석 해금, 정전기 방출</td></tr>
+<tr><td class="n">1</td><td class="n">오른쪽</td><td><b>넓은 자기장 1</b> <br><small>Wider field 1</small></td><td class="n">1</td><td>도구 닿는 거리 기본의 +15%; 줍기 반경 +12%.</td><td class="pre">자석 해금</td></tr>
+<tr><td class="n">2</td><td class="n">왼쪽</td><td><b>정전기 방출</b> <em class="m">새 기능</em><br><small>Static discharge</small></td><td class="n">1</td><td>줍기가 번개를 일으켜 동전 더미 사이를 건너뛰며 금을 추가로 모을 수 있습니다. 자석으로는 더 많이 모읍니다.</td><td class="pre">코일 조율</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>전도 전류 2</b> <br><small>Conductive current 2</small></td><td class="n">1</td><td>튕김당 번개 동전 +10%.</td><td class="pre">전도 전류 1</td></tr>
+<tr><td class="n">2</td><td class="n">오른쪽</td><td><b>자기 펄스</b> <em class="m">새 기능</em><br><small>Magnetic Pulse</small></td><td class="n">1</td><td>자석으로 {Secondary}를 누르면 근처 금 사이로 번개를 쏩니다. 줍기가 강하고 번개 강화가 많을수록 수확이 커집니다. 갈래끼리 튕김마다 동전 한도를 나눠 씁니다.</td><td class="pre">넓은 자기장 1</td></tr>
+<tr><td class="n">3</td><td class="n">왼쪽</td><td><b>아크 전류 1</b> <br><small>Arcing current 1</small></td><td class="n">2</td><td>줍기당 동전 +20.89%.<br>번개 도약 거리 +15%.</td><td class="pre">정전기 방출</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>전도 전류 3</b> <br><small>Conductive current 3</small></td><td class="n">2</td><td>번개 기본 확률 +8%p (배우면).<br>튕김당 번개 동전 +10%.</td><td class="pre">전도 전류 2</td></tr>
+<tr><td class="n">3</td><td class="n">오른쪽</td><td><b>넓은 자기장 2</b> <br><small>Wider field 2</small></td><td class="n">2</td><td>줍기 반경 +12%.<br>도구 닿는 거리 기본의 +15%.</td><td class="pre">자기 펄스</td></tr>
+<tr><td class="n">4</td><td class="n">왼쪽</td><td><b>긴 연쇄</b> <em class="m">새 기능</em><br><small>Longer chain</small></td><td class="n">2</td><td>번개 튕김: 5 → 7번. 계속 튕길 확률: 25% → 45%. 도약 거리 +10%.</td><td class="pre">아크 전류 1</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>전도 전류 4</b> <br><small>Conductive current 4</small></td><td class="n">1</td><td>튕김당 번개 동전 +10%.</td><td class="pre">전도 전류 3</td></tr>
+<tr><td class="n">4</td><td class="n">오른쪽</td><td><b>강력한 펄스</b> <em class="m">새 기능</em><br><small>Powerful pulse</small></td><td class="n">2</td><td>자기 펄스가 더 많은 금을 모으고 더 넓게 칩니다. 갈래끼리 튕김마다 동전 한도를 나눠 씁니다.</td><td class="pre">넓은 자기장 2</td></tr>
+<tr><td class="n">5</td><td class="n">왼쪽</td><td><b>아크 전류 2</b> <br><small>Arcing current 2</small></td><td class="n">3</td><td>줍기당 동전 +33.11%.<br>번개 도약 거리 +15%.</td><td class="pre">긴 연쇄</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>전도 전류 5</b> <br><small>Conductive current 5</small></td><td class="n">2</td><td>번개 기본 확률 +8%p (배우면).<br>튕김당 번개 동전 +10%.</td><td class="pre">전도 전류 4</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>넓은 자기장 3</b> <br><small>Wider field 3</small></td><td class="n">2</td><td>줍기 반경 +12%.<br>도구 닿는 거리 기본의 +15%.</td><td class="pre">강력한 펄스</td></tr>
+<tr><td class="n">5</td><td class="n">오른쪽</td><td><b>입금 충전</b> <em class="m">새 기능</em><br><small>Banked charge</small></td><td class="n">2</td><td>강타와 번개 재사용 대기 -7.84%. 입금소에 용량 10% 이상을 입금한 뒤 가방을 비우면: 8초간 번개 재사용 대기 절반.</td><td class="pre">넓은 자기장 2, 빠른 입금, 정전기 방출</td></tr>
+<tr><td class="n">6</td><td class="n">왼쪽</td><td><b>초전도체</b> <br><small>Superconductor</small></td><td class="n">3</td><td>번개가 세 갈래로 갈라져 더 넓은 범위에서 더 많은 금을 모읍니다. 갈래끼리 튕김마다 동전 한도를 나눠 씁니다.</td><td class="pre">아크 전류 2</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>전도 전류 6</b> <br><small>Conductive current 6</small></td><td class="n">1</td><td>튕김당 번개 동전 +10%.</td><td class="pre">전도 전류 5</td></tr>
+<tr><td class="n">6</td><td class="n">오른쪽</td><td><b>자기장 확장</b> <br><small>Field expansion</small></td><td class="n">1</td><td>줍기 반경 +8.87%.<br>도구 닿는 거리 기본의 +11.25%.</td><td class="pre">넓은 자기장 3</td></tr>
+<tr><td class="n">7</td><td class="n">왼쪽</td><td><b>퍼지는 전류</b> <br><small>Spreading current</small></td><td class="n">3</td><td>줍기당 동전 +34.94%.<br>번개 도약 거리 +11.05%.</td><td class="pre">초전도체</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>충전된 수확</b> <br><small>Charged harvest</small></td><td class="n">1</td><td>튕김당 번개 동전 +7.41%.</td><td class="pre">전도 전류 6</td></tr>
+<tr><td class="n">7</td><td class="n">오른쪽</td><td><b>빠른 재충전</b> <em class="m">새 기능</em><br><small>Rapid recharge</small></td><td class="n">1</td><td>자기 펄스 재사용 대기: 6초 대신 4초.<br>줍기 반경 +2.87%.<br>도구 닿는 거리 기본의 +3.75%.</td><td class="pre">자기장 확장</td></tr>
+<tr><td class="n">8</td><td class="n">왼쪽</td><td><b>아크 전류 3</b> <br><small>Arcing current 3</small></td><td class="n">1</td><td>줍기당 동전 +10.5%.<br>번개 도약 거리 +3.56%.</td><td class="pre">퍼지는 전류</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>전도 전류 7</b> <br><small>Conductive current 7</small></td><td class="n">1</td><td>번개 기본 확률 +8%p (배우면).<br>튕김당 번개 동전 +2.41%.</td><td class="pre">충전된 수확</td></tr>
+<tr><td class="n">8</td><td class="n">오른쪽</td><td><b>먼 끌림</b> <br><small>Far attraction</small></td><td class="n">1</td><td>도구 닿는 거리 기본의 +11.25%.</td><td class="pre">빠른 재충전</td></tr>
+<tr><td class="n">9</td><td class="n">왼쪽</td><td><b>서지 용량</b> <br><small>Surge capacity</small></td><td class="n">2</td><td>튕김당 번개 동전 +25.97%.</td><td class="pre">아크 전류 3</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>집중 충전</b> <br><small>Concentrated charge</small></td><td class="n">1</td><td>튕김당 번개 동전 +7.41%.</td><td class="pre">전도 전류 7</td></tr>
+<tr><td class="n">9</td><td class="n">오른쪽</td><td><b>소용돌이</b> <em class="k">마스터리</em><br><small>Maelstrom</small></td><td class="n">3</td><td>줍기 반경 +100%. 도구 닿는 거리 기본의 +3.75% 뒤, 전체 닿는 거리 35% 감소.</td><td class="pre">먼 끌림</td></tr>
+<tr><td class="n">10</td><td class="n">왼쪽</td><td><b>연쇄 폭풍</b> <em class="k">마스터리</em><br><small>Chain storm</small></td><td class="n">3</td><td>번개가 여섯 갈래로 퍼지고, 튕김이 늘고 재충전이 빨라집니다. 더 확실하게 발동합니다. 갈래끼리 튕김마다 동전 한도를 나눠 씁니다.</td><td class="pre">서지 용량</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>황금 창</b> <em class="k">마스터리</em><br><small>Gold lance</small></td><td class="n">3</td><td>번개 튕김당 동전 +53.62%. 도구 닿는 거리 +70%; 줍기 반경 -55%.</td><td class="pre">집중 충전</td></tr>
+<tr><td class="n">10</td><td class="n">오른쪽</td><td><b>펄스 확산</b> <br><small>Pulse spread</small></td><td class="n">2</td><td>자기 펄스 반경 +25%. 최종 반경 상한이 4.5m에서 5.625m로 오릅니다.</td><td class="pre">소용돌이</td></tr>
+<tr><td class="n">11</td><td class="n">왼쪽</td><td><b>고전압</b> <br><small>High voltage</small></td><td class="n">3</td><td>줍기당 동전 +29.06%.</td><td class="pre">연쇄 폭풍</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>활선</b> <br><small>Live wire</small></td><td class="n">3</td><td>번개가 타격마다 동전을 50% 더 모읍니다.</td><td class="pre">황금 창</td></tr>
+<tr><td class="n">11</td><td class="n">오른쪽</td><td><b>펄스 과부하</b> <br><small>Pulse overload</small></td><td class="n">3</td><td>자기 펄스가 튕김마다 모을 수 있는 양을 늘립니다. 갈래끼리 동전 한도를 나눠 씁니다.</td><td class="pre">펄스 확산</td></tr>
+<tr><td class="n">12</td><td class="n">왼쪽</td><td><b>도미노 폭풍</b> <em class="k">마스터리</em><br><small>Domino storm</small></td><td class="n">3</td><td>번개 연쇄: 6 → 8갈래, 튕김당 동전 +25% 더 나눠 씀. 계속 튕길 확률: 65% → 80%.</td><td class="pre">고전압</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>과충전 연쇄</b> <em class="k">마스터리</em><br><small>Overcharged chain</small></td><td class="n">3</td><td>번개가 타격마다 동전을 75% 더 모읍니다.</td><td class="pre">활선</td></tr>
+<tr><td class="n">12</td><td class="n">오른쪽</td><td><b>자기 급증</b> <em class="k">마스터리</em><br><small>Magnetic surge</small></td><td class="n">3</td><td>자기 펄스가 튕김마다 더 많은 금을 모으고 더 빨리 재충전됩니다. 갈래끼리 동전 한도를 나눠 씁니다.</td><td class="pre">펄스 과부하</td></tr></table></div></div></section>
+<section id="b6"><div class="br" style="--c:#b9a7ff"><h3>슈트 <small>CHUTES · 자동 입금.</small><span>노드 13개 · 전부 사면 25포인트</span></h3>
+<div class="tw"><table><tr><th>단계</th><th>줄</th><th>노드</th><th>비용</th><th>효과</th><th>선행 / 조건</th></tr>
+<tr><td class="n">0</td><td class="n">가운데</td><td><b>벽 슈트</b> <em class="m">새 기능</em><br><small>Wall chutes</small></td><td class="n">1</td><td>모든 벽 슈트가 함께, 초당 동전 1개를 자동으로 은행에 흘려 넣습니다.</td><td class="pre">시작점</td></tr>
+<tr><td class="n">1</td><td class="n">가운데</td><td><b>흐름 통로</b> <br><small>Flow channels</small></td><td class="n">1</td><td>슈트 배출 +20%.</td><td class="pre">벽 슈트</td></tr>
+<tr><td class="n">2</td><td class="n">가운데</td><td><b>넓은 투입구</b> <br><small>Wider intakes</small></td><td class="n">2</td><td>슈트 배출 +50%.</td><td class="pre">흐름 통로</td></tr>
+<tr><td class="n">3</td><td class="n">가운데</td><td><b>매끈한 안감</b> <br><small>Smooth lining</small></td><td class="n">1</td><td>슈트 배출 +25%.</td><td class="pre">넓은 투입구</td></tr>
+<tr><td class="n">4</td><td class="n">가운데</td><td><b>강화 덕트</b> <br><small>Reinforced ducts</small></td><td class="n">3</td><td>슈트 배출 +80%.</td><td class="pre">매끈한 안감</td></tr>
+<tr><td class="n">5</td><td class="n">가운데</td><td><b>슈트 오버드라이브</b> <em class="m">새 기능</em><br><small>Chute overdrive</small></td><td class="n">2</td><td>상시 슈트 배출 +12.5%. [R]을 누르면 8초간 배출 세 배. 재사용 대기: 45초.</td><td class="pre">강화 덕트<br>수집 동전 10,000개 필요</td></tr>
+<tr><td class="n">6</td><td class="n">가운데</td><td><b>압력 밸브</b> <br><small>Pressure valves</small></td><td class="n">2</td><td>슈트 배출 +40%.</td><td class="pre">슈트 오버드라이브</td></tr>
+<tr><td class="n">7</td><td class="n">가운데</td><td><b>동력 펌프</b> <br><small>Powered pumps</small></td><td class="n">3</td><td>슈트 배출 +80%.</td><td class="pre">압력 밸브</td></tr>
+<tr><td class="n">8</td><td class="n">가운데</td><td><b>유량 조절기</b> <br><small>Flow regulator</small></td><td class="n">1</td><td>슈트 배출 +25%.</td><td class="pre">동력 펌프</td></tr>
+<tr><td class="n">9</td><td class="n">가운데</td><td><b>흡입 터빈</b> <br><small>Suction turbines</small></td><td class="n">3</td><td>슈트 배출 +100%.</td><td class="pre">유량 조절기</td></tr>
+<tr><td class="n">10</td><td class="n">가운데</td><td><b>오버드라이브 부스트</b> <br><small>Overdrive boost</small></td><td class="n">1</td><td>슈트 오버드라이브가 평소의 다섯 배로 빼냅니다.</td><td class="pre">흡입 터빈</td></tr>
+<tr><td class="n">11</td><td class="n">가운데</td><td><b>거센 흐름</b> <br><small>Heavy flow</small></td><td class="n">2</td><td>슈트 배출 +60%.</td><td class="pre">오버드라이브 부스트</td></tr>
+<tr><td class="n">12</td><td class="n">가운데</td><td><b>황금 강</b> <em class="k">마스터리</em><br><small>Gold river</small></td><td class="n">3</td><td>슈트 배출 +100%.</td><td class="pre">거센 흐름</td></tr></table></div></div></section>
+
+<section id="infra"><h2>금고 시설 강화 (입금한 동전으로 구매)</h2>
+<div class="tw"><table><tr><th>시설</th><th>설명</th><th>최대 단계</th><th>단계별 가격 (입금 동전)</th></tr><tr><td><b>정제소 심장</b><br><small>REFINERY HEART</small></td><td>입금소를 I단계부터 III단계까지 올리세요.<br><small>더 빠른 투입; III단계는 근처 금을 자동 입금</small></td><td class="n">2</td><td>650 → 2,080</td></tr>
+<tr><td><b>심층 중계망</b><br><small>DEEP RELAY NETWORK</small></td><td>아래층의 입금 설비를 가동하세요.<br><small>등급마다 더 깊은 입금소 하나 해금</small></td><td class="n">5</td><td>900 → 1,620 → 2,916 → 5,249 → 9,448</td></tr>
+<tr><td><b>광석 컨베이어</b><br><small>OREFLOW CONVEYORS</small></td><td>치운 처리층 주변의 벨트 라인을 가동하세요.<br><small>벨트를 늘리고 네트워크 처리량 증가</small></td><td class="n">3</td><td>1,250 → 2,500 → 5,000</td></tr>
+<tr><td><b>중력 광맥</b><br><small>GRAVITY VEINS</small></td><td>벙커 층 사이의 장갑 슈트를 여세요.<br><small>수직 경로를 추가하고 네트워크 처리량 증가</small></td><td class="n">3</td><td>1,600 → 3,920 → 9,604</td></tr>
+<tr><td><b>아틀라스 화물 승강기</b><br><small>ATLAS CARGO LIFT</small></td><td>등급마다 더 깊은 번호 정류장 하나를 승인하세요.<br><small>그다음 통로와 착지점을 파내야 승강기가 움직입니다</small></td><td class="n">5</td><td>1,200 → 2,580 → 5,547 → 11,926 → 25,641</td></tr></table></div>
+<p style="color:#a3a69f;font-size:14px">스킬 트리(숙련 포인트)와 별개로, 입금한 동전으로 사는 지하 시설입니다. 가격 = 기본가 × 증가율<sup>단계</sup>.</p>
+</section>
+</main></body></html>
