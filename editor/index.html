@@ -48,6 +48,13 @@ dialog{background:var(--panel);color:var(--text);border:1px solid #3a403f;border
 dialog::backdrop{background:#000a}dialog h3{margin:0 0 6px;color:var(--gold)}
 dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,monospace}
 .note{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 14px;color:#c9c6bd;font-size:14px}
+#ctx{position:fixed;z-index:10;min-width:190px;background:var(--panel);border:1px solid #3a403f;border-radius:8px;padding:4px;display:none;box-shadow:0 10px 30px #000b}
+#ctx button{display:block;width:100%;text-align:left;background:none;border:0;padding:7px 12px;border-radius:5px;cursor:pointer;font-size:14px}
+#ctx button:hover{background:#262b2a;color:var(--gold)}#ctx button.del:hover{color:#ff6b5e}#ctx hr{border:0;border-top:1px solid #333837;margin:4px 0}
+#ctx .k{float:right;color:#6f736d;font-size:12px}
+.help{font-size:13px;color:#cfcac0;background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:7px 12px;margin:6px 0 10px}
+.help b{color:var(--gold)}
+.dragging,.dragging *{cursor:grabbing!important}
 @media(max-width:900px){#panel{left:8px;right:8px;width:auto;top:auto;bottom:8px;max-height:60vh}}
 </style>
 </head>
@@ -56,6 +63,8 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
   <h1>불씨 하나 — 강화 트리 편집기</h1>
   <a class="lk" href="../">강화 목록</a><a class="lk" href="../reference/">참고 게임</a><a class="lk" href="v1.html">이전 편집기(22갈래)</a>
   <span class="stat" id="stat"></span>
+  <button class="btn" id="btnUndo" title="Ctrl+Z">↶ 되돌리기</button>
+  <button class="btn" id="btnRedo" title="Ctrl+Y">↷ 다시 하기</button>
   <button class="btn main" id="btnOut">요청문 만들기</button>
   <button class="btn" id="btnPng">그림 저장(PNG)</button>
   <button class="btn" id="btnSave">파일로 저장</button>
@@ -68,6 +77,7 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
   <h2>강화 트리</h2>
   <p class="lead">나무를 태우면 숙련 포인트가 쌓이고, 포인트로 노드를 삽니다. 트리 전체의 절반쯤만 살 수 있어 빌드를 골라야 합니다. 노드에 마우스를 올리면 효과가, 누르면 오른쪽에 편집 창이 나옵니다.</p>
   <div class="legend"><span>● 강화</span><span>■ 새 기능</span><span>◆ 마스터리 (도구 형태 교체 등)</span><span>노드 안 숫자 = 비용(포인트)</span><span>금색 점선 = 합류 노드와 최종 노드의 조건</span><span id="chgLegend"></span></div>
+  <div class="help"><b>끌어서 옮기기</b>: 노드를 빈 자리에 놓으면 그 갈래·줄·단계로, 다른 노드 위에 놓으면 그 노드 아래로 이어 붙음(아래 노드들도 함께 이동) · <b>우클릭</b>: 위/아래/옆에 노드 추가·복제·삭제 · <b>Ctrl+Z</b> 되돌리기, <b>Ctrl+Y</b> 다시 하기 · <b>Delete</b> 고른 노드 삭제 · <b>Esc</b> 편집 창 닫기</div>
   <div class="wrap"><svg id="tv"></svg></div>
 </section>
 <section>
@@ -92,6 +102,7 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
 </section>
 </main>
 <div id="tip"></div>
+<div id="ctx"></div>
 <aside id="panel"></aside>
 <dialog id="dlg">
   <h3>요청문</h3>
@@ -298,7 +309,19 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const ORIGINAL = seed();
 let D = (() => { try { const s = localStorage.getItem(KEY); if (s) { const d = JSON.parse(s); if (d.version === 9) return d; } } catch (e) {} return clone(ORIGINAL); })();
 let sel = null, selShop = null;
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} };
+// 되돌리기: 바뀔 때마다 직전 상태를 쌓는다. 글자를 이어 칠 때는 0.8초 안의 변경을 한 번으로 묶는다.
+let hist = [], fut = [], last = null, lastT = 0;
+const save = () => {
+  const s = JSON.stringify(D), now = Date.now();
+  if (last !== null && s !== last) { if (now - lastT > 800) { hist.push(last); if (hist.length > 300) hist.shift(); } fut = []; }
+  last = s; lastT = now;
+  try { localStorage.setItem(KEY, s); } catch (e) {}
+};
+const restore = s => { D = JSON.parse(s); last = s; lastT = 0; try { localStorage.setItem(KEY, s); } catch (e) {}
+  if (sel && !D.nodes.some(n => n.id === sel)) sel = null; if (selShop && !D.shop.some(x => x.id === selShop)) selShop = null;
+  if (!sel && !selShop) panel.style.display = 'none'; render(); };
+const undo = () => { if (!hist.length) return; fut.push(last); restore(hist.pop()); };
+const redo = () => { if (!fut.length) return; hist.push(last); restore(fut.pop()); };
 const KIND = ['강화', '새 기능', '마스터리'];
 const LANE = { '-1': '왼쪽', '0': '가운데', '1': '오른쪽' };
 const byId = () => new Map(D.nodes.map(n => [n.id, n]));
@@ -337,6 +360,7 @@ function layout() {
 }
 function paint() {
   const L = layout(), map = byId();
+  curL = L;
   svg.replaceChildren();
   svg.setAttribute('width', L.W); svg.setAttribute('height', L.H); svg.setAttribute('viewBox', '0 0 ' + L.W + ' ' + L.H);
   svgEl('rect', { x: 0, y: 0, width: L.W, height: L.H, fill: '#141716' });
@@ -378,11 +402,96 @@ function paint() {
     const t = svgEl('text', { x, y: y + 4.5, 'text-anchor': 'middle', fill: col, 'font-size': 13, 'font-weight': 800, 'font-family': 'Malgun Gothic, sans-serif' }, g); t.textContent = n.cost;
     if (n.b === 'merge' || n.b === 'final') { const lb = svgEl('text', { x, y: y + r + 17, 'text-anchor': 'middle', fill: '#e8dcb0', 'font-size': 12, 'font-family': 'Malgun Gothic, sans-serif' }, g); lb.textContent = n.name; }
     g.addEventListener('mouseenter', ev => show(n.id, ev)); g.addEventListener('mousemove', move); g.addEventListener('mouseleave', hideTip);
-    g.addEventListener('click', ev => { ev.stopPropagation(); sel = n.id; if (selShop) { selShop = null; paintShop(); } paint(); openPanel(); show(n.id, ev); });
+    g.addEventListener('click', ev => { ev.stopPropagation(); if (noClick) return; sel = n.id; if (selShop) { selShop = null; paintShop(); } paint(); openPanel(); show(n.id, ev); });
+    g.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); hideTip(); openCtx(n.id, ev); });
+    if (n.b !== 'merge' && n.b !== 'final') g.addEventListener('mousedown', ev => { if (ev.button !== 0) return; ev.preventDefault(); drag = { id: n.id, x0: ev.clientX, y0: ev.clientY, moved: false, ghost: null }; });
   }
   document.getElementById('chgLegend').innerHTML = '<span style="color:#fff">흰 점선 = 고친 노드</span> · <span style="color:#5fd39a">초록 점선 = 새 노드</span>';
   stats(); sums();
 }
+// ---------- 끌어서 옮기기 ----------
+let curL = null, drag = null, noClick = false;
+const subtree = id => { const out = [], st = [id]; while (st.length) { const p = st.pop(); for (const x of D.nodes) if (x.parent === p && !out.includes(x)) { out.push(x); st.push(x.id); } } return out; };
+const svgPt = ev => { const r = svg.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+document.addEventListener('mousemove', ev => {
+  if (!drag) return;
+  if (!drag.moved && Math.hypot(ev.clientX - drag.x0, ev.clientY - drag.y0) < 6) return;
+  if (!drag.moved) { drag.moved = true; hideTip(); document.body.classList.add('dragging');
+    drag.ghost = svgEl('circle', { r: 17, fill: '#ffc74d33', stroke: '#ffc74d', 'stroke-width': 2, 'stroke-dasharray': '4 3', 'pointer-events': 'none' }); }
+  const [x, y] = svgPt(ev); drag.ghost.setAttribute('cx', x); drag.ghost.setAttribute('cy', y);
+});
+document.addEventListener('mouseup', ev => {
+  if (!drag) return;
+  const d = drag; drag = null; document.body.classList.remove('dragging');
+  if (!d.moved) return;
+  noClick = true; setTimeout(() => { noClick = false; }, 0);
+  const n = D.nodes.find(x => x.id === d.id), L = curL; if (!n || !L) { paint(); return; }
+  const kids = subtree(n.id), hit = document.elementFromPoint(ev.clientX, ev.clientY), tg = hit && hit.closest ? hit.closest('#tv .nd') : null;
+  const tn = tg ? D.nodes.find(x => x.id === tg.dataset.id) : null;
+  const moveTo = (b, t, l) => { const dt = t - (+n.t || 0); for (const k of kids) { k.t = Math.max(0, (+k.t || 0) + dt); k.b = b; } n.b = b; n.t = t; n.l = l; };
+  if (tn) {
+    // 다른 노드 위에 놓음: 그 노드의 바로 아래로 이어 붙인다. 자기 아래 노드에는 붙일 수 없다.
+    if (tn.id === n.id || kids.includes(tn) || tn.b === 'merge' || tn.b === 'final') { paint(); return; }
+    moveTo(tn.b, (+tn.t || 0) + 1, +tn.l || 0); n.parent = tn.id;
+  } else {
+    const [x, y] = svgPt(ev), col = Math.floor((x - 6) / L.CW);
+    if (col < 0 || col >= D.branches.length || y > L.colH + 6) { paint(); return; }
+    const b = D.branches[col].id, t = Math.max(0, Math.round((y - L.TOP) / L.RY));
+    const l = Math.max(-1, Math.min(1, Math.round((x - (6 + col * L.CW + L.CW / 2)) / 46)));
+    if (b !== n.b) n.parent = null;
+    moveTo(b, t, l);
+  }
+  sel = n.id; save(); paint(); openPanel();
+});
+
+// ---------- 노드 추가·복제·삭제 ----------
+const newNode = (n, o) => Object.assign({ id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), b: n.b, t: +n.t || 0, l: +n.l || 0, name: '새 노드', kind: 0, cost: 1, eff: '', parent: n.parent || null, req: [], reqMin: 0, unlock: '' }, o);
+const freeLane = n => { const used = new Set(D.nodes.filter(x => x.b === n.b && +x.t === +n.t).map(x => +x.l)); return [1, -1, 0].find(l => !used.has(l)) ?? (+n.l || 0); };
+function nodeAct(id, a) {
+  const n = D.nodes.find(x => x.id === id); if (!n) return;
+  const isX = n.b === 'merge' || n.b === 'final';
+  let nn = null;
+  if (a === 'del') {
+    if (!confirm('"' + n.name + '" 노드를 지울까요? 이 노드 아래 노드들은 한 칸 위 노드에 붙습니다. (Ctrl+Z로 되돌릴 수 있어요)')) return;
+    D.nodes.forEach(x => { if (x.parent === n.id) x.parent = n.parent; if (x.req) x.req = x.req.filter(r => r !== n.id); });
+    D.nodes = D.nodes.filter(x => x.id !== n.id); sel = null; panel.style.display = 'none'; save(); paint(); return;
+  }
+  if (a === 'child') nn = newNode(n, { t: (+n.t || 0) + 1, parent: isX ? null : n.id, b: n.b });
+  else if (a === 'above' && !isX) {
+    // 위에 끼워 넣기: 새 노드가 이 노드의 자리를 받고, 이 노드와 그 아래가 한 단계씩 내려간다.
+    nn = newNode(n, {});
+    for (const k of [n, ...subtree(n.id)]) k.t = (+k.t || 0) + 1;
+    n.parent = nn.id;
+  } else if (a === 'side') nn = newNode(n, { l: freeLane(n) });
+  else if (a === 'dup') nn = newNode(n, { name: n.name + ' (복사)', kind: n.kind, cost: n.cost, eff: n.eff, req: [...(n.req || [])], reqMin: n.reqMin || 0, unlock: n.unlock || '', l: isX ? n.l : freeLane(n) });
+  if (!nn) return;
+  D.nodes.push(nn); sel = nn.id; selShop = null; save(); paint(); paintShop(); openPanel();
+}
+const ctx = document.getElementById('ctx');
+function openCtx(id, ev) {
+  const n = D.nodes.find(x => x.id === id), isX = n.b === 'merge' || n.b === 'final';
+  ctx.innerHTML = `<div style="padding:5px 12px;font-size:12px;color:var(--dim)">${esc(n.name)}</div><hr>` +
+    (isX ? '' : '<button data-a="above">↑ 위에 노드 끼워 넣기</button>') +
+    `<button data-a="child">↓ 아래에 노드 추가</button>` + (isX ? '' : '<button data-a="side">→ 옆에 노드 추가 (같은 선행)</button>') +
+    `<button data-a="dup">⧉ 복제</button><button data-a="edit">✎ 편집 창 열기</button><hr><button class="del" data-a="del">삭제 <span class="k">Delete</span></button>`;
+  ctx.style.display = 'block';
+  const w = ctx.offsetWidth, h = ctx.offsetHeight;
+  ctx.style.left = Math.min(ev.clientX, innerWidth - w - 8) + 'px'; ctx.style.top = Math.min(ev.clientY, innerHeight - h - 8) + 'px';
+  ctx.querySelectorAll('button').forEach(b => b.onclick = () => { ctx.style.display = 'none';
+    if (b.dataset.a === 'edit') { sel = id; selShop = null; paint(); paintShop(); openPanel(); } else nodeAct(id, b.dataset.a); });
+}
+document.addEventListener('mousedown', e => { if (!ctx.contains(e.target)) ctx.style.display = 'none'; });
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if ((e.ctrlKey || e.metaKey) && !typing) {
+    const k = e.key.toLowerCase();
+    if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
+    if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); return; }
+  }
+  if (e.key === 'Escape') { ctx.style.display = 'none'; if (!typing && (sel || selShop)) { sel = null; selShop = null; panel.style.display = 'none'; paint(); paintShop(); } return; }
+  if (e.key === 'Delete' && !typing && sel) nodeAct(sel, 'del');
+});
+
 function chain(id) { const m = byId(), out = new Set(); let c = m.get(id); while (c && !out.has(c.id)) { out.add(c.id); c = c.parent ? m.get(c.parent) : null; } return out; }
 function show(id, ev) {
   const m = byId(), n = m.get(id); if (!n) return;
@@ -424,7 +533,8 @@ function openPanel() {
   <label class="f">해금 조건 (선택, 예: 태운 나무 1,500그루)<input class="in" data-k="unlock" value="${esc(n.unlock)}"></label>
   <label class="f">${isX ? '열리는 조건 (다른 갈래 노드)' : '추가 조건 (다른 갈래 노드, 선택)'}<div class="reqs">${reqList.map(x => `<label><input type="checkbox" data-req="${esc(x.id)}"${(n.req || []).includes(x.id) ? ' checked' : ''}> ${esc(brName(x.b))} · ${esc(x.name)}</label>`).join('')}</div></label>
   <label class="f">조건 중 필요한 개수 (0 = 모두)<input class="in" type="number" min="0" data-k="reqMin" value="${esc(n.reqMin || 0)}"></label>
-  <div class="row">${isX ? '' : '<button class="btn sm" data-act="child">+ 아래에 노드 추가</button>'}<button class="btn sm del" data-act="del">이 노드 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
+  <div class="row">${isX ? '' : '<button class="btn sm" data-act="above">↑ 위에 끼워 넣기</button>'}<button class="btn sm" data-act="child">↓ 아래에 추가</button>${isX ? '' : '<button class="btn sm" data-act="side">→ 옆에 추가</button>'}<button class="btn sm" data-act="dup">⧉ 복제</button></div>
+  <div class="row"><button class="btn sm del" data-act="del">이 노드 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
   panel.style.display = 'block';
   panel.querySelectorAll('[data-k]').forEach(i => i.addEventListener('input', () => {
     const k = i.dataset.k; let v = i.value;
@@ -440,16 +550,7 @@ function openPanel() {
   panel.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
     const a = b.dataset.act;
     if (a === 'close') { sel = null; panel.style.display = 'none'; paint(); return; }
-    if (a === 'child') {
-      const id = 'u' + Date.now().toString(36);
-      D.nodes.push({ id, b: n.b, t: (+n.t || 0) + 1, l: n.l, name: '새 노드', kind: 0, cost: 1, eff: '', parent: n.id, req: [], reqMin: 0, unlock: '' });
-      sel = id; save(); paint(); openPanel(); return;
-    }
-    if (a === 'del') {
-      if (!confirm('"' + n.name + '" 노드를 지울까요? 이 노드를 선행으로 쓰던 노드는 한 칸 위 노드에 붙습니다.')) return;
-      D.nodes.forEach(x => { if (x.parent === n.id) x.parent = n.parent; if (x.req) x.req = x.req.filter(r => r !== n.id); });
-      D.nodes = D.nodes.filter(x => x.id !== n.id); sel = null; panel.style.display = 'none'; save(); paint();
-    }
+    nodeAct(n.id, a);
   }));
 }
 document.addEventListener('click', e => { if (!panel.contains(e.target)) hideTip(); });
@@ -557,7 +658,7 @@ function openShopPanel() {
   <label class="f">다음 단계마다 배수<input class="in" type="number" min="1" step="0.05" data-k="growth" value="${esc(s.growth)}"></label></div>
   <label class="f">해금 조건 (예: 구역 3, 이동 강화 합계 10단계)<input class="in" data-k="unlock" value="${esc(s.unlock)}"></label>
   <label class="f">먼저 사야 하는 항목<div class="reqs">${D.shop.filter(x => x.id !== s.id).map(x => `<label><input type="checkbox" data-req="${esc(x.id)}"${(s.req || []).includes(x.id) ? ' checked' : ''}> ${esc(catName(x.cat))} · ${esc(x.name)}</label>`).join('')}</div></label>
-  <div class="row"><button class="btn sm del" data-act="del">이 항목 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
+  <div class="row"><button class="btn sm" data-act="dup">⧉ 복제</button><button class="btn sm del" data-act="del">이 항목 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
   panel.style.display = 'block';
   panel.querySelectorAll('[data-k]').forEach(i => i.addEventListener('input', () => {
     const k = i.dataset.k; s[k] = ['max', 'cost', 'growth'].includes(k) ? (i.value === '' ? 0 : +i.value) : i.value;
@@ -568,6 +669,10 @@ function openShopPanel() {
   panel.querySelectorAll('[data-req]').forEach(c => c.addEventListener('change', () => {
     const t = new Set(s.req || []); c.checked ? t.add(c.dataset.req) : t.delete(c.dataset.req); s.req = [...t]; save(); paintShop();
   }));
+  panel.querySelector('[data-act="dup"]').onclick = () => {
+    const id = 's' + Date.now().toString(36); D.shop.push(Object.assign(clone(s), { id, name: s.name + ' (복사)', req: [...(s.req || [])] }));
+    selShop = id; save(); paintShop(); openShopPanel();
+  };
   panel.querySelector('[data-act="close"]').onclick = () => { selShop = null; panel.style.display = 'none'; paintShop(); };
   panel.querySelector('[data-act="del"]').onclick = () => {
     if (!confirm('"' + s.name + '" 항목을 지울까요?')) return;
@@ -634,7 +739,10 @@ const savePng = (s, name) => {
   img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
 };
 document.getElementById('btnPng').onclick = () => { savePng(svg, 'onespark-tree.png'); setTimeout(() => savePng(sv, 'onespark-ash-shop.png'), 400); };
+document.getElementById('btnUndo').onclick = undo;
+document.getElementById('btnRedo').onclick = redo;
 function render() { paint(); paintShop(); tables(); if (sel) openPanel(); else if (selShop) openShopPanel(); }
+last = JSON.stringify(D);
 render();
 </script>
 </body>
