@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>불씨 하나 — 강화 트리 편집기 (포인트 방식)</title>
+<style>
+:root{color-scheme:dark;--bg:#0d0f0f;--panel:#151818;--line:#2a2e2d;--text:#ece8de;--dim:#a3a69f;--gold:#ffc74d;--ember:#ff8c2e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:#8fb8ff}
+.bar{position:sticky;top:0;z-index:5;background:#0d0f0ff2;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar h1{font-size:19px;margin:0;color:var(--gold);white-space:nowrap}
+.bar .lk{color:var(--dim);font-size:14px;text-decoration:none;padding:6px 10px;border:1px solid #333837;border-radius:99px;white-space:nowrap}
+.bar .lk:hover{color:var(--gold);border-color:var(--gold)}
+.stat{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--dim);margin-right:auto;flex-wrap:wrap}
+.stat b{color:#fff;font-size:16px}.stat .ok{color:#5fd39a}.stat .warn{color:#ff9b6b}
+.stat input{width:64px;background:#0f1212;border:1px solid #333837;border-radius:6px;padding:3px 6px}
+.btn{background:#1f2423;border:1px solid #3a403f;border-radius:7px;padding:8px 13px;cursor:pointer;min-height:38px}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.main{background:var(--gold);border-color:var(--gold);color:#15130c;font-weight:700}.btn.main:hover{color:#15130c;filter:brightness(1.08)}
+.btn.sm{padding:4px 10px;min-height:32px;font-size:13px}.btn.del:hover{border-color:#ff6b5e;color:#ff6b5e}
+main{max-width:1240px;margin:auto;padding:12px 16px 80px}
+h2{font-size:21px;margin:28px 0 6px}p.lead{margin:0 0 10px;color:var(--dim)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--dim);margin:6px 0 10px}
+.wrap{overflow:auto;background:#141716;border:1px solid var(--line);border-radius:10px;padding:8px}
+svg{display:block}
+.nd{cursor:pointer}.nd:hover .sh{stroke:#fff;stroke-width:3}
+#tip{position:fixed;z-index:9;pointer-events:none;max-width:340px;background:#1d2120f5;border:1px solid #4a504e;border-left:4px solid var(--c,#ffc74d);border-radius:8px;padding:10px 12px;font-size:13.5px;line-height:1.5;box-shadow:0 8px 24px #000a;display:none}
+#tip h4{margin:0;font-size:16px;color:var(--c,#ffc74d)}#tip .kd{font-size:11.5px;font-weight:700;color:#cfcac0;margin:2px 0 6px}
+#tip .ef{white-space:pre-line}#tip .meta{margin-top:8px;padding-top:6px;border-top:1px solid #333837;color:#a3a69f;font-size:12.5px}#tip .meta b{color:var(--gold)}
+#panel{position:fixed;right:16px;top:70px;width:360px;max-height:calc(100vh - 90px);overflow:auto;background:var(--panel);border:1px solid #3a403f;border-left:4px solid var(--c,#ffc74d);border-radius:10px;padding:14px;z-index:6;box-shadow:0 10px 30px #000b;display:none}
+#panel h3{margin:0 0 8px;color:var(--c,#ffc74d);font-size:17px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--dim);margin-bottom:9px}
+.in{width:100%;background:#0f1212;border:1px solid #333837;border-radius:6px;padding:6px 8px;min-height:34px}
+textarea.in{resize:vertical;line-height:1.4}.in:focus{outline:2px solid var(--gold);outline-offset:-1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.reqs{max-height:180px;overflow:auto;border:1px solid #333837;border-radius:6px;padding:6px;font-size:13px}
+.reqs label{display:flex;gap:6px;align-items:center;padding:2px 0;color:var(--text)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%}
+th{font-size:12px;font-weight:600;color:var(--dim);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid #202424;vertical-align:top}
+td .in{min-height:30px;padding:4px 6px}
+.chg{color:var(--gold)}.new{color:#5fd39a}
+dialog{background:var(--panel);color:var(--text);border:1px solid #3a403f;border-radius:10px;padding:16px;width:min(920px,94vw)}
+dialog::backdrop{background:#000a}dialog h3{margin:0 0 6px;color:var(--gold)}
+dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,monospace}
+.note{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 14px;color:#c9c6bd;font-size:14px}
+#ctx{position:fixed;z-index:10;min-width:190px;background:var(--panel);border:1px solid #3a403f;border-radius:8px;padding:4px;display:none;box-shadow:0 10px 30px #000b}
+#ctx button{display:block;width:100%;text-align:left;background:none;border:0;padding:7px 12px;border-radius:5px;cursor:pointer;font-size:14px}
+#ctx button:hover{background:#262b2a;color:var(--gold)}#ctx button.del:hover{color:#ff6b5e}#ctx hr{border:0;border-top:1px solid #333837;margin:4px 0}
+#ctx .k{float:right;color:#6f736d;font-size:12px}
+.help{font-size:13px;color:#cfcac0;background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:7px 12px;margin:6px 0 10px}
+.help b{color:var(--gold)}
+.dragging,.dragging *{cursor:grabbing!important}
+@media(max-width:900px){#panel{left:8px;right:8px;width:auto;top:auto;bottom:8px;max-height:60vh}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <h1>불씨 하나 — 강화 트리 편집기</h1>
+  <a class="lk" href="../">강화 목록</a><a class="lk" href="../reference/">참고 게임</a><a class="lk" href="v1.html">이전 편집기(22갈래)</a>
+  <span class="stat" id="stat"></span>
+  <button class="btn" id="btnUndo" title="Ctrl+Z">↶ 되돌리기</button>
+  <button class="btn" id="btnRedo" title="Ctrl+Y">↷ 다시 하기</button>
+  <button class="btn main" id="btnOut">요청문 만들기</button>
+  <button class="btn" id="btnPng">그림 저장(PNG)</button>
+  <button class="btn" id="btnSave">파일로 저장</button>
+  <button class="btn" id="btnLoad">파일 불러오기</button>
+  <button class="btn del" id="btnReset">처음 상태로</button>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+</header>
+<main>
+<section>
+  <h2>강화 트리</h2>
+  <p class="lead">나무를 태우면 숙련 포인트가 쌓이고, 포인트로 노드를 삽니다. 트리 전체의 절반쯤만 살 수 있어 빌드를 골라야 합니다. 노드에 마우스를 올리면 효과가, 누르면 오른쪽에 편집 창이 나옵니다.</p>
+  <div class="legend"><span>● 강화</span><span>■ 새 기능</span><span>◆ 마스터리 (도구 형태 교체 등)</span><span>노드 안 숫자 = 비용(포인트)</span><span>금색 점선 = 합류 노드와 최종 노드의 조건</span><span id="chgLegend"></span></div>
+  <div class="help"><b>끌어서 옮기기</b>: 노드를 빈 자리에 놓으면 그 갈래·줄·단계로, 다른 노드 위에 놓으면 그 노드 아래로 이어 붙음(아래 노드들도 함께 이동) · <b>우클릭</b>: 위/아래/옆에 노드 추가·복제·삭제 · <b>Ctrl+Z</b> 되돌리기, <b>Ctrl+Y</b> 다시 하기 · <b>Delete</b> 고른 노드 삭제 · <b>Esc</b> 편집 창 닫기</div>
+  <div class="wrap"><svg id="tv"></svg></div>
+</section>
+<section>
+  <h2>갈래별 합계</h2>
+  <div class="tw"><table id="sum"></table></div>
+</section>
+<section>
+  <h2>포인트 곡선 (태운 나무 수 → 숙련 포인트)</h2>
+  <p class="lead">구역이 끝날 때까지 누적 몇 포인트를 줄지 정합니다. 구역 안에서는 처음엔 빨리, 뒤로 갈수록 천천히 들어오게 나눕니다.</p>
+  <div class="tw"><table id="curve"></table></div>
+</section>
+<section>
+  <h2>재 상점 (수거함 앞에서 재로 구매)</h2>
+  <p class="lead">재는 쓰면 없어지고, 엔딩까지 거의 다 살 수 있게 맞춥니다. 가격은 "그 시점 재 수입 몇 분어치"로 적습니다(실제 재 값은 봇으로 수입을 재서 바꿉니다). 같은 항목을 다시 살 때마다 배수만큼 비싸집니다. 탈것은 타는 동안 불을 붙일 수 없습니다. 카드에 마우스를 올리면 단계별 가격이, 누르면 편집 창이 나옵니다.</p>
+  <div class="legend" id="shopStat"></div>
+  <div class="help"><b>끌어서 옮기기</b>: 카드를 다른 카드 위에 놓으면 그 앞으로, 다른 갈래의 빈 곳에 놓으면 그 갈래 끝으로 · <b>우클릭</b>: 같은 갈래에 새 항목, 이 항목 다음 단계(먼저 살 것=이 항목), 복제, 삭제 · 아래 표에서 바로 고칠 수도 있어요</div>
+  <div class="wrap"><svg id="sv"></svg></div>
+  <div class="row" id="shopAdd"></div>
+  <h3 style="margin:22px 0 6px">구역별 재 예산</h3>
+  <p class="lead">그 구역에서 주울 수 있는 재와, 그 구역에 놓인 상점 항목을 모두 사는 값입니다. 상점 항목의 구역은 해금 조건(구역 N, 태운 나무, 이동력, 가장 높은 산)과 먼저 살 항목으로 정해집니다. 보급 상자·공구함 보너스는 뺀 값입니다.</p>
+  <div class="tw"><table id="zoneBudget"></table></div>
+  <h3 style="margin:22px 0 6px">상점 표로 고치기</h3>
+  <p class="lead">칸을 고치고 다른 칸을 누르면 바로 반영됩니다. 가격은 실제 재입니다. 해금 조건을 바꿔 구역이 달라져도 첫 가격(재)은 그대로 유지됩니다.</p>
+  <div class="tw"><table id="shopTbl"></table></div>
+</section>
+<section>
+  <h2>전체 방향 메모</h2>
+  <textarea class="in" id="memo" rows="4" placeholder="표로 못 적는 요청은 여기에. 예: 들불은 너무 세지 않게, 조명탄은 3구역부터…"></textarea>
+</section>
+</main>
+<div id="tip"></div>
+<div id="ctx"></div>
+<aside id="panel"></aside>
+<dialog id="dlg">
+  <h3>요청문</h3>
+  <p style="margin:0 0 8px;color:var(--dim);font-size:14px">아래 글을 복사해 채팅에 붙여 넣어 주세요.</p>
+  <textarea id="outText" readonly></textarea>
+  <div class="row"><button class="btn main" id="btnCopy">복사</button><button class="btn" id="btnTxt">텍스트 파일로 저장</button><button class="btn" id="btnClose">닫기</button><span id="copyMsg" style="color:#5fd39a;font-size:14px;align-self:center"></span></div>
+</dialog>
+<script>
+// ---------- 처음 설계안 ----------
+function seed() {
+  const branches = [
+    { id: 'match', name: '성냥', color: '#ffb347', desc: '정밀과 리듬. 연속 점화로 손이 빨라지고, 들불이 스스로 번짐.' },
+    { id: 'lighter', name: '라이터', color: '#ff7b6b', desc: '근거리 범위. 확률로 튀는 불똥, 부채꼴 분사, 끝은 화염방사기.' },
+    { id: 'fuel', name: '연료', color: '#d9a6ff', desc: '연쇄와 길. 기름 줄기, 기름 띠, 쓰러지는 나무로 숲을 가로지름.' },
+    { id: 'flare', name: '조명탄', color: '#6fb7ff', desc: '원거리 한 방. 산 위와 강 건너 숲을 멀리서 태움.' },
+    { id: 'nature', name: '자연', color: '#e8dc7a', desc: '번개를 끌어내림. 피뢰침, 유도 로켓, 끝은 뇌우 호출.' }];
+  const nodes = []; let seq = 0;
+  const add = (b, t, l, name, kind, cost, eff, parent, extra) => {
+    const id = b + '-' + (++seq);
+    nodes.push(Object.assign({ id, b, t, l, name, kind, cost, eff, parent: parent || null, req: [], reqMin: 0, unlock: '' }, extra || {}));
+    return id;
+  };
+  // 비용: 작은 강화 1, 새 기능(■) 3, 마스터리(◆) 6. 작은 강화 2~3개마다 눈에 보이는 변화가 오도록 배치
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+  const rep = (name, n, eff, from = 1) => Array.from({ length: n }, (_, i) => [name + ' ' + ROMAN[from + i - 1], 0, 1, eff]);
+  const F = (name, eff) => [name, 1, 3, eff], M = (name, eff) => [name, 2, 6, eff];
+  const lane = (b, root, l, list) => { let p = root, t = 1; return list.map(([name, kind, cost, eff]) => (p = add(b, t++, l, name, kind, cost, eff, p))); };
+  const ALL = ' 모든 도구에 적용.';
+  // 성냥
+  const m0 = add('match', 0, 0, '마른 성냥', 0, 2, '성냥 점화 시간 4.5초 → 3초, 성냥이 켜질 확률 30% → 50%.', null, { unlock: '처음부터' });
+  lane('match', m0, -1, [...rep('빠른 손놀림', 3, '점화 시간 -8%.' + ALL),
+    F('손에 붙은 불', '연속으로 불을 붙일 때마다 점화 속도 +4%, 최대 10번. 2초 쉬면 사라짐.'),
+    ...rep('달아오른 손', 3, '연속 점화 최대 횟수 +5번.'),
+    F('끊기지 않는 손', '쉬어도 연속 점화가 한 번에 사라지지 않고 절반만 줄어듦.'),
+    ...rep('뜨거운 손', 2, '연속 점화 한 번당 보너스 +1%.'),
+    M('불붙은 리듬', '연속 점화 최대 횟수 +5번. 최대치에 닿으면 점화가 즉시 붙음.')]);
+  const mC = lane('match', m0, 0, [...rep('굵은 성냥', 2, '불이 옆 나무로 옮겨붙을 확률 +10%.' + ALL),
+    F('완벽한 긋기', '우클릭으로 그을 때 녹색 구간에서 떼면 성냥불이 10초간 꺼지지 않고 점화 시간이 70% 줄어듦. 그동안 불을 붙일 때마다 불똥이 좌우로 튀어 8m 안의 나무 2그루가 함께 붙음.'),
+    ...rep('넓은 구간', 2, '완벽한 긋기 녹색 구간 +0.04초.'),
+    M('성냥 다발', '형태 교체: 성냥 다발. 한 번에 앞쪽 부채꼴 3그루에 불을 붙임.'),
+    ...rep('불꽃 번짐', 2, '완벽한 긋기 불똥으로 함께 붙는 나무 +1그루.'),
+    F('연속 긋기', '완벽한 긋기를 3번 연속 성공하면 함께 붙는 나무 2배.'),
+    ...rep('굵은 성냥', 2, '불이 옆 나무로 옮겨붙을 확률 +10%.' + ALL, 3),
+    M('불화살', '형태 교체: 불화살. 40m 밖 나무를 쏴서 불을 붙임.')]);
+  lane('match', m0, 1, [F('들불', '불타는 나무가 8초마다 가장 가까운 나무 1그루에 스스로 옮겨붙음. 최근 10초 안에 직접 불을 붙였을 때만 작동.'),
+    ...rep('마른 풀', 3, '들불 간격 -8%.'),
+    F('들불 확산', '들불이 한 번에 2그루로 옮겨붙음.'),
+    ...rep('번지는 불티', 2, '들불이 닿는 거리 +15%.'),
+    F('큰 들불', '들불이 한 번에 4그루로 옮겨붙음.'),
+    ...rep('마른 풀', 2, '들불 간격 -8%.', 4),
+    M('총동원', '연속 점화 20번 이상이면 들불 간격이 1초로 줄어듦.')]);
+  // 라이터
+  const l0 = add('lighter', 0, 0, '라이터', 1, 3, '라이터 해금(키 2). 짧은 거리, 빠른 점화.', null, { unlock: '태운 나무 150그루' });
+  lane('lighter', l0, -1, [F('불똥 튐', '불을 붙이는 데 성공하면 10% 확률로 반경 3m 안의 나무 2그루가 동시에 붙음. 10번 안에 한 번은 보장.' + ALL),
+    ...rep('튀는 불똥', 3, '불똥 튐 확률 +2%.'),
+    ...rep('멀리 튀는 불똥', 2, '불똥 튐 반경 +0.5m.'),
+    F('확실한 불똥', '보장이 10번 → 5번 안으로.'),
+    ...rep('큰 불똥', 2, '불똥 튐으로 붙는 나무 +1그루.'),
+    M('대폭발', '불똥 튐이 5% 확률로 반경 6m 대폭발로 바뀜(10그루 이상).')]);
+  const lC = lane('lighter', l0, 0, [...rep('가스 충전', 2, '라이터 점화 시간 -6%.'),
+    F('토치 분사', '라이터·토치로 불을 붙이면 바로 옆 나무 2그루도 함께 붙음.'),
+    ...rep('넓은 분사', 2, '함께 붙는 나무 +1그루.'),
+    M('가스 토치', '형태 교체: 가스 토치. 푸른 불꽃을 갖다 대면 거의 바로 붙음.'),
+    ...rep('긴 불길', 2, '라이터·토치 사거리 +0.4m, 화염방사기 불줄기 +2m.'),
+    F('고압 가스', '라이터·토치 점화 시간 -20%, 화염방사기 불줄기 +3m.'),
+    ...rep('연료 효율', 2, '라이터·토치 점화 시간 -5%, 화염방사기 불줄기 폭 넓어짐.'),
+    M('화염방사기', '형태 교체: 화염방사기. 누르는 동안 긴 불기둥을 뿜어 앞을 휩쓸어 태움.')]);
+  lane('lighter', l0, 1, [...rep('긴 손', 3, '점화 사거리 +6%.' + ALL),
+    F('달아오른 숲', '불길 세기 +1, 점화 시간 -10%.' + ALL),
+    ...rep('번지는 열기', 3, '불 번짐 반경 +0.2m.' + ALL),
+    F('열풍', '불길 세기 +1, 옮겨붙을 확률 +30%.' + ALL),
+    ...rep('번지는 열기', 2, '불 번짐 반경 +0.2m.' + ALL, 4),
+    M('불바다', '불길 세기 +2, 불 번짐 반경 +1m.' + ALL)]);
+  // 연료
+  const f0 = add('fuel', 0, 0, '기름통', 1, 3, '연료 계열 해금(키 3). 기름을 뿌린 곳에 불을 붙이면 길을 따라 번짐.', null, { unlock: '태운 나무 1,500그루' });
+  lane('fuel', f0, -1, [F('기름 줄기', '15% 확률로 불이 바람 아래쪽 나무 3그루를 연쇄로 건너감.' + ALL),
+    ...rep('긴 줄기', 2, '연쇄 +1그루.'),
+    ...rep('진한 기름', 2, '기름 줄기 확률 +3%.'),
+    F('갈라지는 줄기', '연쇄가 2갈래로 갈라짐.'),
+    ...rep('긴 줄기', 2, '연쇄 +1그루.', 3),
+    F('세 갈래', '연쇄가 3갈래로 갈라짐.'),
+    M('기름 폭풍', '연쇄가 5갈래, 갈래마다 8그루까지.')]);
+  const fC = lane('fuel', f0, 0, [F('긴 기름길', '기름을 20m 더 그을 수 있고, 기름통이 50% 빨리 다시 참.'),
+    ...rep('넓은 기름띠', 2, '기름 불이 0.3m 더 넓게 붙음.'),
+    ...rep('빠른 채움', 2, '기름통이 25% 빨리 다시 참.'),
+    M('연료 드럼', '형태 교체: 연료 드럼. 세워 두면 불이 닿을 때 터지고, 우클릭으로 한꺼번에 터뜨릴 수도 있음.'),
+    ...rep('큰 드럼', 2, '드럼·항공 살포 폭발 반경 +1m, 세울 수 있는 드럼 +1개.'),
+    ...rep('넓은 기름띠', 2, '기름 불이 0.3m 더 넓게 붙음.', 3),
+    M('항공 살포', '형태 교체: 항공 살포. 두 점을 찍으면 비행기가 그 사이를 지나가며 불붙은 연료를 쏟아부음.')]);
+  lane('fuel', f0, 1, [F('무거운 줄기', '쓰러진 나무가 15% 확률로 옆 나무에 불을 옮김.' + ALL),
+    ...rep('마른 가지', 3, '옮겨붙을 확률 +5%.'),
+    ...rep('멀리 쓰러짐', 2, '쓰러진 나무가 0.4m 더 넓게 불을 옮김.'),
+    F('도미노', '깔린 나무에 불이 옮겨붙을 확률이 크게 올라, 쓰러짐이 연달아 이어짐.'),
+    ...rep('숲 붕괴', 2, '쓰러진 나무가 0.4m 더 넓게 불을 옮김.'),
+    M('나무 사태', '깔린 나무에 불 옮길 확률 대폭 증가, 1m 더 넓게.')]);
+  // 조명탄
+  const p0 = add('flare', 0, 0, '조명탄 발사기', 1, 4, '조명탄 계열 해금(키 4). 멀리 쏘아 떨어진 자리에 불을 붙임.', null, { unlock: '태운 나무 10,000그루' });
+  lane('flare', p0, -1, [...rep('긴 사거리', 3, '사거리 +4m.'),
+    F('높은 탄도', '사거리 +10m. 산 위와 강 건너 숲도 노릴 수 있음.'),
+    ...rep('정밀 조준', 2, '착탄 반경 +0.5m.'),
+    ...rep('긴 사거리', 2, '사거리 +4m.', 4),
+    F('관측 사격', '사거리 +6m, 착탄 반경 +1m.')]);
+  const pC = lane('flare', p0, 0, [...rep('밝은 조명', 2, '착탄 반경 +0.5m.'),
+    F('2연발', '한 번 쏘면 둘레에 한 발이 더 떨어짐.'),
+    ...rep('밝은 조명', 2, '착탄 반경 +0.5m.', 3),
+    M('소이 폭탄', '형태 교체: 소이 폭탄. 떨어진 자리가 넓게 폭발하며 불탐.'),
+    ...rep('넓은 소이', 2, '착탄 반경 +1m.'),
+    F('3연발', '둘레에 떨어지는 탄 +1발.'),
+    ...rep('넓은 소이', 2, '착탄 반경 +1m.', 3),
+    M('집속 소이탄', '형태 교체: 집속 소이탄. 공중에서 3개로 갈라져 넓은 숲에 한꺼번에 떨어짐.')]);
+  lane('flare', p0, 1, [...rep('빠른 장전', 3, '장전 시간 -6%.'),
+    F('탄약 주머니', '장전 시간 -10%.'),
+    ...rep('빠른 장전', 2, '장전 시간 -6%.', 4),
+    F('예비 탄창', '장전 시간 -10%.'),
+    ...rep('빠른 장전', 2, '장전 시간 -6%.', 6),
+    M('연속 사격', '장전 시간 -20%.')]);
+  // 합류 노드와 최종 노드
+  const N = name => nodes.find(n => n.name === name).id;
+  const merge = (name, eff, req) => add('merge', 0, 0, name, 1, 6, eff, null, { req, reqMin: 0 });
+  merge('불씨 상자', '완벽한 긋기에 성공하면 불똥 튐이 반드시 발동.', [N('완벽한 긋기'), N('불똥 튐')]);
+  merge('바람 타기', '들불이 닿는 거리 +50%, 쓰러진 나무가 1m 더 넓게 불을 옮김.', [N('들불'), N('무거운 줄기')]);
+  merge('기름 불꽃', '불똥이 튀면 기름 줄기 연쇄도 반드시 이어짐.', [N('불똥 튐'), N('기름 줄기')]);
+  merge('소이 연료', '조명탄·드럼·항공 살포 폭발 반경 +2m.', [N('긴 기름길'), p0]);
+  add('final', 0, 0, '위성 포격', 2, 10, '무전으로 좌표를 불러 하늘에서 포격. 반경 안의 숲이 한 번에 불타오름.', null,
+    { req: [mC.at(-1), lC.at(-1), fC.at(-1), pC.at(-1)], reqMin: 2 });
+  // 자연(번개). 노드 번호가 밀리지 않게 최종 노드 뒤에 붙이고, 위성 포격의 필요 노드에 마지막 형태를 더한다.
+  const n0 = add('nature', 0, 0, '피뢰침 말뚝', 1, 4, '자연 계열 해금(키 5). 꽂은 자리에 2초 뒤 번개가 떨어져 반경 6m 숲에 불을 붙임.', null, { unlock: '태운 나무 25,000그루' });
+  lane('nature', n0, -1, [...rep('짧은 방전', 3, '번개가 떨어지기까지 -0.3초.'),
+    F('접지선', '번개 반경 +1.5m.'),
+    ...rep('고전압', 2, '번개 불길 세기 +1.'),
+    F('연쇄 방전', '번개가 둘레 나무 2그루로 가지를 침.'),
+    ...rep('갈라지는 번개', 2, '가지 치는 나무 +1그루.'),
+    M('천둥 벼락', '번개 반경 +3m, 불길 세기 +2.')]);
+  const nC = lane('nature', n0, 0, [...rep('구리 피뢰침', 2, '번개 반경 +0.5m.'),
+    F('빠른 설치', '자연 도구를 다시 쓰기까지 -15%.'),
+    ...rep('구리 피뢰침', 2, '번개 반경 +0.5m.', 3),
+    M('유도 로켓', '형태 교체: 유도 로켓. 구리선을 끌고 솟은 로켓이 90m 밖 조준한 자리로 번개를 부름.'),
+    ...rep('긴 구리선', 2, '자연 도구 사거리 +10m.'),
+    F('이중 유도', '자연 도구를 다시 쓰기까지 -15%.'),
+    ...rep('짙은 구름', 2, '뇌우 번개 +2번.'),
+    M('뇌우 호출', '형태 교체: 뇌우 호출. 조준한 자리 위에 비구름을 불러 8초 동안 반경 22m 안의 나무에 번개를 26번 내리침.')]);
+  lane('nature', n0, 1, [F('마른 번개', '번개 불길 세기 +1.'),
+    ...rep('정전기', 3, '자연 도구를 다시 쓰기까지 -5%.'),
+    F('번개 구름', '1분에 번개 1번이 열린 구역에 저절로 떨어짐.'),
+    ...rep('잦은 낙뢰', 2, '저절로 떨어지는 번개 1분에 +0.5번.'),
+    F('번개 나무', '저절로 떨어지는 번개가 나무 1그루를 더 붙임.'),
+    ...rep('먹구름', 2, '뇌우 번개 +2번.'),
+    M('폭풍 전선', '저절로 떨어지는 번개 1분에 +1번, 번개마다 나무 2그루를 더 붙임.')]);
+  nodes.find(n => n.name === '위성 포격').req.push(nC.at(-1));
+  // 재 상점: cost = 첫 단계 가격(그 시점 재 수입 몇 분어치), growth = 다음 단계마다 곱하는 배수
+  const shop = [];
+  const S = (cat, name, eff, max, cost, growth, unlock, req) => { const id = 's-' + (shop.length + 1); shop.push({ id, cat, name, eff, max, cost, growth, unlock: unlock || '', req: req || [] }); return id; };
+  const mv = S('move', '이동력', '걷기·달리기·점프·경사 오르기가 함께 좋아짐. 단계당 이동 속도 +4%, 점프 +2%.', 24, 0.2, 1.1, '처음부터');
+  const bike = S('move', '산악자전거', '이동 속도 ×2. 타는 동안 불을 붙일 수 없음.', 1, 3, 1, '이동력 6단계 · 구역 2', [mv]);
+  S('move', '자전거 기어', '자전거 속도 단계당 +7.5%.', 6, 0.5, 1.26, '', [bike]);
+  const atv = S('move', '사륜 오토바이(ATV)', '자전거보다 빠르고 오르막에 강함. 타는 동안 불을 붙일 수 없음.', 1, 3.5, 1, '이동력 14단계 · 구역 3', [bike]);
+  S('move', 'ATV 짐칸', '탄 채로 재 더미를 실음. 단계당 자루 용량의 절반만큼 추가.', 4, 0.75, 1.34, '', [atv]);
+  const boat = S('move', '고무보트', '강과 호수를 건널 수 있음. 강 건너 숲(구역 4부터)에 가려면 필요.', 1, 3, 1, '구역 3', [mv]);
+  S('move', '보트 모터', '보트 속도 단계당 +15%.', 4, 0.5, 1.3, '', [boat]);
+  S('move', '패러글라이더', '산 정상에서 뛰어내려 멀리 활공.', 1, 3, 1, '이동력 20단계 · 가장 높은 산 정상', [atv]);
+  S('carry', '큰 자루', '자루 용량 단계당 +50%.', 12, 0.25, 1.22, '처음부터');
+  S('carry', '빠른 붓기', '수거함에 붓는 속도 단계당 +20%, 붓는 거리 +0.3m.', 10, 0.25, 1.22, '처음부터');
+  const hp = S('carry', '휴대 수거함', '내려놓으면 12m 안의 재 더미를 자동으로 빨아들임.', 1, 2, 1, '구역 2');
+  S('carry', '넓은 흡입', '휴대 수거함 범위 단계당 +2m.', 6, 0.5, 1.26, '', [hp]);
+  const bulk = S('carry', '대량 하역', '자루를 다 비우면 20초간 근처 재를 빨아들이고 드론이 2배 빨라짐.', 1, 2, 1, '구역 3');
+  S('carry', '긴 하역', '대량 하역 단계당 +2.5초.', 6, 0.5, 1.26, '', [bulk]);
+  const dr = S('auto', '수거 드론', '드론 1대가 재 더미를 수거함으로 나름.', 1, 2, 1, '태운 나무 3,000그루');
+  S('auto', '드론 추가', '드론 단계당 +1대 (격납고 상한까지).', 6, 1.25, 1.45, '', [dr]);
+  S('auto', '빠른 프로펠러', '드론 속도 단계당 +10%.', 8, 0.5, 1.26, '', [dr]);
+  S('auto', '큰 바구니', '드론 적재량 단계당 +25%.', 8, 0.5, 1.26, '', [dr]);
+  const od = S('auto', '드론 오버드라이브', 'R 키로 8초간 드론 3배 속도.', 1, 2, 1, '구역 4', [dr]);
+  S('auto', '드론 편대', '드론들이 편대를 이뤄 구역 전체를 돌며 남은 재를 쓸어 담음.', 1, 3.5, 1, '구역 6', [od]);
+  S('scout', '넓은 미니맵', '미니맵 범위 단계당 +15%.', 6, 0.25, 1.3, '처음부터');
+  S('scout', '재 더미 표시', '지도에 재 더미 위치 표시.', 1, 1.5, 1, '구역 2');
+  S('scout', '쌍안경', '멀리 있는 숲의 남은 나무를 확대해서 봄.', 1, 1.5, 1, '구역 3');
+  S('scout', '빛기둥 거리', '남은 나무 빛기둥이 보이는 거리 단계당 +25%.', 6, 0.5, 1.26, '구역 3');
+  S('scout', '남은 나무 수', '구역별 남은 나무 수를 지도에 표시.', 1, 1, 1, '구역 4');
+  S('fac', '수거함 개량', '수거함 붓는 속도 증가. 2단계는 근처 재를 자동 수거.', 2, 1.5, 1.8, '구역 2');
+  const fwd = S('fac', '전진 수거함', '단계마다 다음 구역에 수거함 하나.', 5, 1.5, 1.3, '구역 2');
+  S('fac', '재 운반 레일', '구역 수거함끼리 재를 이어 나름. 단계마다 처리량 증가.', 6, 1.25, 1.18, '구역 4', [fwd]);
+  S('fac', '드론 격납고', '드론 대수 상한 단계당 +3대.', 3, 2, 1.5, '구역 3', [dr]);
+  S('fac', '무전 중계탑', '지도 표시 → 남은 나무 빛기둥 → 구조 요청. 마지막 단계가 엔딩의 구조 헬기를 부름.', 3, 1.5, 1.8, '구역 3');
+  // 재 줍기: 처음부터 싸게 자주 올리는 갈래(저장된 항목 번호가 밀리지 않게 끝에 붙임)
+  S('collect', '넓은 손길', '재 더미를 줍는 거리 단계당 +0.4m.', 10, 0.3, 1.2, '처음부터');
+  const vac = S('collect', '로봇 청소기', '내 주변 재 더미를 먼지통에 담아, 가득 차면 수거함에 직접 붓고 돌아오는 로봇 1대.', 1, 2, 1, '구역 2');
+  S('collect', '청소기 추가', '로봇 청소기 단계당 +1대.', 4, 1.2, 1.6, '', [vac]);
+  const blower = S('collect', '송풍 흡입기', '등에 멘 흡입기로 주변 재를 빨아들임. 줍는 거리 +2.5m.', 1, 2, 1, '구역 2');
+  S('collect', '흡입기 출력', '줍는 거리 단계당 +0.8m.', 6, 0.5, 1.26, '', [blower]);
+  S('collect', '청소기 흡입력', '로봇 청소기가 재 더미를 빨아들이는 거리 단계당 +0.4m.', 6, 0.5, 1.26, '', [vac]);
+  S('collect', '청소기 먼지통', '로봇 청소기 먼지통 용량 단계당 +5개.', 8, 0.5, 1.26, '', [vac]);
+  S('collect', '청소기 모터', '로봇 청소기 속도 단계당 +20%.', 8, 0.4, 1.25, '', [vac]);
+  const budget = Math.round(nodes.reduce((a, n) => a + n.cost, 0) / 2), pt = f => Math.round(budget * f / 87);
+  const memo = '강: 수영은 못 함. 구역 3과 4 사이를 강이 가로막고, 재 상점의 고무보트를 사야 건널 수 있음.\n헬기: 상점에서 빼고 엔딩 요소로 씀. 무전 중계탑 마지막 단계로 구조 요청 → 구조 헬기가 와서 탈출 → 뉴스 "끔찍한 방화범".';
+  return {
+    version: 9, budget, playMin: 210, memo, branches, nodes, shop,
+    curve: [{ zone: '1 작은 숲', trees: 607, points: pt(10) }, { zone: '2 큰 숲', trees: 5476, points: pt(28) }, { zone: '3 소나무 숲', trees: 17410, points: pt(45) },
+      { zone: '4 늙은 소나무 숲', trees: 34778, points: pt(59) }, { zone: '5 습지 숲', trees: 63621, points: pt(73) }, { zone: '6 깊은 습지', trees: 95000, points: budget }]
+  };
+}
+
+// ---------- 상태 ----------
+const KEY = 'onespark-tree-v9';
+const clone = o => JSON.parse(JSON.stringify(o));
+const ORIGINAL = seed();
+let D = (() => { try { const s = localStorage.getItem(KEY); if (s) { const d = JSON.parse(s); if (d.version === 9) return d; } } catch (e) {} return clone(ORIGINAL); })();
+let sel = null, selShop = null;
+// 되돌리기: 바뀔 때마다 직전 상태를 쌓는다. 글자를 이어 칠 때는 0.8초 안의 변경을 한 번으로 묶는다.
+let hist = [], fut = [], last = null, lastT = 0;
+const save = () => {
+  const s = JSON.stringify(D), now = Date.now();
+  if (last !== null && s !== last) { if (now - lastT > 800) { hist.push(last); if (hist.length > 300) hist.shift(); } fut = []; }
+  last = s; lastT = now;
+  try { localStorage.setItem(KEY, s); } catch (e) {}
+};
+const restore = s => { D = JSON.parse(s); last = s; lastT = 0; try { localStorage.setItem(KEY, s); } catch (e) {}
+  if (sel && !D.nodes.some(n => n.id === sel)) sel = null; if (selShop && !D.shop.some(x => x.id === selShop)) selShop = null;
+  if (!sel && !selShop) panel.style.display = 'none'; render(); };
+const undo = () => { if (!hist.length) return; fut.push(last); restore(hist.pop()); };
+const redo = () => { if (!fut.length) return; hist.push(last); restore(fut.pop()); };
+const KIND = ['강화', '새 기능', '마스터리'];
+const LANE = { '-1': '왼쪽', '0': '가운데', '1': '오른쪽' };
+const byId = () => new Map(D.nodes.map(n => [n.id, n]));
+const brName = b => b === 'merge' ? '합류' : b === 'final' ? '최종' : (D.branches.find(x => x.id === b) || {}).name || b;
+const brColor = b => b === 'merge' || b === 'final' ? '#ffd36b' : (D.branches.find(x => x.id === b) || {}).color || '#999';
+const esc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const total = () => D.nodes.reduce((t, n) => t + (+n.cost || 0), 0);
+
+// ---------- 트리 그림 ----------
+const NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('tv'), tip = document.getElementById('tip');
+const svgEl = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); (p || svg).appendChild(e); return e; };
+function layout() {
+  const CW = 166, LX = 46, TOP = 92, RY = 56;
+  const bi = new Map(D.branches.map((b, i) => [b.id, i]));
+  const tree = D.nodes.filter(n => bi.has(n.b));
+  const maxT = Math.max(0, ...tree.map(n => +n.t || 0));
+  const colH = TOP + maxT * RY + 44;
+  const pos = new Map(), seen = {};
+  for (const n of tree) {
+    const key = n.b + '/' + n.t + '/' + n.l; const k = seen[key] = (seen[key] || 0) + 1;
+    pos.set(n.id, [6 + bi.get(n.b) * CW + CW / 2 + (+n.l || 0) * LX + (k - 1) * 26, TOP + (+n.t || 0) * RY]);
+  }
+  const colX = id => { const n = D.nodes.find(x => x.id === id); return n && bi.has(n.b) ? 6 + bi.get(n.b) * CW + CW / 2 : null; };
+  const extra = D.nodes.filter(n => !bi.has(n.b));
+  const mergeY = colH + 46, finalY = colH + 46 + 2 * RY;
+  const used = {};
+  for (const n of extra) {
+    const xs = (n.req || []).map(colX).filter(v => v != null);
+    let x = xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 6 + CW * 1.5;
+    const y = n.b === 'final' ? finalY : mergeY;
+    const k = Math.round(x) + '/' + y; used[k] = (used[k] || 0) + 1; x += (used[k] - 1) * 60;
+    pos.set(n.id, [x, y]);
+  }
+  const H = (extra.some(n => n.b === 'final') ? finalY : extra.length ? mergeY : colH) + 60;
+  return { CW, RY, TOP, colH, pos, H, W: D.branches.length * CW + 12, mergeY };
+}
+function paint() {
+  const L = layout(), map = byId();
+  curL = L;
+  svg.replaceChildren();
+  svg.setAttribute('width', L.W); svg.setAttribute('height', L.H); svg.setAttribute('viewBox', '0 0 ' + L.W + ' ' + L.H);
+  svgEl('rect', { x: 0, y: 0, width: L.W, height: L.H, fill: '#141716' });
+  D.branches.forEach((b, i) => {
+    const x = 6 + i * L.CW, pts = D.nodes.filter(n => n.b === b.id).reduce((t, n) => t + (+n.cost || 0), 0);
+    svgEl('rect', { x: x + 4, y: 6, width: L.CW - 8, height: L.colH, rx: 8, fill: '#181c1b', stroke: b.color + '66' });
+    svgEl('rect', { x: x + 12, y: 14, width: L.CW - 24, height: 32, rx: 5, fill: '#232827', stroke: b.color + '99' });
+    const t = svgEl('text', { x: x + L.CW / 2, y: 35, 'text-anchor': 'middle', fill: b.color, 'font-size': 15, 'font-weight': 800, 'font-family': 'Malgun Gothic, sans-serif' }); t.textContent = b.name;
+    const s = svgEl('text', { x: x + L.CW / 2, y: 62, 'text-anchor': 'middle', fill: '#8e918b', 'font-size': 11.5, 'font-family': 'Malgun Gothic, sans-serif' }); s.textContent = pts + '포인트';
+  });
+  if (D.nodes.some(n => n.b === 'merge' || n.b === 'final')) {
+    const t = svgEl('text', { x: 14, y: L.mergeY - 30, fill: '#ffd36b', 'font-size': 13, 'font-weight': 700, 'font-family': 'Malgun Gothic, sans-serif' }); t.textContent = '합류 노드 · 최종 노드';
+  }
+  for (const n of D.nodes) {
+    const to = L.pos.get(n.id); if (!to) continue;
+    if (n.parent && L.pos.has(n.parent)) {
+      const [a, b] = L.pos.get(n.parent), [c, d] = to;
+      svgEl('path', { d: a === c ? `M${a} ${b}L${c} ${d}` : `M${a} ${b}L${c} ${b + L.RY * 0.45}L${c} ${d}`, stroke: '#3e4442', 'stroke-width': 3, fill: 'none', 'data-a': n.parent, 'data-b': n.id, class: 'ln' });
+    }
+    for (const r of n.req || []) {
+      if (!L.pos.has(r)) continue;
+      const [a, b] = L.pos.get(r), [c, d] = to;
+      svgEl('path', { d: `M${a} ${b}C${a} ${(b + d) / 2} ${c} ${(b + d) / 2} ${c} ${d}`, stroke: '#ffd36b66', 'stroke-width': 2, 'stroke-dasharray': '5 5', fill: 'none', 'data-a': r, 'data-b': n.id, class: 'ln rq' });
+    }
+  }
+  const orig = new Map(ORIGINAL.nodes.map(n => [n.id, n]));
+  for (const n of D.nodes) {
+    const p = L.pos.get(n.id); if (!p) continue;
+    const [x, y] = p, col = brColor(n.b), g = svgEl('g', { class: 'nd', 'data-id': n.id });
+    const r = !n.parent && n.b !== 'merge' && n.b !== 'final' ? 19 : n.b === 'final' ? 24 : 15;
+    let sh;
+    if (+n.kind === 2) sh = svgEl('rect', { x: x - r, y: y - r, width: 2 * r, height: 2 * r, rx: 3, transform: `rotate(45 ${x} ${y})`, fill: '#2a2410' }, g);
+    else if (+n.kind === 1) sh = svgEl('rect', { x: x - r, y: y - r, width: 2 * r, height: 2 * r, rx: 4, fill: '#10241c' }, g);
+    else sh = svgEl('circle', { cx: x, cy: y, r, fill: '#1d2221' }, g);
+    const o = orig.get(n.id), changed = !o ? 'new' : diffNode(o, n).length ? 'chg' : '';
+    sh.setAttribute('class', 'sh'); sh.setAttribute('stroke', changed === 'new' ? '#5fd39a' : changed ? '#ffffff' : col);
+    sh.setAttribute('stroke-width', changed ? 3 : 2); if (changed) sh.setAttribute('stroke-dasharray', '4 3');
+    if (sel === n.id) svgEl('circle', { cx: x, cy: y, r: r + 9, fill: 'none', stroke: '#ffc74d', 'stroke-width': 2 }, g);
+    const t = svgEl('text', { x, y: y + 4.5, 'text-anchor': 'middle', fill: col, 'font-size': 13, 'font-weight': 800, 'font-family': 'Malgun Gothic, sans-serif' }, g); t.textContent = n.cost;
+    if (n.b === 'merge' || n.b === 'final') { const lb = svgEl('text', { x, y: y + r + 17, 'text-anchor': 'middle', fill: '#e8dcb0', 'font-size': 12, 'font-family': 'Malgun Gothic, sans-serif' }, g); lb.textContent = n.name; }
+    g.addEventListener('mouseenter', ev => show(n.id, ev)); g.addEventListener('mousemove', move); g.addEventListener('mouseleave', hideTip);
+    g.addEventListener('click', ev => { ev.stopPropagation(); if (noClick) return; sel = n.id; if (selShop) { selShop = null; paintShop(); } paint(); openPanel(); show(n.id, ev); });
+    g.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); hideTip(); openCtx(n.id, ev); });
+    if (n.b !== 'merge' && n.b !== 'final') g.addEventListener('mousedown', ev => { if (ev.button !== 0) return; ev.preventDefault(); drag = { id: n.id, x0: ev.clientX, y0: ev.clientY, moved: false, ghost: null }; });
+  }
+  document.getElementById('chgLegend').innerHTML = '<span style="color:#fff">흰 점선 = 고친 노드</span> · <span style="color:#5fd39a">초록 점선 = 새 노드</span>';
+  stats(); sums();
+}
+// ---------- 끌어서 옮기기 ----------
+let curL = null, drag = null, noClick = false;
+const subtree = id => { const out = [], st = [id]; while (st.length) { const p = st.pop(); for (const x of D.nodes) if (x.parent === p && !out.includes(x)) { out.push(x); st.push(x.id); } } return out; };
+const svgPt = (ev, host) => { const r = (host || svg).getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+document.addEventListener('mousemove', ev => {
+  if (!drag) return;
+  if (!drag.moved && Math.hypot(ev.clientX - drag.x0, ev.clientY - drag.y0) < 6) return;
+  if (!drag.moved) { drag.moved = true; hideTip(); document.body.classList.add('dragging');
+    drag.ghost = svgEl('circle', { r: 17, fill: '#ffc74d33', stroke: '#ffc74d', 'stroke-width': 2, 'stroke-dasharray': '4 3', 'pointer-events': 'none' }, drag.sid ? sv : svg); }
+  const [x, y] = svgPt(ev, drag.sid ? sv : svg); drag.ghost.setAttribute('cx', x); drag.ghost.setAttribute('cy', y);
+});
+document.addEventListener('mouseup', ev => {
+  if (!drag) return;
+  const d = drag; drag = null; document.body.classList.remove('dragging');
+  if (!d.moved) return;
+  noClick = true; setTimeout(() => { noClick = false; }, 0);
+  if (d.sid) { shopDrop(d.sid, ev); return; }
+  const n = D.nodes.find(x => x.id === d.id), L = curL; if (!n || !L) { paint(); return; }
+  const kids = subtree(n.id), hit = document.elementFromPoint(ev.clientX, ev.clientY), tg = hit && hit.closest ? hit.closest('#tv .nd') : null;
+  const tn = tg ? D.nodes.find(x => x.id === tg.dataset.id) : null;
+  const moveTo = (b, t, l) => { const dt = t - (+n.t || 0); for (const k of kids) { k.t = Math.max(0, (+k.t || 0) + dt); k.b = b; } n.b = b; n.t = t; n.l = l; };
+  if (tn) {
+    // 다른 노드 위에 놓음: 그 노드의 바로 아래로 이어 붙인다. 자기 아래 노드에는 붙일 수 없다.
+    if (tn.id === n.id || kids.includes(tn) || tn.b === 'merge' || tn.b === 'final') { paint(); return; }
+    moveTo(tn.b, (+tn.t || 0) + 1, +tn.l || 0); n.parent = tn.id;
+  } else {
+    const [x, y] = svgPt(ev), col = Math.floor((x - 6) / L.CW);
+    if (col < 0 || col >= D.branches.length || y > L.colH + 6) { paint(); return; }
+    const b = D.branches[col].id, t = Math.max(0, Math.round((y - L.TOP) / L.RY));
+    const l = Math.max(-1, Math.min(1, Math.round((x - (6 + col * L.CW + L.CW / 2)) / 46)));
+    if (b !== n.b) n.parent = null;
+    moveTo(b, t, l);
+  }
+  sel = n.id; save(); paint(); openPanel();
+});
+
+// ---------- 노드 추가·복제·삭제 ----------
+const newNode = (n, o) => Object.assign({ id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), b: n.b, t: +n.t || 0, l: +n.l || 0, name: '새 노드', kind: 0, cost: 1, eff: '', parent: n.parent || null, req: [], reqMin: 0, unlock: '' }, o);
+const freeLane = n => { const used = new Set(D.nodes.filter(x => x.b === n.b && +x.t === +n.t).map(x => +x.l)); return [1, -1, 0].find(l => !used.has(l)) ?? (+n.l || 0); };
+function nodeAct(id, a) {
+  const n = D.nodes.find(x => x.id === id); if (!n) return;
+  const isX = n.b === 'merge' || n.b === 'final';
+  let nn = null;
+  if (a === 'del') {
+    if (!confirm('"' + n.name + '" 노드를 지울까요? 이 노드 아래 노드들은 한 칸 위 노드에 붙습니다. (Ctrl+Z로 되돌릴 수 있어요)')) return;
+    D.nodes.forEach(x => { if (x.parent === n.id) x.parent = n.parent; if (x.req) x.req = x.req.filter(r => r !== n.id); });
+    D.nodes = D.nodes.filter(x => x.id !== n.id); sel = null; panel.style.display = 'none'; save(); paint(); return;
+  }
+  if (a === 'child') nn = newNode(n, { t: (+n.t || 0) + 1, parent: isX ? null : n.id, b: n.b });
+  else if (a === 'above' && !isX) {
+    // 위에 끼워 넣기: 새 노드가 이 노드의 자리를 받고, 이 노드와 그 아래가 한 단계씩 내려간다.
+    nn = newNode(n, {});
+    for (const k of [n, ...subtree(n.id)]) k.t = (+k.t || 0) + 1;
+    n.parent = nn.id;
+  } else if (a === 'side') nn = newNode(n, { l: freeLane(n) });
+  else if (a === 'dup') nn = newNode(n, { name: n.name + ' (복사)', kind: n.kind, cost: n.cost, eff: n.eff, req: [...(n.req || [])], reqMin: n.reqMin || 0, unlock: n.unlock || '', l: isX ? n.l : freeLane(n) });
+  if (!nn) return;
+  D.nodes.push(nn); sel = nn.id; selShop = null; save(); paint(); paintShop(); openPanel();
+}
+const ctx = document.getElementById('ctx');
+function openCtx(id, ev) {
+  const n = D.nodes.find(x => x.id === id), isX = n.b === 'merge' || n.b === 'final';
+  ctx.innerHTML = `<div style="padding:5px 12px;font-size:12px;color:var(--dim)">${esc(n.name)}</div><hr>` +
+    (isX ? '' : '<button data-a="above">↑ 위에 노드 끼워 넣기</button>') +
+    `<button data-a="child">↓ 아래에 노드 추가</button>` + (isX ? '' : '<button data-a="side">→ 옆에 노드 추가 (같은 선행)</button>') +
+    `<button data-a="dup">⧉ 복제</button><button data-a="edit">✎ 편집 창 열기</button><hr><button class="del" data-a="del">삭제 <span class="k">Delete</span></button>`;
+  ctx.style.display = 'block';
+  const w = ctx.offsetWidth, h = ctx.offsetHeight;
+  ctx.style.left = Math.min(ev.clientX, innerWidth - w - 8) + 'px'; ctx.style.top = Math.min(ev.clientY, innerHeight - h - 8) + 'px';
+  ctx.querySelectorAll('button').forEach(b => b.onclick = () => { ctx.style.display = 'none';
+    if (b.dataset.a === 'edit') { sel = id; selShop = null; paint(); paintShop(); openPanel(); } else nodeAct(id, b.dataset.a); });
+}
+document.addEventListener('mousedown', e => { if (!ctx.contains(e.target)) ctx.style.display = 'none'; });
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if ((e.ctrlKey || e.metaKey) && !typing) {
+    const k = e.key.toLowerCase();
+    if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
+    if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); return; }
+  }
+  if (e.key === 'Escape') { ctx.style.display = 'none'; if (!typing && (sel || selShop)) { sel = null; selShop = null; panel.style.display = 'none'; paint(); paintShop(); } return; }
+  if (e.key === 'Delete' && !typing) { if (sel) nodeAct(sel, 'del'); else if (selShop) shopAct(selShop, 'del'); }
+});
+
+function chain(id) { const m = byId(), out = new Set(); let c = m.get(id); while (c && !out.has(c.id)) { out.add(c.id); c = c.parent ? m.get(c.parent) : null; } return out; }
+function show(id, ev) {
+  const m = byId(), n = m.get(id); if (!n) return;
+  tip.style.setProperty('--c', brColor(n.b));
+  const path = chain(id); let sum = 0; path.forEach(i => sum += +m.get(i).cost || 0);
+  const nm = i => (m.get(i) || {}).name || '(삭제됨)';
+  const req = (n.req || []).map(nm);
+  const where = n.b === 'merge' ? '합류 노드' : n.b === 'final' ? '최종 노드' : brName(n.b) + ' · ' + LANE[n.l] + ' 줄 · ' + n.t + '단계';
+  tip.innerHTML = `<h4>${esc(n.name)}</h4><div class="kd">${KIND[+n.kind]} · ${esc(where)}</div><div class="ef">${esc(n.eff)}</div>` +
+    `<div class="meta">비용 <b>${esc(n.cost)}포인트</b>` + (n.parent ? ` · 시작점부터 누적 <b>${sum}포인트</b>` : '') +
+    `<br>선행: ${n.parent ? esc(nm(n.parent)) : n.b === 'merge' || n.b === 'final' ? '없음' : '시작점'}` +
+    (req.length ? `<br>조건: ${esc(req.join(', '))}${n.reqMin && n.reqMin < req.length ? ` 중 <b>${n.reqMin}개</b>` : ' 모두'}` : '') +
+    (n.unlock ? `<br>해금: ${esc(n.unlock)}` : '') + '</div>';
+  tip.style.display = 'block'; move(ev);
+  const on = new Set(path); (n.req || []).forEach(r => chain(r).forEach(x => on.add(x)));
+  svg.querySelectorAll('.ln').forEach(l => { const hit = on.has(l.dataset.a) && on.has(l.dataset.b); l.setAttribute('stroke', hit ? '#ffc74d' : l.classList.contains('rq') ? '#ffd36b66' : '#3e4442'); });
+}
+function move(ev) { const pad = 16, w = tip.offsetWidth, h = tip.offsetHeight; let x = ev.clientX + pad, y = ev.clientY + pad; if (x + w > innerWidth - 8) x = ev.clientX - w - pad; if (y + h > innerHeight - 8) y = Math.max(8, innerHeight - h - 8); tip.style.left = x + 'px'; tip.style.top = y + 'px'; }
+function hideTip() { tip.style.display = 'none'; svg.querySelectorAll('.ln').forEach(l => l.setAttribute('stroke', l.classList.contains('rq') ? '#ffd36b66' : '#3e4442')); }
+
+// ---------- 편집 창 ----------
+const panel = document.getElementById('panel');
+function openPanel() {
+  const m = byId(), n = m.get(sel); if (!n) { panel.style.display = 'none'; return; }
+  panel.style.setProperty('--c', brColor(n.b));
+  const isX = n.b === 'merge' || n.b === 'final';
+  const opts = (list, cur) => list.map(([v, t]) => `<option value="${esc(v)}"${String(v) === String(cur) ? ' selected' : ''}>${esc(t)}</option>`).join('');
+  const parents = [['', isX ? '없음' : '시작점(없음)']].concat(D.nodes.filter(x => x.b === n.b && x.id !== n.id && !isX).map(x => [x.id, x.t + '단계 ' + LANE[x.l] + ' · ' + x.name]));
+  const reqList = D.nodes.filter(x => x.id !== n.id && x.b !== 'merge' && x.b !== 'final');
+  panel.innerHTML = `<h3>${esc(n.name || '(이름 없음)')}</h3>
+  <label class="f">이름<input class="in" data-k="name" value="${esc(n.name)}"></label>
+  <label class="f">효과<textarea class="in" data-k="eff" rows="4">${esc(n.eff)}</textarea></label>
+  <div class="two"><label class="f">종류<select class="in" data-k="kind">${opts(KIND.map((k, i) => [i, k]), n.kind)}</select></label>
+  <label class="f">비용(포인트)<input class="in" type="number" min="0" data-k="cost" value="${esc(n.cost)}"></label></div>
+  ${isX ? '' : `<div class="two"><label class="f">갈래<select class="in" data-k="b">${opts(D.branches.map(b => [b.id, b.name]), n.b)}</select></label>
+  <label class="f">줄<select class="in" data-k="l">${opts([[-1, '왼쪽'], [0, '가운데'], [1, '오른쪽']], n.l)}</select></label></div>
+  <div class="two"><label class="f">단계(위에서부터)<input class="in" type="number" min="0" data-k="t" value="${esc(n.t)}"></label>
+  <label class="f">선행 노드<select class="in" data-k="parent">${opts(parents, n.parent || '')}</select></label></div>`}
+  <label class="f">해금 조건 (선택, 예: 태운 나무 1,500그루)<input class="in" data-k="unlock" value="${esc(n.unlock)}"></label>
+  <label class="f">${isX ? '열리는 조건 (다른 갈래 노드)' : '추가 조건 (다른 갈래 노드, 선택)'}<div class="reqs">${reqList.map(x => `<label><input type="checkbox" data-req="${esc(x.id)}"${(n.req || []).includes(x.id) ? ' checked' : ''}> ${esc(brName(x.b))} · ${esc(x.name)}</label>`).join('')}</div></label>
+  <label class="f">조건 중 필요한 개수 (0 = 모두)<input class="in" type="number" min="0" data-k="reqMin" value="${esc(n.reqMin || 0)}"></label>
+  <div class="row">${isX ? '' : '<button class="btn sm" data-act="above">↑ 위에 끼워 넣기</button>'}<button class="btn sm" data-act="child">↓ 아래에 추가</button>${isX ? '' : '<button class="btn sm" data-act="side">→ 옆에 추가</button>'}<button class="btn sm" data-act="dup">⧉ 복제</button></div>
+  <div class="row"><button class="btn sm del" data-act="del">이 노드 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
+  panel.style.display = 'block';
+  panel.querySelectorAll('[data-k]').forEach(i => i.addEventListener('input', () => {
+    const k = i.dataset.k; let v = i.value;
+    if (['cost', 't', 'l', 'kind', 'reqMin'].includes(k)) v = v === '' ? 0 : +v;
+    if (k === 'parent') v = v || null;
+    n[k] = v; save(); paint();
+    if (k === 'name') panel.querySelector('h3').textContent = v || '(이름 없음)';
+    if (k === 'b') { n.parent = null; openPanel(); }
+  }));
+  panel.querySelectorAll('[data-req]').forEach(c => c.addEventListener('change', () => {
+    const s = new Set(n.req || []); c.checked ? s.add(c.dataset.req) : s.delete(c.dataset.req); n.req = [...s]; save(); paint();
+  }));
+  panel.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
+    const a = b.dataset.act;
+    if (a === 'close') { sel = null; panel.style.display = 'none'; paint(); return; }
+    nodeAct(n.id, a);
+  }));
+}
+document.addEventListener('click', e => { if (!panel.contains(e.target)) hideTip(); });
+
+// ---------- 표 ----------
+function stats() {
+  const t = total(), b = +D.budget || 0, pct = t ? Math.round(b / t * 100) : 0;
+  document.getElementById('stat').innerHTML = `트리 전체 <b>${t}</b>포인트 · 한 판에 버는 포인트 <input type="number" id="budget" value="${b}"> · 살 수 있는 비율 <b class="${pct >= 45 && pct <= 55 ? 'ok' : 'warn'}">${pct}%</b> <span style="font-size:12px">(목표 50%)</span>`;
+  document.getElementById('budget').addEventListener('change', e => { D.budget = +e.target.value || 0; save(); stats(); });
+}
+function sums() {
+  const rows = D.branches.map(b => { const ns = D.nodes.filter(n => n.b === b.id); return [b.name, b.color, ns.length, ns.reduce((t, n) => t + (+n.cost || 0), 0), ns.filter(n => +n.kind === 2).length, b.desc]; });
+  const x = D.nodes.filter(n => n.b === 'merge' || n.b === 'final');
+  rows.push(['합류·최종', '#ffd36b', x.length, x.reduce((t, n) => t + (+n.cost || 0), 0), x.filter(n => +n.kind === 2).length, '두 갈래를 함께 키우면 열리는 노드와 위성 포격']);
+  document.getElementById('sum').innerHTML = '<tr><th>갈래</th><th>노드</th><th>포인트</th><th>마스터리</th><th>설명</th></tr>' +
+    rows.map(r => `<tr><td style="color:${r[1]};font-weight:700">${esc(r[0])}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td style="color:var(--dim)">${esc(r[5])}</td></tr>`).join('');
+}
+function tables() {
+  const cv = document.getElementById('curve');
+  cv.innerHTML = '<tr><th>구역</th><th>구역 끝 누적 태운 나무</th><th>구역 끝 누적 포인트</th><th>이 구역에서 얻는 포인트</th></tr>' +
+    D.curve.map((c, i) => `<tr><td>${esc(c.zone)}</td><td><input class="in" type="number" data-c="${i}" data-k="trees" value="${c.trees}"></td><td><input class="in" type="number" data-c="${i}" data-k="points" value="${c.points}"></td><td>${c.points - (i ? D.curve[i - 1].points : 0)}</td></tr>`).join('');
+  cv.querySelectorAll('input').forEach(i => i.addEventListener('change', () => { D.curve[+i.dataset.c][i.dataset.k] = +i.value || 0; save(); tables(); }));
+  const memo = document.getElementById('memo'); memo.value = D.memo || ''; memo.oninput = () => { D.memo = memo.value; save(); };
+}
+
+// ---------- 재 상점 ----------
+const CATS = [['move', '이동', '#9fd36b', '이동력 하나로 걷기·달리기·점프가 함께 좋아지고, 상위 단계에 탈것이 열림. 탈것을 타는 동안엔 불을 붙일 수 없음.'],
+  ['collect', '재 줍기', '#f0a868', '줍는 거리·로봇 청소기·흡입기.'],
+  ['carry', '운반', '#7fd1c4', '자루·붓기·휴대 수거함·대량 하역.'], ['auto', '자동화', '#b9a7ff', '수거 드론과 헬기 수거. 후반의 중심.'],
+  ['scout', '정찰', '#8fb8ff', '지도·쌍안경·남은 나무 찾기.'], ['fac', '섬 시설', '#e0c08a', '섬에 짓는 시설. 구역 진행과 묶임.']];
+const catName = c => (CATS.find(x => x[0] === c) || [c, c])[1];
+const catColor = c => (CATS.find(x => x[0] === c) || [0, 0, '#999'])[2];
+const SFIELDS = { name: '이름', eff: '효과', cat: '갈래', max: '최대 단계', cost: '첫 가격(분)', growth: '배수', unlock: '해금', req: '필요 항목' };
+function shopDiff(o, s) { return Object.keys(SFIELDS).filter(k => JSON.stringify(o[k] ?? null) !== JSON.stringify(s[k] ?? null)); }
+// 게임과 같은 환산: 가격(재) = 첫 가격(분) × 배수^단계 × 그 구역 1분 수입(game.gd ASH_PER_MIN).
+const APM = [35, 600, 2500, 5000, 12000, 20000];
+// 구역: 이름, 나무 수, 다음 구역으로 넘어가는 비율, 나무 1그루당 재(더미 3개 × 재 배수). game.gd 구역 설정과 같다.
+const ZONES = [['작은 숲', 607, 0.85, 3], ['큰 숲', 4869, 0.8, 4.5], ['낮은 소나무숲', 11934, 0.65, 12], ['늙은 소나무숲', 17368, 0.4, 21], ['얕은 습지', 28843, 0.33, 48], ['깊은 습지', 36379, 0.3, 84]];
+const rule = text => { const r = {}; let m;
+  if ((m = text.match(/구역 (\d)/))) r.area = +m[1] - 1;
+  if ((m = text.match(/태운 나무 ([\d,]+)그루/))) r.burned = +m[1].replace(/,/g, '');
+  if ((m = text.match(/이동력 (\d+)단계/))) r.move = +m[1];
+  if (/가장 높은 산/.test(text)) r.peak = true; return r; };
+function zoneOf(s, seen = new Set()) {
+  const r = rule(s.unlock || ''); let z = r.area != null ? r.area : 0;
+  if (r.burned) z = Math.max(z, D.curve.map(c => c.trees).findIndex(t => t >= r.burned));
+  if (r.move) z = Math.max(z, 1); if (r.peak) z = Math.max(z, 3);
+  for (const q of s.req || []) { const o = D.shop.find(x => x.id === q); if (o && !seen.has(q)) { seen.add(q); z = Math.max(z, zoneOf(o, seen)); } }
+  return Math.max(0, Math.min(5, z));
+}
+const apmOf = s => APM[zoneOf(s)];
+const fa = v => Math.round(v).toLocaleString();
+// 해금·선행을 바꿔 구역이 달라져도 첫 가격(재)이 그대로 남도록 분 값을 다시 맞춘다.
+const keepAsh = (s, fn) => { const ash = (+s.cost || 0) * apmOf(s); fn(); s.cost = +(ash / apmOf(s)).toFixed(4); };
+const lvCosts = s => Array.from({ length: Math.max(0, +s.max || 0) }, (_, r) => (+s.cost || 0) * Math.pow(+s.growth || 1, r));
+const lvAsh = s => lvCosts(s).map(v => v * apmOf(s));
+const itemAsh = s => lvAsh(s).reduce((a, b) => a + b, 0);
+const itemTotal = s => lvCosts(s).reduce((a, b) => a + b, 0);
+const fm = v => (Math.round(v * 10) / 10).toLocaleString();
+const sv = document.getElementById('sv');
+function paintShop() {
+  const CW = 196, CH = 60, GAP = 12, TOP = 76, w = CW - 28;
+  const cols = CATS.map(c => D.shop.filter(s => s.cat === c[0]));
+  const H = TOP + Math.max(1, ...cols.map(c => c.length)) * (CH + GAP) + 16, W = CATS.length * CW + 12;
+  const mk = (t, a, p) => svgEl(t, a, p || sv);
+  sv.replaceChildren(); sv.setAttribute('width', W); sv.setAttribute('height', H); sv.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  mk('rect', { x: 0, y: 0, width: W, height: H, fill: '#141716' });
+  const pos = new Map();
+  CATS.forEach((c, i) => {
+    const x = 6 + i * CW, sum = cols[i].reduce((a, s) => a + itemAsh(s), 0);
+    mk('rect', { x: x + 4, y: 6, width: CW - 8, height: H - 12, rx: 8, fill: '#181c1b', stroke: c[2] + '66' });
+    mk('rect', { x: x + 12, y: 14, width: CW - 24, height: 32, rx: 5, fill: '#232827', stroke: c[2] + '99' });
+    const t = mk('text', { x: x + CW / 2, y: 35, 'text-anchor': 'middle', fill: c[2], 'font-size': 15, 'font-weight': 800, 'font-family': 'Malgun Gothic, sans-serif' }); t.textContent = c[1];
+    const s = mk('text', { x: x + CW / 2, y: 63, 'text-anchor': 'middle', fill: '#8e918b', 'font-size': 11.5, 'font-family': 'Malgun Gothic, sans-serif' }); s.textContent = '모두 사면 ' + fa(sum) + '재';
+    cols[i].forEach((it, j) => pos.set(it.id, [x + 14, TOP + j * (CH + GAP)]));
+  });
+  for (const s of D.shop) for (const r of s.req || []) {
+    if (!pos.has(r) || !pos.has(s.id)) continue;
+    const [a, b] = pos.get(r), [c, d] = pos.get(s.id);
+    const x1 = a + w / 2, y1 = b + CH, x2 = c + w / 2;
+    mk('path', { d: a === c ? `M${a + 6} ${b + CH / 2}C${a - 10} ${b + CH / 2} ${c - 10} ${d + CH / 2} ${c + 6} ${d + CH / 2}` : `M${x1} ${y1}C${x1} ${y1 + 40} ${x2} ${d - 40} ${x2} ${d}`,
+      stroke: '#ffd36b88', 'stroke-width': 2, 'stroke-dasharray': '5 4', fill: 'none' });
+  }
+  const orig = new Map(ORIGINAL.shop.map(s => [s.id, s]));
+  for (const s of D.shop) {
+    const p = pos.get(s.id); if (!p) continue;
+    const [x, y] = p, col = catColor(s.cat), g = mk('g', { class: 'nd', 'data-sid': s.id });
+    const o = orig.get(s.id), ch = !o ? 'new' : shopDiff(o, s).length ? 'chg' : '';
+    if (selShop === s.id) mk('rect', { x: x - 5, y: y - 5, width: w + 10, height: CH + 10, rx: 10, fill: 'none', stroke: '#ffc74d', 'stroke-width': 2 }, g);
+    mk('rect', { class: 'sh', x, y, width: w, height: CH, rx: 7, fill: (+s.max || 0) > 1 ? '#1d2221' : '#22261c', stroke: ch === 'new' ? '#5fd39a' : ch ? '#ffffff' : col, 'stroke-width': ch ? 3 : 1.6, 'stroke-dasharray': ch ? '4 3' : '' }, g);
+    const nm = mk('text', { x: x + 10, y: y + 20, fill: '#ece8de', 'font-size': 13, 'font-weight': 700, 'font-family': 'Malgun Gothic, sans-serif' }, g); nm.textContent = s.name.length > 9 && (+s.max || 0) > 4 ? s.name.slice(0, 8) + '…' : s.name;
+    const pr = mk('text', { x: x + 10, y: y + 37, fill: col, 'font-size': 11.5, 'font-weight': 700, 'font-family': 'Malgun Gothic, sans-serif' }, g);
+    pr.textContent = '구역' + (zoneOf(s) + 1) + ' · ' + ((+s.max || 0) > 1 ? s.max + '단계 · ' : '한 번 · ') + fa((+s.cost || 0) * apmOf(s)) + '재' + ((+s.max || 0) > 1 ? '~' : '');
+    for (let k = 0; k < Math.min(+s.max || 0, 8); k++) mk('rect', { x: x + w - 4 - (Math.min(+s.max, 8) - k) * 9, y: y + 10, width: 6, height: 8, rx: 1.5, fill: col + 'aa' }, g);
+    const first = (s.req || []).map(r => (D.shop.find(x => x.id === r) || {}).name).filter(Boolean)[0];
+    const ul = s.unlock ? '해금: ' + s.unlock : first ? '먼저: ' + first : '해금: 처음부터', ut = ul.length > 20 ? ul.slice(0, 19) + '…' : ul;
+    const u = mk('text', { x: x + 10, y: y + 53, fill: '#8e918b', 'font-size': 11, 'font-family': 'Malgun Gothic, sans-serif' }, g); u.textContent = ut;
+    g.addEventListener('mouseenter', ev => showShop(s.id, ev)); g.addEventListener('mousemove', move); g.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+    g.addEventListener('click', ev => { ev.stopPropagation(); if (noClick) return; selShop = s.id; if (sel) { sel = null; paint(); } paintShop(); openShopPanel(); showShop(s.id, ev); });
+    g.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); tip.style.display = 'none'; openShopCtx(s.id, ev); });
+    g.addEventListener('mousedown', ev => { if (ev.button !== 0) return; ev.preventDefault(); drag = { sid: s.id, x0: ev.clientX, y0: ev.clientY, moved: false, ghost: null }; });
+  }
+  shopCW = CW;
+  shopTables();
+  const tot = D.shop.reduce((a, s) => a + itemTotal(s), 0), pm = +D.playMin || 0, pct = pm ? Math.round(tot / pm * 100) : 0;
+  document.getElementById('shopStat').innerHTML = `재 상점 전체 <b style="color:#fff">${fa(D.shop.reduce((a, s) => a + itemAsh(s), 0))}재</b> (${fm(tot)}분어치) ·목표 플레이 시간 <input class="in" type="number" id="playMin" value="${pm}" style="width:70px;display:inline-block;min-height:28px;padding:2px 6px">분 · 비율 <b class="${pct >= 80 && pct <= 95 ? 'ok' : 'warn'}" style="color:${pct >= 80 && pct <= 95 ? '#5fd39a' : '#ff9b6b'}">${pct}%</b> (목표 약 90%: 엔딩까지 거의 다 살 수 있음)`;
+  document.getElementById('playMin').onchange = e => { D.playMin = +e.target.value || 0; save(); paintShop(); };
+  document.getElementById('shopAdd').replaceChildren(...CATS.map(c => { const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = '+ ' + c[1] + ' 항목';
+    b.onclick = () => { const id = 's' + Date.now().toString(36); D.shop.push({ id, cat: c[0], name: '새 항목', eff: '', max: 1, cost: 2, growth: 1.6, unlock: '', req: [] }); selShop = id; sel = null; save(); paint(); paintShop(); openShopPanel(); }; return b; }));
+}
+function showShop(id, ev) {
+  const s = D.shop.find(x => x.id === id); if (!s) return;
+  const m = new Map(D.shop.map(x => [x.id, x]));
+  tip.style.setProperty('--c', catColor(s.cat));
+  const cs = lvCosts(s), req = (s.req || []).map(r => (m.get(r) || {}).name || '(삭제됨)');
+  tip.innerHTML = `<h4>${esc(s.name)}</h4><div class="kd">${esc(catName(s.cat))} · ${(+s.max || 0) > 1 ? '최대 ' + s.max + '단계' : '한 번 구매'}</div><div class="ef">${esc(s.eff)}</div>` +
+    `<div class="meta">단계별 가격: <b>${cs.map(fm).join(' → ')}분</b>어치<br>모두 사면 <b>${fm(itemTotal(s))}분</b>어치` +
+    `<br>해금: ${esc(s.unlock || '처음부터')}` + (req.length ? `<br>먼저 살 것: ${esc(req.join(', '))}` : '') + '</div>';
+  tip.style.display = 'block'; move(ev);
+}
+function openShopPanel() {
+  const s = D.shop.find(x => x.id === selShop); if (!s) { panel.style.display = 'none'; return; }
+  panel.style.setProperty('--c', catColor(s.cat));
+  const opts = CATS.map(c => `<option value="${c[0]}"${c[0] === s.cat ? ' selected' : ''}>${c[1]}</option>`).join('');
+  panel.innerHTML = `<h3>${esc(s.name || '(이름 없음)')}</h3>
+  <label class="f">이름<input class="in" data-k="name" value="${esc(s.name)}"></label>
+  <label class="f">효과<textarea class="in" data-k="eff" rows="3">${esc(s.eff)}</textarea></label>
+  <div class="two"><label class="f">갈래<select class="in" data-k="cat">${opts}</select></label>
+  <label class="f">최대 단계<input class="in" type="number" min="1" data-k="max" value="${esc(s.max)}"></label></div>
+  <div class="two"><label class="f">첫 가격(재) · 구역 ${zoneOf(s) + 1}<input class="in" type="number" min="0" data-ash value="${Math.round((+s.cost || 0) * apmOf(s))}"></label>
+  <label class="f">다음 단계마다 배수<input class="in" type="number" min="1" step="0.05" data-k="growth" value="${+(+s.growth || 0).toFixed(3)}"></label></div>
+  <label class="f">해금 조건 (예: 구역 3, 이동 강화 합계 10단계)<input class="in" data-k="unlock" value="${esc(s.unlock)}"></label>
+  <label class="f">먼저 사야 하는 항목<div class="reqs">${D.shop.filter(x => x.id !== s.id).map(x => `<label><input type="checkbox" data-req="${esc(x.id)}"${(s.req || []).includes(x.id) ? ' checked' : ''}> ${esc(catName(x.cat))} · ${esc(x.name)}</label>`).join('')}</div></label>
+  <div class="row"><button class="btn sm" data-act="dup">⧉ 복제</button><button class="btn sm del" data-act="del">이 항목 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
+  panel.style.display = 'block';
+  panel.querySelector('[data-ash]').addEventListener('input', e => { s.cost = +((+e.target.value || 0) / apmOf(s)).toFixed(4); save(); paintShop(); });
+  panel.querySelectorAll('[data-k]').forEach(i => i.addEventListener('input', () => {
+    const k = i.dataset.k, v = ['max', 'growth'].includes(k) ? (i.value === '' ? 0 : +i.value) : i.value;
+    if (k === 'unlock') keepAsh(s, () => { s.unlock = v; }); else s[k] = v;
+    save(); paintShop();
+    if (k === 'unlock') panel.querySelector('[data-ash]').parentElement.firstChild.textContent = '첫 가격(재) · 구역 ' + (zoneOf(s) + 1);
+    if (k === 'name') panel.querySelector('h3').textContent = s[k] || '(이름 없음)';
+    if (k === 'cat') openShopPanel();
+  }));
+  panel.querySelectorAll('[data-req]').forEach(c => c.addEventListener('change', () => {
+    keepAsh(s, () => { const t = new Set(s.req || []); c.checked ? t.add(c.dataset.req) : t.delete(c.dataset.req); s.req = [...t]; }); save(); paintShop();
+  }));
+  panel.querySelector('[data-act="dup"]').onclick = () => {
+    const id = 's' + Date.now().toString(36); D.shop.push(Object.assign(clone(s), { id, name: s.name + ' (복사)', req: [...(s.req || [])] }));
+    selShop = id; save(); paintShop(); openShopPanel();
+  };
+  panel.querySelector('[data-act="close"]').onclick = () => { selShop = null; panel.style.display = 'none'; paintShop(); };
+  panel.querySelector('[data-act="del"]').onclick = () => {
+    if (!confirm('"' + s.name + '" 항목을 지울까요?')) return;
+    D.shop.forEach(x => { if (x.req) x.req = x.req.filter(r => r !== s.id); });
+    D.shop = D.shop.filter(x => x.id !== s.id); selShop = null; panel.style.display = 'none'; save(); paintShop();
+  };
+}
+
+// ---------- 상점: 추가·복제·삭제·옮기기·표 ----------
+let shopCW = 196;
+const sid = () => 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+function shopAct(id, a) {
+  const i = D.shop.findIndex(x => x.id === id), s = D.shop[i]; if (!s) return;
+  if (a === 'del') {
+    if (!confirm('"' + s.name + '" 항목을 지울까요? (Ctrl+Z로 되돌릴 수 있어요)')) return;
+    D.shop.forEach(x => { if (x.req) x.req = x.req.filter(r => r !== s.id); });
+    D.shop.splice(i, 1); if (selShop === id) { selShop = null; panel.style.display = 'none'; } save(); paintShop(); return;
+  }
+  const n = a === 'dup' ? Object.assign(clone(s), { id: sid(), name: s.name + ' (복사)' })
+    : { id: sid(), cat: s.cat, name: '새 항목', eff: '', max: 1, cost: +s.cost || 1, growth: 1.6, unlock: a === 'next' ? '' : s.unlock || '', req: a === 'next' ? [s.id] : [...(s.req || [])] };
+  D.shop.splice(i + 1, 0, n); selShop = n.id; sel = null; save(); paint(); paintShop(); openShopPanel();
+}
+function openShopCtx(id, ev) {
+  const s = D.shop.find(x => x.id === id);
+  ctx.innerHTML = `<div style="padding:5px 12px;font-size:12px;color:var(--dim)">${esc(s.name)}</div><hr>` +
+    '<button data-a="new">+ 같은 갈래에 새 항목</button><button data-a="next">↓ 이 항목 다음 단계 (먼저 살 것: 이 항목)</button>' +
+    '<button data-a="dup">⧉ 복제</button><button data-a="edit">✎ 편집 창 열기</button><hr><button class="del" data-a="del">삭제 <span class="k">Delete</span></button>';
+  ctx.style.display = 'block';
+  ctx.style.left = Math.min(ev.clientX, innerWidth - ctx.offsetWidth - 8) + 'px'; ctx.style.top = Math.min(ev.clientY, innerHeight - ctx.offsetHeight - 8) + 'px';
+  ctx.querySelectorAll('button').forEach(b => b.onclick = () => { ctx.style.display = 'none';
+    if (b.dataset.a === 'edit') { selShop = id; sel = null; paint(); paintShop(); openShopPanel(); } else shopAct(id, b.dataset.a); });
+}
+function shopDrop(id, ev) {
+  const s = D.shop.find(x => x.id === id), hit = document.elementFromPoint(ev.clientX, ev.clientY);
+  const tg = hit && hit.closest ? hit.closest('#sv .nd') : null, t = tg ? D.shop.find(x => x.id === tg.dataset.sid) : null;
+  if (t && t.id !== s.id) {
+    D.shop.splice(D.shop.indexOf(s), 1); D.shop.splice(D.shop.indexOf(t), 0, s); s.cat = t.cat;
+  } else if (!t) {
+    const [x] = svgPt(ev, sv), col = Math.floor((x - 6) / shopCW);
+    if (col < 0 || col >= CATS.length) { paintShop(); return; }
+    D.shop.splice(D.shop.indexOf(s), 1); D.shop.push(s); s.cat = CATS[col][0];
+  } else { paintShop(); return; }
+  selShop = id; sel = null; save(); paint(); paintShop(); openShopPanel();
+}
+function shopTables(force) {
+  const zs = ZONES.map(() => ({ n: 0, sum: 0 }));
+  for (const s of D.shop) { const z = zs[zoneOf(s)]; z.n++; z.sum += itemAsh(s); }
+  let cg = 0, cs = 0;
+  document.getElementById('zoneBudget').innerHTML = '<tr><th>구역</th><th>나무</th><th>다음 구역까지 태울 나무</th><th>1그루당 재</th><th>얻는 재 (다음 구역까지)</th><th>얻는 재 (전부 태움)</th><th>상점 항목</th><th>상점 모두 사면</th><th>상점 ÷ 얻는 재</th><th>누적 얻는 재</th><th>누적 상점</th></tr>' +
+    ZONES.map((z, i) => { const nt = Math.round(z[1] * z[2]), g = nt * z[3], all = z[1] * z[3], p = g ? Math.round(zs[i].sum / g * 100) : 0; cg += g; cs += zs[i].sum;
+      return `<tr><td>${i + 1} ${z[0]}</td><td>${fa(z[1])}</td><td>${fa(nt)} (${Math.round(z[2] * 100)}%)</td><td>${z[3]}</td><td>${fa(g)}</td><td>${fa(all)}</td><td>${zs[i].n}</td><td><b>${fa(zs[i].sum)}</b></td><td style="color:${p <= 100 ? '#5fd39a' : '#ff9b6b'};font-weight:700">${p}%</td><td>${fa(cg)}</td><td style="color:${cs <= cg ? '#5fd39a' : '#ff9b6b'}">${fa(cs)}</td></tr>`; }).join('');
+  const tbl = document.getElementById('shopTbl');
+  if (!force && tbl.contains(document.activeElement)) return;
+  const act = tbl.contains(document.activeElement) ? [document.activeElement.closest('tr')?.dataset.sid, document.activeElement.dataset.f] : null;
+  const rows = D.shop.map((s, i) => [zoneOf(s), CATS.findIndex(c => c[0] === s.cat), i, s]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+  const inp = (f, v, w, ty) => `<input class="in" data-f="${f}" ${ty ? 'type="number" min="0" step="any"' : ''} value="${esc(v)}" style="width:${w}px">`;
+  tbl.innerHTML = '<tr><th>구역</th><th>갈래</th><th>이름</th><th>최대 단계</th><th>첫 가격(재)</th><th>배수</th><th>마지막 단계(재)</th><th>모두 사면(재)</th><th>해금 조건</th><th>먼저 살 것</th><th>효과</th><th></th></tr>' +
+    rows.map(([z, , , s]) => { const la = lvAsh(s);
+      return `<tr data-sid="${esc(s.id)}"><td>${z + 1}</td><td><select class="in" data-f="cat">${CATS.map(c => `<option value="${c[0]}"${c[0] === s.cat ? ' selected' : ''}>${c[1]}</option>`).join('')}</select></td>` +
+        `<td>${inp('name', s.name, 150)}</td><td>${inp('max', s.max, 60, 1)}</td><td>${inp('ash', Math.round((+s.cost || 0) * APM[z]), 90, 1)}</td><td>${inp('growth', +(+s.growth || 0).toFixed(3), 60, 1)}</td>` +
+        `<td>${fa(la[la.length - 1] || 0)}</td><td><b>${fa(itemAsh(s))}</b></td><td>${inp('unlock', s.unlock || '', 170)}</td>` +
+        `<td style="color:var(--dim);font-size:13px">${esc((s.req || []).map(r => (D.shop.find(x => x.id === r) || {}).name || '?').join(', '))}</td>` +
+        `<td>${inp('eff', s.eff || '', 260)}</td><td style="white-space:nowrap"><button class="btn sm" data-a="dup">복제</button> <button class="btn sm del" data-a="del">삭제</button></td></tr>`; }).join('');
+  tbl.querySelectorAll('[data-f]').forEach(el => el.addEventListener('change', () => {
+    const s = D.shop.find(x => x.id === el.closest('tr').dataset.sid), f = el.dataset.f, v = el.value;
+    if (f === 'ash') s.cost = +((+v || 0) / apmOf(s)).toFixed(4);
+    else if (f === 'max' || f === 'growth') s[f] = +v || 0;
+    else if (f === 'unlock') keepAsh(s, () => { s.unlock = v; });
+    else s[f] = v;
+    save(); paintShop(); shopTables(true); if (selShop === s.id) openShopPanel();
+  }));
+  tbl.querySelectorAll('[data-a]').forEach(b => b.onclick = () => shopAct(b.closest('tr').dataset.sid, b.dataset.a));
+  if (act && act[0]) { const el = tbl.querySelector(`tr[data-sid="${act[0]}"] [data-f="${act[1]}"]`); if (el) el.focus(); }
+}
+
+// ---------- 요청문 ----------
+const FIELDS = { name: '이름', eff: '효과', kind: '종류', cost: '비용', b: '갈래', t: '단계', l: '줄', parent: '선행', req: '조건', reqMin: '조건 개수', unlock: '해금' };
+function diffNode(o, n) { return Object.keys(FIELDS).filter(k => JSON.stringify(o[k] ?? null) !== JSON.stringify(n[k] ?? null)); }
+function requestText() {
+  const m = byId(), om = new Map(ORIGINAL.nodes.map(n => [n.id, n]));
+  const nm = (map, id) => (map.get(id) || {}).name || id;
+  const show = (k, v, map) => k === 'kind' ? KIND[+v] : k === 'b' ? brName(v) : k === 'l' ? LANE[v] : k === 'parent' ? (v ? nm(map, v) : '시작점') : k === 'req' ? (v || []).map(i => nm(map, i)).join(', ') || '없음' : v;
+  const lines = [];
+  for (const n of D.nodes) {
+    const o = om.get(n.id);
+    if (!o) { lines.push(`- 새 노드 [${brName(n.b)}] ${n.name} (${KIND[+n.kind]}, ${n.cost}포인트): ${n.eff}`); continue; }
+    const d = diffNode(o, n); if (d.length) lines.push(`- [${brName(n.b)}] ${o.name}: ` + d.map(k => `${FIELDS[k]} "${show(k, o[k], om)}" → "${show(k, n[k], m)}"`).join(' / '));
+  }
+  for (const o of ORIGINAL.nodes) if (!m.has(o.id)) lines.push(`- 삭제 [${brName(o.b)}] ${o.name}`);
+  if (D.budget !== ORIGINAL.budget) lines.push(`- 한 판에 버는 포인트 ${ORIGINAL.budget} → ${D.budget}`);
+  D.curve.forEach((c, i) => { const o = ORIGINAL.curve[i]; if (o && (o.trees !== c.trees || o.points !== c.points)) lines.push(`- 포인트 곡선 ${c.zone}: ${o.trees}그루/${o.points}P → ${c.trees}그루/${c.points}P`); });
+  const os = new Map(ORIGINAL.shop.map(s => [s.id, s])), ms = new Map(D.shop.map(s => [s.id, s]));
+  const sshow = (k, v, map) => k === 'cat' ? catName(v) : k === 'req' ? (v || []).map(i => (map.get(i) || {}).name || i).join(', ') || '없음' : v;
+  for (const s of D.shop) {
+    const o = os.get(s.id);
+    if (!o) { lines.push(`- 새 재 상점 항목 [${catName(s.cat)}] ${s.name}: ${s.eff} (최대 ${s.max}단계, 첫 가격 ${fa(s.cost * apmOf(s))}재(${s.cost}분), ×${s.growth}, 해금 ${s.unlock || '처음부터'})`); continue; }
+    const d = shopDiff(o, s); if (d.length) lines.push(`- 재 상점 [${catName(s.cat)}] ${o.name}: ` + d.map(k => `${SFIELDS[k]} "${sshow(k, o[k], os)}" → "${sshow(k, s[k], ms)}"`).join(' / '));
+  }
+  for (const o of ORIGINAL.shop) if (!ms.has(o.id)) lines.push(`- 재 상점 삭제 [${catName(o.cat)}] ${o.name}`);
+  if (D.playMin !== ORIGINAL.playMin) lines.push(`- 목표 플레이 시간 ${ORIGINAL.playMin}분 → ${D.playMin}분`);
+  let t = `# 불씨 하나 강화 트리 요청 (포인트 방식)\n트리 전체 ${total()}포인트 · 한 판에 버는 포인트 ${D.budget} · 살 수 있는 비율 ${total() ? Math.round(D.budget / total() * 100) : 0}%\n`;
+  if (D.memo) t += `\n## 전체 방향 메모\n${D.memo}\n`;
+  t += `\n## 처음 설계안에서 바뀐 점 (${lines.length}개)\n` + (lines.length ? lines.join('\n') : '(바뀐 내용 없음, 처음 설계안 그대로 반영)') + '\n';
+  t += '\n## 최종 데이터 (이대로 반영)\n```json\n' + JSON.stringify({ budget: D.budget, branches: D.branches, nodes: D.nodes, curve: D.curve, playMin: D.playMin, shop: D.shop }) + '\n```\n';
+  return t;
+}
+
+// ---------- 버튼 ----------
+const dlg = document.getElementById('dlg'), outText = document.getElementById('outText');
+const download = (name, blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); };
+document.getElementById('btnOut').onclick = () => { outText.value = requestText(); document.getElementById('copyMsg').textContent = ''; dlg.showModal(); };
+document.getElementById('btnClose').onclick = () => dlg.close();
+document.getElementById('btnCopy').onclick = async () => {
+  outText.select(); let ok = false;
+  try { await navigator.clipboard.writeText(outText.value); ok = true; } catch (e) { try { ok = document.execCommand('copy'); } catch (e2) {} }
+  document.getElementById('copyMsg').textContent = ok ? '복사했어요. 채팅에 붙여 넣으세요.' : '복사가 막혔어요. Ctrl+A, Ctrl+C로 복사해 주세요.';
+};
+document.getElementById('btnTxt').onclick = () => download('onespark-request.txt', new Blob([outText.value], { type: 'text/plain' }));
+document.getElementById('btnSave').onclick = () => download('onespark-tree.json', new Blob([JSON.stringify(D, null, 1)], { type: 'application/json' }));
+document.getElementById('btnLoad').onclick = () => document.getElementById('file').click();
+document.getElementById('file').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (d.version !== 9 || !d.nodes || !d.shop) throw 0; D = d; sel = null; save(); render(); } catch (err) { alert('이 편집기에서 저장한 파일이 아니에요.'); }
+  e.target.value = '';
+};
+document.getElementById('btnReset').onclick = () => { if (!confirm('고친 내용을 모두 버리고 처음 설계안으로 되돌릴까요?')) return; D = clone(ORIGINAL); sel = null; panel.style.display = 'none'; save(); render(); };
+const savePng = (s, name) => {
+  const xml = new XMLSerializer().serializeToString(s), w = +s.getAttribute('width'), h = +s.getAttribute('height');
+  const img = new Image();
+  img.onload = () => { const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2; const g = c.getContext('2d'); g.scale(2, 2); g.drawImage(img, 0, 0); c.toBlob(b => download(name, b), 'image/png'); };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+};
+document.getElementById('btnPng').onclick = () => { savePng(svg, 'onespark-tree.png'); setTimeout(() => savePng(sv, 'onespark-ash-shop.png'), 400); };
+document.getElementById('btnUndo').onclick = undo;
+document.getElementById('btnRedo').onclick = redo;
+function render() { paint(); paintShop(); tables(); if (sel) openPanel(); else if (selShop) openShopPanel(); }
+last = JSON.stringify(D);
+render();
+</script>
+</body>
+</html>
