@@ -258,15 +258,18 @@ function renderBoard() {
   $('view').innerHTML = h + '<svg class="links" id="links"></svg></div></div>';
   drawLinks();
 }
-// 먼저 사야 하는 강화(req)를 점선으로 잇는다. 같은 줄 위아래면 짧은 세로 점선, 다른 줄이면 곡선.
+// 먼저 사야 하는 강화(req)를 점선으로 잇는다. 다른 기둥으로 가는 선은 판을 가로질러 어지러우므로,
+// 그 강화를 고르거나 마우스를 올렸을 때만 그린다(평소에는 점 위 설명에 '먼저:'로 보임).
+let hoverId = null;
 function drawLinks() {
   const brd = $('brd'), svg = $('links'); if (!brd || !svg) return;
   const b = brd.getBoundingClientRect(); svg.setAttribute('width', b.width); svg.setAttribute('height', b.height);
   const pos = id => { const e = brd.querySelector(`.nd[data-r="${id}"] .sh`); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2 - b.left, r.top + r.height / 2 - b.top, r.height / 2]; };
   let h = '';
   for (const r of D.rows) for (const q of r.req) {
+    const on = isSel(r.id) || isSel(q) || hoverId === r.id || hoverId === q;
+    if (!on && R(q)?.page !== r.page) continue;
     const A = pos(q), B = pos(r.id); if (!A || !B) continue;
-    const on = isSel(r.id) || isSel(q);
     const [x1, y1] = [A[0], A[1] + A[2]], [x2, y2] = [B[0], B[1] - B[2]], my = (y1 + y2) / 2;
     h += `<path d="M${x1} ${y1}C${x1} ${my} ${x2} ${my} ${x2} ${y2}" fill="none" stroke="${on ? '#ffc74d' : '#ffd36b66'}" stroke-width="${on ? 2.2 : 1.5}" stroke-dasharray="4 4"/>`;
   }
@@ -310,6 +313,7 @@ const tip = $('tip');
 document.addEventListener('mouseover', e => {
   const n = e.target.closest && e.target.closest('.nd'); if (!n || drag) { tip.style.display = 'none'; return; }
   const r = R(n.dataset.r); if (!r) return;
+  if (hoverId !== r.id) { hoverId = r.id; drawLinks(); }
   const k = r.steps.length, eff = r.eff || r.steps[0]?.eff || '';
   const steps = r.steps.some(s => s.eff) ? r.steps.map((s, i) => `${i + 1}. ${esc(s.eff || r.eff)}`).join('<br>') : esc(eff);
   tip.innerHTML = `<h4>${ICON[r.kind]} ${esc(r.name)}</h4><div class="k">${KIND[r.kind]} · ${zr(r)}${k > 1 ? ` · ${k}단계` : ''}</div><div>${steps.replace(/\n/g, '<br>')}</div>`
@@ -318,7 +322,11 @@ document.addEventListener('mouseover', e => {
   tip.style.setProperty('--c', P(r.page).color); tip.style.display = 'block';
 });
 document.addEventListener('mousemove', e => { if (tip.style.display === 'block') { const x = Math.min(e.clientX + 16, innerWidth - tip.offsetWidth - 8), y = Math.min(e.clientY + 16, innerHeight - tip.offsetHeight - 8); tip.style.left = x + 'px'; tip.style.top = y + 'px'; } });
-document.addEventListener('mouseout', e => { if (e.target.closest && e.target.closest('.nd') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.nd'))) tip.style.display = 'none'; });
+document.addEventListener('mouseout', e => {
+  if (e.target.closest && e.target.closest('.nd') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.nd'))) {
+    tip.style.display = 'none'; if (hoverId) { hoverId = null; drawLinks(); }
+  }
+});
 
 // ---------- 오른쪽 편집 창 ----------
 const panel = $('panel');
