@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>불씨 하나 — 강화 편집기 (갈림길 + 단계 줄)</title>
+<title>불씨 하나 — 강화 판 편집기 (기둥형)</title>
 <style>
 :root{color-scheme:dark;--bg:#0d0f0f;--panel:#151818;--line:#2a2e2d;--text:#ece8de;--dim:#a3a69f;--gold:#ffc74d}
 *{box-sizing:border-box}
@@ -18,10 +18,15 @@ a{color:#8fb8ff}
 .btn{background:#1f2423;border:1px solid #3a403f;border-radius:7px;padding:7px 12px;cursor:pointer;min-height:36px;white-space:nowrap}
 .btn:hover{border-color:var(--gold);color:var(--gold)}
 .btn.main{background:var(--gold);border-color:var(--gold);color:#15130c;font-weight:700}.btn.main:hover{color:#15130c;filter:brightness(1.08)}
+.btn.on{background:#3a2f12;border-color:var(--gold);color:var(--gold)}
 .btn.sm{padding:3px 9px;min-height:30px;font-size:13px}.btn.del:hover{border-color:#ff6b5e;color:#ff6b5e}
 .in{width:100%;background:#0f1212;border:1px solid #333837;border-radius:6px;padding:6px 8px;min-height:34px}
 textarea.in{resize:vertical;line-height:1.4}.in:focus{outline:2px solid var(--gold);outline-offset:-1px}
-.wrap{display:grid;grid-template-columns:200px 1fr;gap:14px;padding:12px 14px 0;transition:margin-right .15s}
+.note{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 14px;color:#c9c6bd;font-size:14px;margin:10px 14px 0}.note b{color:var(--gold)}
+.modes{display:flex;gap:6px;align-items:center;margin:10px 14px 0;flex-wrap:wrap}
+.modes .hint{font-size:12.5px;color:#a9a59b;margin-left:8px}.modes .hint b{color:var(--gold)}
+.wrap{display:grid;grid-template-columns:200px 1fr;gap:14px;padding:10px 14px 0}
+body.board .wrap{grid-template-columns:1fr}body.board .side{display:none}
 body.po .wrap,body.po main{margin-right:400px}
 .side{position:sticky;top:64px;align-self:start;max-height:calc(100vh - 76px);overflow:auto}
 .side .sec{font-size:11.5px;color:#7d817b;margin:12px 4px 4px;letter-spacing:.04em}
@@ -29,20 +34,47 @@ body.po .wrap,body.po main{margin-right:400px}
 .tab b{display:block;font-size:15px;color:#d8d3c7}.tab span{font-size:11.5px}
 .tab:hover{border-left-color:var(--c)}.tab.on{background:#1d2120;border-color:#3a403f;border-left-color:var(--c)}.tab.on b{color:var(--c)}
 .tab.drop{outline:2px dashed #7fd1ff}
+/* 전체 판: 기둥마다 뿌리 하나와 세로 줄들 */
+.boardwrap{overflow-x:auto;padding-bottom:6px}
+.brd{position:relative;display:grid;gap:8px;min-width:1500px;background:#0f1211;border:1px solid #242928;border-radius:12px;padding:12px}
+.brd svg.links{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.pcol{background:#131716;border:1px solid #262b2a;border-top:3px solid var(--c);border-radius:9px;padding:8px 4px 10px;min-width:0}
+.ph{text-align:center;cursor:pointer;padding:0 2px 6px;border-bottom:1px solid #232827;margin-bottom:8px}
+.ph b{display:block;color:var(--c);font-size:15px;letter-spacing:.02em}.ph small{display:block;font-size:11px;color:var(--dim);line-height:1.35}
+.ph:hover b{text-decoration:underline}
+.roots{display:flex;justify-content:center;gap:6px;min-height:6px}
+.olanes{position:relative;display:grid;gap:2px;margin-top:4px;padding-top:12px}
+.olanes.hasroot::before{content:"";position:absolute;top:0;left:calc(50% / var(--k));right:calc(50% / var(--k));border-top:2px solid #3d4341}
+.olanes.hasroot .olane::before{content:"";position:absolute;top:-12px;left:50%;height:12px;border-left:2px solid #3d4341}
+.olanes.hasroot::after{content:"";position:absolute;top:-10px;left:50%;height:10px;border-left:2px solid #3d4341}
+.olane{position:relative;display:flex;flex-direction:column;align-items:center;min-width:0;min-height:60px;border-radius:7px;padding:2px 0 4px}
+.olane .ln{font-size:10.5px;color:#cfc8b6;text-align:center;line-height:1.25;margin-bottom:6px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.olane .ln:hover{color:var(--gold)}
+.olane.drop{outline:2px dashed #7fd1ff}
+.nd{position:relative;display:flex;flex-direction:column;align-items:center;width:100%;margin-bottom:9px;cursor:pointer;user-select:none}
+.olane.chain .nd+.nd::before{content:"";position:absolute;top:-10px;left:50%;height:10px;border-left:2px solid #3d4341}
+.nd .sh{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--c);background:#1a1e1d;font-size:10.5px;font-weight:800;color:var(--c)}
+.nd.k1 .sh{width:28px;height:28px;border-radius:6px;background:#231f15}
+.nd.k2 .sh{width:28px;height:28px;border-radius:5px;transform:rotate(45deg);background:#2e2512;margin:3px 0}.nd.k2 .sh span{transform:rotate(-45deg)}
+.nd .nm{font-size:10.5px;line-height:1.2;color:#bdb7a8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;padding:0 2px}
+.nd:hover .sh{box-shadow:0 0 0 3px #ffffff18}.nd:hover .nm{color:#fff}
+.nd.sel .sh{box-shadow:0 0 0 3px var(--gold)}.nd.sel .nm{color:var(--gold)}
+.nd.ib .sh{box-shadow:0 -6px 0 -2px #7fd1ff}.nd.ia .sh{box-shadow:0 6px 0 -2px #7fd1ff}.nd.mg .sh{box-shadow:0 0 0 3px #7fd1ff}
+.nd.dragging{opacity:.35}
+.addn{background:none;border:1px dashed #333837;border-radius:6px;color:#7d817b;font-size:11px;padding:0 6px;cursor:pointer;margin-top:2px}
+.addn:hover{color:var(--gold);border-color:var(--gold)}
+#tip{position:fixed;z-index:9;pointer-events:none;max-width:340px;background:#1d2120f5;border:1px solid #4a504e;border-left:4px solid var(--c,#ffc74d);border-radius:8px;padding:9px 12px;font-size:13px;line-height:1.5;box-shadow:0 8px 24px #000a;display:none}
+#tip h4{margin:0;font-size:15px;color:var(--c,#ffc74d)}#tip .k{font-size:11.5px;color:#cfcac0;margin:1px 0 5px}#tip .p{color:#e0b85c}#tip .q{color:#8fb8ff;font-size:12px;margin-top:4px}
+/* 기둥 자세히 */
 .phead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 8px}
 .phead h2{margin:0;font-size:24px;color:var(--c)}.phead .st{color:var(--dim);font-size:13.5px}
-.hint{font-size:12.5px;color:#a9a59b;background:#121514;border:1px solid #262b2a;border-radius:8px;padding:6px 10px;margin-bottom:10px}.hint b{color:var(--gold)}
 .lane{background:#111413;border:1px solid #242928;border-radius:10px;padding:10px;margin-bottom:12px}
 .lhead{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;cursor:pointer;margin-bottom:8px;padding:2px 2px 6px;border-bottom:1px solid #222726}
 .lhead b{color:var(--c);font-size:16px}.lhead small{color:var(--dim);font-size:12px}.lhead:hover b{text-decoration:underline}
 .lhead .keys{flex-basis:100%;font-size:12px;color:#c9c3b3}
 .lane.drop{outline:2px dashed #7fd1ff}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
-.list .card{margin-bottom:10px}
 .cols{display:grid;gap:12px;align-items:start}
-.fork{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid var(--c);background:linear-gradient(90deg,#2a2213,#151817);border-radius:10px;padding:10px 14px;margin:4px 0 12px;cursor:pointer}
-.fork .d{font-size:20px;color:var(--c)}.fork b{color:var(--c);font-size:16px}.fork span{color:#cfc9bb;font-size:13.5px}
-.fork:hover{filter:brightness(1.12)}
+.list .card{margin-bottom:10px}
 .card{position:relative;background:#171b1a;border:1px solid #2c3130;border-left:3px solid var(--c);border-radius:8px;padding:7px 10px 8px;cursor:pointer;user-select:none}
 .card:hover{border-color:#454b49;border-left-color:var(--c)}
 .card.k1{background:#1b1f1c}.card.k2{background:linear-gradient(135deg,#2a2314,#191c1b 60%);border-color:#5a4a26}
@@ -62,9 +94,8 @@ body.po .wrap,body.po main{margin-right:400px}
 .card.dragging{opacity:.4}
 .add{display:block;width:100%;margin-top:6px;background:none;border:1px dashed #333837;border-radius:7px;color:var(--dim);padding:5px;cursor:pointer;font-size:13px}
 .add:hover{color:var(--gold);border-color:var(--gold)}
-main{padding:4px 14px 80px 228px}
+main{padding:4px 14px 80px}
 main h2{font-size:20px;margin:26px 0 6px}p.lead{margin:0 0 10px;color:var(--dim);font-size:14px}
-.note{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 14px;color:#c9c6bd;font-size:14px;margin:10px 14px 0}.note b{color:var(--gold)}
 .tw{overflow-x:auto}table{border-collapse:collapse;width:100%}
 th{font-size:12px;font-weight:600;color:var(--dim);text-align:left;padding:6px 7px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--bg)}
 td{padding:4px 7px;border-bottom:1px solid #202424;vertical-align:middle;font-size:14px}
@@ -82,21 +113,21 @@ label.ck{display:flex;gap:8px;align-items:center;font-size:13.5px;margin-bottom:
 .steps .in{min-height:28px;padding:2px 5px;font-size:13px}
 .steps .x{background:none;border:0;color:#8e918b;cursor:pointer;font-size:12px;padding:2px 4px;white-space:nowrap}.steps .x:hover{color:var(--gold)}
 .sum{font-size:13px;color:#cfcac0;background:#101312;border:1px solid #2a2e2d;border-radius:6px;padding:6px 8px;margin:6px 0 9px}.sum b{color:var(--gold)}
-.tip{font-size:12px;color:var(--dim);margin:-4px 0 9px}
+.tip{font-size:12px;color:var(--dim);margin:-4px 0 9px}.tip b{color:var(--gold)}
 #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:12;background:#1d2120f2;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:8px 16px;font-size:14px;display:none;pointer-events:none;box-shadow:0 8px 24px #000a}
 dialog{background:var(--panel);color:var(--text);border:1px solid #3a403f;border-radius:10px;padding:16px;width:min(920px,94vw)}
 dialog::backdrop{background:#000a}dialog h3{margin:0 0 6px;color:var(--gold)}
 dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,monospace}
 .flt{display:flex;gap:8px;align-items:center;margin:0 0 8px;flex-wrap:wrap}.flt .in{width:auto}
-@media(max-width:1100px){body.po .wrap,body.po main{margin-right:0}.wrap{grid-template-columns:1fr}.side{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px}.side .sec{display:none}.tab{width:auto}main{padding-left:14px}}
+@media(max-width:1100px){body.po .wrap,body.po main{margin-right:0}.wrap{grid-template-columns:1fr}.side{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px}.side .sec{display:none}.tab{width:auto}}
 </style>
 </head>
 <body>
 <header class="bar">
-  <h1>불씨 하나 — 강화 목록</h1>
+  <h1>불씨 하나 — 강화 판</h1>
   <a class="lk" href="../">강화 목록</a><a class="lk" href="web.html">그물 판 편집기</a><a class="lk" href="v2.html">이전 편집기(트리+상점)</a>
   <span class="sp"></span>
-  <input class="in" id="search" placeholder="줄 찾기 (Enter)" style="width:170px">
+  <input class="in" id="search" placeholder="강화 찾기 (Enter)" style="width:170px">
   <button class="btn" id="btnUndo" title="Ctrl+Z">↶ 되돌리기</button>
   <button class="btn" id="btnRedo" title="Ctrl+Y">↷ 다시 하기</button>
   <button class="btn main" id="btnOut">요청문 만들기</button>
@@ -105,7 +136,8 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
   <button class="btn del" id="btnReset">처음 상태로</button>
   <input type="file" id="file" accept=".json,application/json" hidden>
 </header>
-<div class="note">모든 강화는 <b>재</b>로 삽니다. 쪽마다 <b>길</b>이 있고, 길 안의 <b>줄</b>은 위에서 아래로 차례로 열립니다(앞 줄을 다 사야 다음 줄). 줄 하나에 <b>단계</b>가 여러 개면 같은 강화를 여러 번 사는 것입니다. 도구 쪽은 <b>◆ 길 고르기</b>에서 길 하나만 고르고, 한 번 고르면 되돌릴 수 없습니다. ● 단계 강화 · ◉ 새 기능 · ◆ 형태 교체. 가격과 구역은 그물 판 초안의 값을 그대로 옮긴 것입니다.</div>
+<div class="note">모든 강화는 <b>재</b>로 삽니다. 판은 <b>기둥 9개</b>로 나뉘고, 기둥마다 맨 위 <b>뿌리</b>에서 <b>세로 줄 3개</b>가 내려갑니다. 줄 안의 강화는 위에서 아래로 차례로 열립니다(선으로 이어진 줄). 선 없이 놓인 줄은 순서 자유이고 <b>점선</b>으로 이어진 강화를 먼저 사야 열립니다. 무엇이든 살 수 있지만 재가 모자라 다 사지 못하므로, 어디에 쓰느냐가 빌드가 됩니다. ● 수치 강화(안의 숫자 = 단계 수) · ■ 새 기능 · ◆ 형태 교체.</div>
+<div class="modes"><button class="btn sm" id="mBoard">전체 판</button><button class="btn sm" id="mDetail">기둥 자세히</button><span class="hint" id="modeHint"></span></div>
 <div class="wrap">
   <nav class="side" id="tabs"></nav>
   <div id="view"></div>
@@ -113,13 +145,13 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
 <main>
 <section>
   <h2>구역별 재 예산</h2>
-  <p class="lead">구역마다 주울 수 있는 재와, 그 구역에서 사게 되는 단계 값의 합입니다. <b>고른 길 기준</b>은 갈림길에서 가장 비싼 길만 산다고 친 값입니다. 비율이 100%를 넘으면 그 구역에서 다 사지 못하고 골라야 합니다. 보급 상자·공구함 보너스는 뺀 값입니다.</p>
+  <p class="lead">구역마다 주울 수 있는 재와, 그 구역에서 사게 되는 단계 값의 합입니다. 비율이 100%를 넘으면 그 구역에서 다 사지 못하고 골라야 합니다. 보급 상자·공구함 보너스는 뺀 값입니다.</p>
   <div class="tw"><table id="budget"></table></div>
 </section>
 <section>
-  <h2>길 비교</h2>
-  <p class="lead">갈림길이 있는 쪽의 길마다 다 사는 값과 마지막 구역입니다. 길끼리 최종 가치가 비슷한지 볼 때 씁니다.</p>
-  <div class="tw"><table id="forks"></table></div>
+  <h2>줄 비교</h2>
+  <p class="lead">줄마다 다 사는 값과 마지막 구역입니다. 같은 기둥의 줄끼리 최종 가치가 비슷한지 볼 때 씁니다.</p>
+  <div class="tw"><table id="lanes"></table></div>
 </section>
 <section>
   <h2>표로 고치기</h2>
@@ -133,6 +165,7 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
 </section>
 </main>
 <aside id="panel"></aside>
+<div id="tip"></div>
 <div id="toast"></div>
 <dialog id="dlg">
   <h3>요청문</h3>
@@ -141,15 +174,15 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
   <div class="row"><button class="btn main" id="btnCopy">복사</button><button class="btn" id="btnTxt">텍스트 파일로 저장</button><button class="btn" id="btnClose">닫기</button><span id="copyMsg" style="color:#5fd39a;font-size:14px;align-self:center"></span></div>
 </dialog>
 <script>
-const ORIGINAL = {"version":1,"pages":[{"id":"match","name":"성냥·라이터","color":"#ffb347","section":"무기","fork":{"name":"길 고르기","pick":1,"zone":1,"note":"한 번 고르면 되돌릴 수 없음."}},{"id":"fuel","name":"연료","color":"#d9a6ff","section":"무기","fork":null},{"id":"flare","name":"조명탄","color":"#6fb7ff","section":"무기","fork":{"name":"길 고르기","pick":1,"zone":2,"note":"한 번 고르면 되돌릴 수 없음."}},{"id":"nature","name":"자연","color":"#e8dc7a","section":"무기","fork":{"name":"길 고르기","pick":1,"zone":2,"note":"한 번 고르면 되돌릴 수 없음."}},{"id":"fire","name":"불 강화","color":"#ff7b6b","section":"모든 도구","fork":null},{"id":"move","name":"이동","color":"#9fd36b","section":"장비","fork":null},{"id":"collect","name":"줍기","color":"#f0a868","section":"장비","fork":null},{"id":"carry","name":"운반","color":"#7fd1c4","section":"장비","fork":null},{"id":"store","name":"저장","color":"#e0c08a","section":"장비","fork":null},{"id":"auto","name":"자동화","color":"#b9a7ff","section":"시설","fork":null},{"id":"scout","name":"정찰","color":"#8fb8ff","section":"시설","fork":null},{"id":"merge","name":"합류","color":"#ffd36b","section":"마무리","fork":null}],"lanes":[{"id":"match-base","page":"match","name":"기본","base":true,"chain":true,"note":""},{"id":"match-1","page":"match","name":"완벽한 긋기 길","base":false,"chain":true,"note":""},{"id":"match-2","page":"match","name":"라이터 길","base":false,"chain":true,"note":""},{"id":"match-3","page":"match","name":"들불 길","base":false,"chain":true,"note":""},{"id":"fuel-base","page":"fuel","name":"기본","base":true,"chain":true,"note":""},{"id":"flare-base","page":"flare","name":"기본","base":true,"chain":true,"note":""},{"id":"flare-1","page":"flare","name":"높은 탄도 길","base":false,"chain":true,"note":""},{"id":"flare-2","page":"flare","name":"2연발 길","base":false,"chain":true,"note":""},{"id":"flare-3","page":"flare","name":"탄약 주머니 길","base":false,"chain":true,"note":""},{"id":"nature-base","page":"nature","name":"기본","base":true,"chain":true,"note":""},{"id":"nature-1","page":"nature","name":"접지선 길","base":false,"chain":true,"note":""},{"id":"nature-2","page":"nature","name":"빠른 설치 길","base":false,"chain":true,"note":""},{"id":"nature-3","page":"nature","name":"마른 번개 길","base":false,"chain":true,"note":""},{"id":"fire-0","page":"fire","name":"불똥 튐","base":false,"chain":true,"note":""},{"id":"fire-1","page":"fire","name":"달아오른 숲","base":false,"chain":true,"note":""},{"id":"fire-2","page":"fire","name":"굵은 성냥","base":false,"chain":true,"note":""},{"id":"fire-3","page":"fire","name":"기름 줄기","base":false,"chain":true,"note":""},{"id":"fire-4","page":"fire","name":"무거운 줄기","base":false,"chain":true,"note":""},{"id":"merge-base","page":"merge","name":"기본","base":true,"chain":false,"note":""},{"id":"move-base","page":"move","name":"기본","base":true,"chain":false,"note":""},{"id":"collect-base","page":"collect","name":"기본","base":true,"chain":false,"note":""},{"id":"carry-base","page":"carry","name":"기본","base":true,"chain":false,"note":""},{"id":"store-base","page":"store","name":"기본","base":true,"chain":false,"note":""},{"id":"auto-base","page":"auto","name":"기본","base":true,"chain":false,"note":""},{"id":"scout-base","page":"scout","name":"기본","base":true,"chain":false,"note":""}],"rows":[{"id":"r-match-1","page":"match","lane":"match-base","name":"마른 성냥","kind":0,"eff":"나무에 불을 붙이는 데 걸리는 시간 4.5초 → 3초","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":""}]},{"id":"r-umwqp7ki7if0","page":"match","lane":"match-1","name":"부싯돌 강화","kind":0,"eff":"","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":"성냥이 켜질 확률 30% → 50%."},{"cost":450,"zone":2,"eff":"성냥이 켜질 확률 50% → 80%."}]},{"id":"r-match-3","page":"match","lane":"match-1","name":"빠른 손놀림","kind":0,"eff":"","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":"나무에 불을 붙이는 데 걸리는 시간 3초 → 2.5초"},{"cost":2600,"zone":3,"eff":"나무에 불을 붙이는 데 걸리는 시간 2.5초 → 2초"}]},{"id":"r-umwqph1b7zk7","page":"match","lane":"match-1","name":"완벽한 긋기","kind":1,"eff":"우클릭으로 그을 때 녹색 구간에서 떼면 성냥불이 10초간 꺼지지 않고 점화 시간이 50% 줄어듦.\n그동안 불을 붙일 때마다 불똥이 좌우로 튀어 8m 안의 나무 2그루가 함께 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-umwqpi7f156a","page":"match","lane":"match-1","name":"넓은 구간","kind":0,"eff":"완벽한 긋기 녹색 구간 +0.04초.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-umwqpydw3not","page":"match","lane":"match-1","name":"불꽃 번짐","kind":0,"eff":"완벽한 긋기 불똥으로 함께 붙는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":9700,"zone":4,"eff":""},{"cost":9700,"zone":4,"eff":""}]},{"id":"r-umwqqcaqc7bb","page":"match","lane":"match-2","name":"라이터","kind":1,"eff":"라이터 해금(키 2). 짧은 거리, 빠른 점화.","unlock":"태운 나무 30그루","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-lighter-47","page":"match","lane":"match-2","name":"가스 충전","kind":0,"eff":"라이터 점화 시간 -10%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-lighter-49","page":"match","lane":"match-2","name":"토치 분사","kind":1,"eff":"라이터·토치로 불을 붙이면 바로 옆 나무 2그루도 함께 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-lighter-50","page":"match","lane":"match-2","name":"넓은 분사","kind":0,"eff":"함께 붙는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-lighter-52","page":"match","lane":"match-2","name":"가스 토치","kind":2,"eff":"형태 교체: 가스 토치. 푸른 불꽃을 갖다 대면 거의 바로 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-lighter-53","page":"match","lane":"match-2","name":"긴 불길","kind":0,"eff":"라이터·토치 사거리 +0.4m, 화염방사기 불줄기 +2m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-lighter-55","page":"match","lane":"match-2","name":"고압 가스","kind":1,"eff":"라이터·토치 점화 시간 -20%, 화염방사기 불줄기 +3m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-lighter-56","page":"match","lane":"match-2","name":"연료 효율","kind":0,"eff":"라이터·토치 점화 시간 -5%, 화염방사기 불줄기 폭 넓어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-lighter-58","page":"match","lane":"match-2","name":"화염방사기","kind":2,"eff":"형태 교체: 화염방사기. 누르는 동안 긴 불기둥을 뿜어 앞을 휩쓸어 태움.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-match-25","page":"match","lane":"match-3","name":"들불","kind":1,"eff":"불타는 나무가 8초마다 가장 가까운 나무 1그루에 스스로 옮겨붙음. 최근 10초 안에 직접 불을 붙였을 때만 작동.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":1300,"zone":2,"eff":""}]},{"id":"r-match-26","page":"match","lane":"match-3","name":"마른 풀","kind":0,"eff":"","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":"들불 간격 -1초 및 최근 11초 안에 직접 불을 붙였을 때만 작동."},{"cost":2600,"zone":3,"eff":"들불 간격 -1초 및 최근 12초 안에 직접 불을 붙였을 때만 작동."},{"cost":2600,"zone":3,"eff":"들불 간격 -1초 및 최근 15초 안에 직접 불을 붙였을 때만 작동."}]},{"id":"r-match-29","page":"match","lane":"match-3","name":"들불 확산","kind":1,"eff":"들불이 한 번에 2그루로 옮겨붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-match-30","page":"match","lane":"match-3","name":"번지는 불티","kind":0,"eff":"들불이 닿는 거리 +15%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-match-32","page":"match","lane":"match-3","name":"큰 들불","kind":1,"eff":"들불이 한 번에 4그루로 옮겨붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-fuel-70","page":"fuel","lane":"fuel-base","name":"기름통","kind":1,"eff":"연료 계열 해금(키 3). 기름을 뿌린 곳에 불을 붙이면 길을 따라 번짐.","unlock":"태운 나무 500그루","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-81","page":"fuel","lane":"fuel-base","name":"긴 기름길","kind":1,"eff":"기름을 20m 더 그을 수 있고, 기름통이 50% 빨리 다시 참.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-82","page":"fuel","lane":"fuel-base","name":"넓은 기름띠 I~II","kind":0,"eff":"기름 불이 0.3m 더 넓게 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-fuel-84","page":"fuel","lane":"fuel-base","name":"빠른 채움","kind":0,"eff":"기름통이 25% 빨리 다시 참.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-fuel-86","page":"fuel","lane":"fuel-base","name":"연료 드럼","kind":2,"eff":"형태 교체: 연료 드럼. 세워 두면 불이 닿을 때 터지고, 우클릭으로 한꺼번에 터뜨릴 수도 있음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-fuel-87","page":"fuel","lane":"fuel-base","name":"큰 드럼","kind":0,"eff":"드럼·항공 살포 폭발 반경 +1m, 세울 수 있는 드럼 +1개.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-fuel-89","page":"fuel","lane":"fuel-base","name":"넓은 기름띠","kind":0,"eff":"기름 불이 0.3m 더 넓게 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-fuel-91","page":"fuel","lane":"fuel-base","name":"항공 살포","kind":2,"eff":"형태 교체: 항공 살포. 두 점을 찍으면 비행기가 그 사이를 지나가며 불붙은 연료를 쏟아부음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-flare-102","page":"flare","lane":"flare-base","name":"조명탄 발사기","kind":1,"eff":"조명탄 계열 해금(키 4). 멀리 쏘아 떨어진 자리에 불을 붙임.","unlock":"태운 나무 1,000그루","req":[],"reqMin":0,"steps":[{"cost":1800,"zone":2,"eff":""}]},{"id":"r-flare-103","page":"flare","lane":"flare-1","name":"긴 사거리 I~III","kind":0,"eff":"사거리 +4m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-flare-106","page":"flare","lane":"flare-1","name":"높은 탄도","kind":1,"eff":"사거리 +10m. 산 위와 강 건너 숲도 노릴 수 있음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-flare-107","page":"flare","lane":"flare-1","name":"정밀 조준","kind":0,"eff":"착탄 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-flare-109","page":"flare","lane":"flare-1","name":"긴 사거리","kind":0,"eff":"사거리 +4m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-flare-111","page":"flare","lane":"flare-1","name":"관측 사격","kind":1,"eff":"사거리 +6m, 착탄 반경 +1m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-flare-112","page":"flare","lane":"flare-2","name":"밝은 조명 I~II","kind":0,"eff":"착탄 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-flare-114","page":"flare","lane":"flare-2","name":"2연발","kind":1,"eff":"한 번 쏘면 둘레에 한 발이 더 떨어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-flare-115","page":"flare","lane":"flare-2","name":"밝은 조명","kind":0,"eff":"착탄 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-flare-117","page":"flare","lane":"flare-2","name":"소이 폭탄","kind":2,"eff":"형태 교체: 소이 폭탄. 떨어진 자리가 넓게 폭발하며 불탐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-flare-118","page":"flare","lane":"flare-2","name":"넓은 소이 I~II","kind":0,"eff":"착탄 반경 +1m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-flare-120","page":"flare","lane":"flare-2","name":"3연발","kind":1,"eff":"둘레에 떨어지는 탄 +1발.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-flare-121","page":"flare","lane":"flare-2","name":"넓은 소이","kind":0,"eff":"착탄 반경 +1m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-flare-123","page":"flare","lane":"flare-2","name":"집속 소이탄","kind":2,"eff":"형태 교체: 집속 소이탄. 공중에서 3개로 갈라져 넓은 숲에 한꺼번에 떨어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-flare-124","page":"flare","lane":"flare-3","name":"빠른 장전 I~III","kind":0,"eff":"장전 시간 -6%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-flare-127","page":"flare","lane":"flare-3","name":"탄약 주머니","kind":1,"eff":"장전 시간 -10%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-flare-128","page":"flare","lane":"flare-3","name":"빠른 장전 IV~V","kind":0,"eff":"장전 시간 -6%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-flare-130","page":"flare","lane":"flare-3","name":"예비 탄창","kind":1,"eff":"장전 시간 -10%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-flare-131","page":"flare","lane":"flare-3","name":"빠른 장전","kind":0,"eff":"장전 시간 -6%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-flare-133","page":"flare","lane":"flare-3","name":"연속 사격","kind":2,"eff":"장전 시간 -20%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":91000,"zone":5,"eff":""}]},{"id":"r-nature-139","page":"nature","lane":"nature-base","name":"피뢰침 말뚝","kind":1,"eff":"자연 계열 해금(키 5). 꽂은 자리에 2초 뒤 번개가 떨어져 반경 6m 숲에 불을 붙임.","unlock":"태운 나무 2,000그루","req":[],"reqMin":0,"steps":[{"cost":1800,"zone":2,"eff":""}]},{"id":"r-nature-140","page":"nature","lane":"nature-1","name":"짧은 방전","kind":0,"eff":"번개가 떨어지기까지 -0.3초.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-nature-143","page":"nature","lane":"nature-1","name":"접지선","kind":1,"eff":"번개 반경 +1.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-nature-144","page":"nature","lane":"nature-1","name":"고전압","kind":0,"eff":"번개 불길 세기 +1.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-nature-146","page":"nature","lane":"nature-1","name":"연쇄 방전","kind":1,"eff":"번개가 둘레 나무 2그루로 가지를 침.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-nature-147","page":"nature","lane":"nature-1","name":"갈라지는 번개","kind":0,"eff":"가지 치는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-nature-149","page":"nature","lane":"nature-1","name":"천둥 벼락","kind":2,"eff":"번개 반경 +3m, 불길 세기 +2.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":91000,"zone":5,"eff":""}]},{"id":"r-nature-150","page":"nature","lane":"nature-2","name":"구리 피뢰침 I~II","kind":0,"eff":"번개 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-nature-152","page":"nature","lane":"nature-2","name":"빠른 설치","kind":1,"eff":"자연 도구를 다시 쓰기까지 -15%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-nature-153","page":"nature","lane":"nature-2","name":"구리 피뢰침","kind":0,"eff":"번개 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-nature-155","page":"nature","lane":"nature-2","name":"유도 로켓","kind":2,"eff":"형태 교체: 유도 로켓. 구리선을 끌고 솟은 로켓이 90m 밖 조준한 자리로 번개를 부름.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-nature-156","page":"nature","lane":"nature-2","name":"긴 구리선","kind":0,"eff":"자연 도구 사거리 +10m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-nature-158","page":"nature","lane":"nature-2","name":"이중 유도","kind":1,"eff":"자연 도구를 다시 쓰기까지 -15%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-nature-159","page":"nature","lane":"nature-2","name":"짙은 구름","kind":0,"eff":"뇌우 번개 +2번.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-nature-161","page":"nature","lane":"nature-2","name":"뇌우 호출","kind":2,"eff":"형태 교체: 뇌우 호출. 조준한 자리 위에 비구름을 불러 8초 동안 반경 22m 안의 나무에 번개를 26번 내리침.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-nature-162","page":"nature","lane":"nature-3","name":"마른 번개","kind":1,"eff":"번개 불길 세기 +1.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":1300,"zone":2,"eff":""}]},{"id":"r-nature-163","page":"nature","lane":"nature-3","name":"정전기","kind":0,"eff":"자연 도구를 다시 쓰기까지 -5%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-nature-166","page":"nature","lane":"nature-3","name":"번개 구름","kind":1,"eff":"1분에 번개 1번이 열린 구역에 저절로 떨어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-nature-167","page":"nature","lane":"nature-3","name":"잦은 낙뢰","kind":0,"eff":"저절로 떨어지는 번개 1분에 +0.5번.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-nature-169","page":"nature","lane":"nature-3","name":"번개 나무","kind":1,"eff":"저절로 떨어지는 번개가 나무 1그루를 더 붙임.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-nature-170","page":"nature","lane":"nature-3","name":"먹구름","kind":0,"eff":"뇌우 번개 +2번.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-nature-172","page":"nature","lane":"nature-3","name":"폭풍 전선","kind":2,"eff":"저절로 떨어지는 번개 1분에 +1번, 번개마다 나무 2그루를 더 붙임.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-lighter-37","page":"fire","lane":"fire-0","name":"불똥 튐","kind":1,"eff":"불을 붙이는 데 성공하면 10% 확률로 반경 3m 안의 나무 2그루가 동시에 붙음. 10번 안에 한 번은 보장. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-lighter-38","page":"fire","lane":"fire-0","name":"튀는 불똥","kind":0,"eff":"불똥 튐 확률 +2%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-lighter-41","page":"fire","lane":"fire-0","name":"멀리 튀는 불똥","kind":0,"eff":"불똥 튐 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-lighter-43","page":"fire","lane":"fire-0","name":"확실한 불똥","kind":1,"eff":"보장이 10번 → 5번 안으로.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-lighter-44","page":"fire","lane":"fire-0","name":"큰 불똥","kind":0,"eff":"불똥 튐으로 붙는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-lighter-46","page":"fire","lane":"fire-0","name":"대폭발","kind":2,"eff":"불똥 튐이 5% 확률로 반경 6m 대폭발로 바뀜(10그루 이상).","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-lighter-59","page":"fire","lane":"fire-1","name":"긴 손","kind":0,"eff":"점화 사거리 +6%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":""},{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-lighter-62","page":"fire","lane":"fire-1","name":"달아오른 숲","kind":1,"eff":"불길 세기 +1, 점화 시간 -10%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-lighter-63","page":"fire","lane":"fire-1","name":"번지는 열기 I~III","kind":0,"eff":"불 번짐 반경 +0.2m. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-lighter-66","page":"fire","lane":"fire-1","name":"열풍","kind":1,"eff":"불길 세기 +1, 옮겨붙을 확률 +30%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-lighter-67","page":"fire","lane":"fire-1","name":"번지는 열기","kind":0,"eff":"불 번짐 반경 +0.2m. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-lighter-69","page":"fire","lane":"fire-1","name":"불바다","kind":2,"eff":"불길 세기 +2, 불 번짐 반경 +1m. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-umwqq3k2t6z6","page":"fire","lane":"fire-2","name":"굵은 성냥","kind":0,"eff":"불이 옆 나무로 옮겨붙을 확률 +10%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-fuel-71","page":"fire","lane":"fire-3","name":"기름 줄기","kind":1,"eff":"15% 확률로 불이 바람 아래쪽 나무 3그루를 연쇄로 건너감. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-72","page":"fire","lane":"fire-3","name":"긴 줄기 I~II","kind":0,"eff":"연쇄 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-fuel-74","page":"fire","lane":"fire-3","name":"진한 기름","kind":0,"eff":"기름 줄기 확률 +3%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-fuel-76","page":"fire","lane":"fire-3","name":"갈라지는 줄기","kind":1,"eff":"연쇄가 2갈래로 갈라짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-fuel-77","page":"fire","lane":"fire-3","name":"긴 줄기","kind":0,"eff":"연쇄 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-fuel-79","page":"fire","lane":"fire-3","name":"세 갈래","kind":1,"eff":"연쇄가 3갈래로 갈라짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-fuel-80","page":"fire","lane":"fire-3","name":"기름 폭풍","kind":2,"eff":"연쇄가 5갈래, 갈래마다 8그루까지.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-fuel-92","page":"fire","lane":"fire-4","name":"무거운 줄기","kind":1,"eff":"쓰러진 나무가 15% 확률로 옆 나무에 불을 옮김. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-93","page":"fire","lane":"fire-4","name":"마른 가지","kind":0,"eff":"옮겨붙을 확률 +5%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-fuel-96","page":"fire","lane":"fire-4","name":"멀리 쓰러짐","kind":0,"eff":"쓰러진 나무가 0.4m 더 넓게 불을 옮김.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-fuel-98","page":"fire","lane":"fire-4","name":"도미노","kind":1,"eff":"깔린 나무에 불이 옮겨붙을 확률이 크게 올라, 쓰러짐이 연달아 이어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-fuel-99","page":"fire","lane":"fire-4","name":"숲 붕괴","kind":0,"eff":"쓰러진 나무가 0.4m 더 넓게 불을 옮김.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-fuel-101","page":"fire","lane":"fire-4","name":"나무 사태","kind":2,"eff":"깔린 나무에 불 옮길 확률 대폭 증가, 1m 더 넓게.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-merge-134","page":"merge","lane":"merge-base","name":"불씨 상자","kind":1,"eff":"완벽한 긋기에 성공하면 불똥 튐이 반드시 발동.","unlock":"","req":["r-lighter-37"],"reqMin":0,"steps":[{"cost":440,"zone":1,"eff":""}]},{"id":"r-merge-135","page":"merge","lane":"merge-base","name":"바람 타기","kind":1,"eff":"들불이 닿는 거리 +50%, 쓰러진 나무가 1m 더 넓게 불을 옮김.","unlock":"","req":["r-match-25","r-fuel-92"],"reqMin":0,"steps":[{"cost":2700,"zone":2,"eff":""}]},{"id":"r-merge-136","page":"merge","lane":"merge-base","name":"기름 불꽃","kind":1,"eff":"불똥이 튀면 기름 줄기 연쇄도 반드시 이어짐.","unlock":"","req":["r-lighter-37","r-fuel-71"],"reqMin":0,"steps":[{"cost":440,"zone":1,"eff":""}]},{"id":"r-merge-137","page":"merge","lane":"merge-base","name":"소이 연료","kind":1,"eff":"조명탄·드럼·항공 살포 폭발 반경 +2m.","unlock":"","req":["r-fuel-81","r-flare-102"],"reqMin":0,"steps":[{"cost":2700,"zone":2,"eff":""}]},{"id":"r-final-138","page":"merge","lane":"merge-base","name":"위성 포격","kind":2,"eff":"무전으로 좌표를 불러 하늘에서 포격. 반경 안의 숲이 한 번에 불타오름.","unlock":"","req":["r-lighter-58","r-fuel-91","r-flare-123","r-nature-161"],"reqMin":2,"steps":[{"cost":310000,"zone":6,"eff":""}]},{"id":"r-s-1","page":"move","lane":"move-base","name":"이동력","kind":0,"eff":"걷기·달리기·점프·경사 오르기가 함께 좋아짐. 단계당 이동 속도 +4%, 점프 +2%.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":7,"zone":1,"eff":""},{"cost":8,"zone":1,"eff":""},{"cost":8,"zone":1,"eff":""},{"cost":9,"zone":1,"eff":""},{"cost":10,"zone":1,"eff":""},{"cost":11,"zone":1,"eff":""},{"cost":12,"zone":1,"eff":""},{"cost":14,"zone":1,"eff":""},{"cost":15,"zone":1,"eff":""},{"cost":17,"zone":1,"eff":""},{"cost":18,"zone":1,"eff":""},{"cost":20,"zone":1,"eff":""},{"cost":22,"zone":1,"eff":""},{"cost":24,"zone":1,"eff":""},{"cost":27,"zone":1,"eff":""},{"cost":29,"zone":1,"eff":""},{"cost":32,"zone":1,"eff":""},{"cost":35,"zone":1,"eff":""},{"cost":39,"zone":1,"eff":""},{"cost":43,"zone":1,"eff":""},{"cost":47,"zone":1,"eff":""},{"cost":52,"zone":1,"eff":""},{"cost":57,"zone":1,"eff":""},{"cost":63,"zone":1,"eff":""}]},{"id":"r-s-2","page":"move","lane":"move-base","name":"산악자전거","kind":1,"eff":"이동 속도 ×2. 타는 동안 불을 붙일 수 없음.","unlock":"이동력 6단계 · 구역 2","req":["r-s-1"],"reqMin":0,"steps":[{"cost":1800,"zone":2,"eff":""}]},{"id":"r-s-3","page":"move","lane":"move-base","name":"자전거 기어","kind":0,"eff":"자전거 속도 단계당 +7.5%.","unlock":"","req":["r-s-2"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-4","page":"move","lane":"move-base","name":"사륜 오토바이(ATV)","kind":1,"eff":"자전거보다 빠르고 오르막에 강함. 타는 동안 불을 붙일 수 없음.","unlock":"이동력 14단계 · 구역 3","req":["r-s-2"],"reqMin":0,"steps":[{"cost":8800,"zone":3,"eff":""}]},{"id":"r-s-6","page":"move","lane":"move-base","name":"고무보트","kind":1,"eff":"강과 호수를 건널 수 있음. 강 건너 숲(구역 4부터)에 가려면 필요.","unlock":"구역 3","req":["r-s-1"],"reqMin":0,"steps":[{"cost":7500,"zone":3,"eff":""}]},{"id":"r-s-7","page":"move","lane":"move-base","name":"보트 모터","kind":0,"eff":"보트 속도 단계당 +15%.","unlock":"","req":["r-s-6"],"reqMin":0,"steps":[{"cost":1300,"zone":3,"eff":""},{"cost":1600,"zone":3,"eff":""},{"cost":2100,"zone":3,"eff":""},{"cost":2700,"zone":3,"eff":""}]},{"id":"r-s-8","page":"move","lane":"move-base","name":"패러글라이더","kind":1,"eff":"산 정상에서 뛰어내려 멀리 활공.","unlock":"이동력 20단계 · 가장 높은 산 정상","req":["r-s-4"],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-s-31","page":"collect","lane":"collect-base","name":"넓은 손길","kind":0,"eff":"재 더미를 줍는 거리 단계당 +0.4m.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":11,"zone":1,"eff":""},{"cost":13,"zone":1,"eff":""},{"cost":15,"zone":1,"eff":""},{"cost":18,"zone":1,"eff":""},{"cost":22,"zone":1,"eff":""},{"cost":26,"zone":1,"eff":""},{"cost":31,"zone":1,"eff":""},{"cost":38,"zone":1,"eff":""},{"cost":45,"zone":1,"eff":""},{"cost":54,"zone":1,"eff":""}]},{"id":"r-s-32","page":"collect","lane":"collect-base","name":"로봇 청소기","kind":1,"eff":"내 주변 재 더미를 먼지통에 담아, 가득 차면 수거함에 직접 붓고 돌아오는 로봇 1대.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-34","page":"collect","lane":"collect-base","name":"송풍 흡입기","kind":1,"eff":"등에 멘 흡입기로 주변 재를 빨아들임. 줍는 거리 +2.5m.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-33","page":"collect","lane":"collect-base","name":"청소기 추가","kind":0,"eff":"로봇 청소기 단계당 +1대.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":720,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1800,"zone":2,"eff":""},{"cost":2900,"zone":3,"eff":""}]},{"id":"r-s-35","page":"collect","lane":"collect-base","name":"흡입기 출력","kind":0,"eff":"줍는 거리 단계당 +0.8m.","unlock":"","req":["r-s-34"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-36","page":"collect","lane":"collect-base","name":"청소기 흡입력","kind":0,"eff":"로봇 청소기가 재 더미를 빨아들이는 거리 단계당 +0.4m.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-37","page":"collect","lane":"collect-base","name":"청소기 먼지통","kind":0,"eff":"로봇 청소기 먼지통 용량 단계당 +5개.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""}]},{"id":"r-s-38","page":"collect","lane":"collect-base","name":"청소기 모터","kind":0,"eff":"로봇 청소기 속도 단계당 +20%.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":240,"zone":2,"eff":""},{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":470,"zone":2,"eff":""},{"cost":590,"zone":2,"eff":""},{"cost":730,"zone":2,"eff":""},{"cost":920,"zone":2,"eff":""},{"cost":1100,"zone":2,"eff":""}]},{"id":"r-s-9","page":"carry","lane":"carry-base","name":"큰 자루","kind":0,"eff":"자루 용량 단계당 +50%.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":9,"zone":1,"eff":""},{"cost":11,"zone":1,"eff":""},{"cost":13,"zone":1,"eff":""},{"cost":16,"zone":1,"eff":""},{"cost":19,"zone":1,"eff":""},{"cost":24,"zone":1,"eff":""},{"cost":29,"zone":1,"eff":""},{"cost":35,"zone":1,"eff":""},{"cost":43,"zone":1,"eff":""},{"cost":52,"zone":1,"eff":""},{"cost":64,"zone":1,"eff":""},{"cost":78,"zone":1,"eff":""}]},{"id":"r-s-11","page":"carry","lane":"carry-base","name":"휴대 수거함","kind":1,"eff":"내려놓으면 12m 안의 재 더미를 자동으로 빨아들임.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-12","page":"carry","lane":"carry-base","name":"넓은 흡입","kind":0,"eff":"휴대 수거함 범위 단계당 +2m.","unlock":"","req":["r-s-11"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-13","page":"carry","lane":"carry-base","name":"대량 하역","kind":1,"eff":"자루를 다 비우면 20초간 근처 재를 빨아들이고 드론이 2배 빨라짐.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":5000,"zone":3,"eff":""}]},{"id":"r-s-5","page":"carry","lane":"carry-base","name":"ATV 짐칸","kind":0,"eff":"탄 채로 재 더미를 실음. 단계당 자루 용량의 절반만큼 추가.","unlock":"","req":["r-s-4"],"reqMin":0,"steps":[{"cost":1900,"zone":3,"eff":""},{"cost":2500,"zone":3,"eff":""},{"cost":3400,"zone":3,"eff":""},{"cost":4500,"zone":3,"eff":""}]},{"id":"r-s-14","page":"carry","lane":"carry-base","name":"긴 하역","kind":0,"eff":"대량 하역 단계당 +2.5초.","unlock":"","req":["r-s-13"],"reqMin":0,"steps":[{"cost":1300,"zone":3,"eff":""},{"cost":1600,"zone":3,"eff":""},{"cost":2000,"zone":3,"eff":""},{"cost":2500,"zone":3,"eff":""},{"cost":3200,"zone":3,"eff":""},{"cost":4000,"zone":3,"eff":""}]},{"id":"r-s-10","page":"store","lane":"store-base","name":"빠른 붓기","kind":0,"eff":"수거함에 붓는 속도 단계당 +20%, 붓는 거리 +0.3m.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":9,"zone":1,"eff":""},{"cost":11,"zone":1,"eff":""},{"cost":13,"zone":1,"eff":""},{"cost":16,"zone":1,"eff":""},{"cost":19,"zone":1,"eff":""},{"cost":24,"zone":1,"eff":""},{"cost":29,"zone":1,"eff":""},{"cost":35,"zone":1,"eff":""},{"cost":43,"zone":1,"eff":""},{"cost":52,"zone":1,"eff":""}]},{"id":"r-s-26","page":"store","lane":"store-base","name":"수거함 개량","kind":0,"eff":"수거함 붓는 속도 증가. 2단계는 근처 재를 자동 수거.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":900,"zone":2,"eff":""},{"cost":1600,"zone":2,"eff":""}]},{"id":"r-s-27","page":"store","lane":"store-base","name":"전진 수거함","kind":0,"eff":"단계마다 다음 구역에 수거함 하나.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":900,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""},{"cost":2000,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-s-28","page":"store","lane":"store-base","name":"재 운반 레일","kind":0,"eff":"구역 수거함끼리 재를 이어 나름. 단계마다 처리량 증가.","unlock":"구역 4","req":["r-s-27"],"reqMin":0,"steps":[{"cost":6300,"zone":4,"eff":""},{"cost":7400,"zone":4,"eff":""},{"cost":8700,"zone":4,"eff":""},{"cost":10000,"zone":4,"eff":""},{"cost":12000,"zone":4,"eff":""},{"cost":14000,"zone":4,"eff":""}]},{"id":"r-s-15","page":"auto","lane":"auto-base","name":"수거 드론","kind":1,"eff":"드론 1대가 재 더미를 수거함으로 나름.","unlock":"태운 나무 3,000그루","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-16","page":"auto","lane":"auto-base","name":"드론 추가","kind":0,"eff":"드론 단계당 +1대 (격납고 상한까지).","unlock":"","req":["r-s-15"],"reqMin":0,"steps":[{"cost":750,"zone":2,"eff":""},{"cost":1100,"zone":2,"eff":""},{"cost":1600,"zone":2,"eff":""},{"cost":2300,"zone":2,"eff":""},{"cost":3300,"zone":3,"eff":""},{"cost":4800,"zone":3,"eff":""}]},{"id":"r-s-17","page":"auto","lane":"auto-base","name":"빠른 프로펠러","kind":0,"eff":"드론 속도 단계당 +10%.","unlock":"","req":["r-s-15"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""}]},{"id":"r-s-18","page":"auto","lane":"auto-base","name":"큰 바구니","kind":0,"eff":"드론 적재량 단계당 +25%.","unlock":"","req":["r-s-15"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""}]},{"id":"r-s-29","page":"auto","lane":"auto-base","name":"드론 격납고","kind":0,"eff":"드론 대수 상한 단계당 +3대.","unlock":"구역 3","req":["r-s-15"],"reqMin":0,"steps":[{"cost":5000,"zone":3,"eff":""},{"cost":7500,"zone":3,"eff":""},{"cost":11000,"zone":4,"eff":""}]},{"id":"r-s-19","page":"auto","lane":"auto-base","name":"드론 오버드라이브","kind":1,"eff":"R 키로 8초간 드론 3배 속도.","unlock":"구역 4","req":["r-s-15"],"reqMin":0,"steps":[{"cost":10000,"zone":4,"eff":""}]},{"id":"r-s-20","page":"auto","lane":"auto-base","name":"드론 편대","kind":1,"eff":"드론들이 편대를 이뤄 구역 전체를 돌며 남은 재를 쓸어 담음.","unlock":"구역 6","req":["r-s-19"],"reqMin":0,"steps":[{"cost":70000,"zone":6,"eff":""}]},{"id":"r-s-22","page":"scout","lane":"scout-base","name":"재 더미 표시","kind":1,"eff":"지도에 재 더미 위치 표시.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":900,"zone":2,"eff":""}]},{"id":"r-s-23","page":"scout","lane":"scout-base","name":"쌍안경","kind":1,"eff":"멀리 있는 숲의 남은 나무를 확대해서 봄.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":3800,"zone":3,"eff":""}]},{"id":"r-s-24","page":"scout","lane":"scout-base","name":"빛기둥 거리","kind":0,"eff":"남은 나무 빛기둥이 보이는 거리 단계당 +25%.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":1300,"zone":3,"eff":""},{"cost":1600,"zone":3,"eff":""},{"cost":2000,"zone":3,"eff":""},{"cost":2500,"zone":3,"eff":""},{"cost":3200,"zone":3,"eff":""},{"cost":4000,"zone":3,"eff":""}]},{"id":"r-s-30","page":"scout","lane":"scout-base","name":"무전 중계탑","kind":0,"eff":"지도 표시 → 남은 나무 빛기둥 → 구조 요청. 마지막 단계가 엔딩의 구조 헬기를 부름.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":3800,"zone":3,"eff":""},{"cost":6800,"zone":3,"eff":""},{"cost":12000,"zone":4,"eff":""}]},{"id":"r-s-25","page":"scout","lane":"scout-base","name":"남은 나무 수","kind":1,"eff":"구역별 남은 나무 수를 지도에 표시.","unlock":"구역 4","req":[],"reqMin":0,"steps":[{"cost":5000,"zone":4,"eff":""}]}],"memo":""};
+const ORIGINAL = {"version":2,"pages":[{"id":"match","name":"성냥·라이터","color":"#ffb347","section":"도구","sub":"점화와 라이터"},{"id":"fuel","name":"연료","color":"#d9a6ff","section":"도구","sub":"기름길과 기름 줄기"},{"id":"flare","name":"조명탄","color":"#6fb7ff","section":"도구","sub":"멀리서 불 붙이기"},{"id":"nature","name":"자연","color":"#e8dc7a","section":"도구","sub":"번개 부르기"},{"id":"fire","name":"불 강화","color":"#ff7b6b","section":"불","sub":"모든 도구에 적용"},{"id":"haul","name":"줍기·운반","color":"#f0a868","section":"재","sub":"줍고 나르기"},{"id":"store","name":"저장·자동화","color":"#b9a7ff","section":"재","sub":"붓기와 자동 수거"},{"id":"travel","name":"이동·정찰","color":"#9fd36b","section":"재","sub":"다니기와 찾기"},{"id":"merge","name":"합류","color":"#ffd36b","section":"마무리","sub":"갈래를 잇는 강화"}],"lanes":[{"id":"match-base","page":"match","name":"뿌리","base":true,"chain":true,"note":""},{"id":"match-1","page":"match","name":"완벽한 긋기","base":false,"chain":true,"note":""},{"id":"match-2","page":"match","name":"라이터","base":false,"chain":true,"note":""},{"id":"match-3","page":"match","name":"들불","base":false,"chain":true,"note":""},{"id":"fuel-base","page":"fuel","name":"뿌리","base":true,"chain":true,"note":""},{"id":"fuel-1","page":"fuel","name":"기름 줄기","base":false,"chain":true,"note":""},{"id":"fuel-2","page":"fuel","name":"긴 기름길","base":false,"chain":true,"note":""},{"id":"fuel-3","page":"fuel","name":"무거운 줄기","base":false,"chain":true,"note":""},{"id":"flare-base","page":"flare","name":"뿌리","base":true,"chain":true,"note":""},{"id":"flare-1","page":"flare","name":"높은 탄도","base":false,"chain":true,"note":""},{"id":"flare-2","page":"flare","name":"2연발","base":false,"chain":true,"note":""},{"id":"flare-3","page":"flare","name":"탄약 주머니","base":false,"chain":true,"note":""},{"id":"nature-base","page":"nature","name":"뿌리","base":true,"chain":true,"note":""},{"id":"nature-1","page":"nature","name":"접지선","base":false,"chain":true,"note":""},{"id":"nature-2","page":"nature","name":"빠른 설치","base":false,"chain":true,"note":""},{"id":"nature-3","page":"nature","name":"마른 번개","base":false,"chain":true,"note":""},{"id":"fire-1","page":"fire","name":"불똥 튐","base":false,"chain":true,"note":""},{"id":"fire-2","page":"fire","name":"달아오른 숲","base":false,"chain":true,"note":""},{"id":"fire-3","page":"fire","name":"굵은 성냥","base":false,"chain":true,"note":""},{"id":"haul-1","page":"haul","name":"손·흡입기","base":false,"chain":false,"note":""},{"id":"haul-2","page":"haul","name":"로봇 청소기","base":false,"chain":false,"note":""},{"id":"haul-3","page":"haul","name":"자루·하역","base":false,"chain":false,"note":""},{"id":"store-1","page":"store","name":"수거함·레일","base":false,"chain":false,"note":""},{"id":"store-2","page":"store","name":"드론","base":false,"chain":false,"note":""},{"id":"store-3","page":"store","name":"드론 성능","base":false,"chain":false,"note":""},{"id":"travel-1","page":"travel","name":"걷기·탈것","base":false,"chain":false,"note":""},{"id":"travel-2","page":"travel","name":"보트","base":false,"chain":false,"note":""},{"id":"travel-3","page":"travel","name":"정찰·무전","base":false,"chain":false,"note":""},{"id":"merge-1","page":"merge","name":"합류","base":false,"chain":false,"note":""}],"rows":[{"id":"r-match-1","page":"match","lane":"match-base","name":"마른 성냥","kind":0,"eff":"나무에 불을 붙이는 데 걸리는 시간 4.5초 → 3초","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":""}]},{"id":"r-umwqp7ki7if0","page":"match","lane":"match-1","name":"부싯돌 강화","kind":0,"eff":"","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":"성냥이 켜질 확률 30% → 50%."},{"cost":450,"zone":2,"eff":"성냥이 켜질 확률 50% → 80%."}]},{"id":"r-match-3","page":"match","lane":"match-1","name":"빠른 손놀림","kind":0,"eff":"","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":"나무에 불을 붙이는 데 걸리는 시간 3초 → 2.5초"},{"cost":2600,"zone":3,"eff":"나무에 불을 붙이는 데 걸리는 시간 2.5초 → 2초"}]},{"id":"r-umwqph1b7zk7","page":"match","lane":"match-1","name":"완벽한 긋기","kind":1,"eff":"우클릭으로 그을 때 녹색 구간에서 떼면 성냥불이 10초간 꺼지지 않고 점화 시간이 50% 줄어듦.\n그동안 불을 붙일 때마다 불똥이 좌우로 튀어 8m 안의 나무 2그루가 함께 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-umwqpi7f156a","page":"match","lane":"match-1","name":"넓은 구간","kind":0,"eff":"완벽한 긋기 녹색 구간 +0.04초.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-umwqpydw3not","page":"match","lane":"match-1","name":"불꽃 번짐","kind":0,"eff":"완벽한 긋기 불똥으로 함께 붙는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":9700,"zone":4,"eff":""},{"cost":9700,"zone":4,"eff":""}]},{"id":"r-umwqqcaqc7bb","page":"match","lane":"match-2","name":"라이터","kind":1,"eff":"라이터 해금(키 2). 짧은 거리, 빠른 점화.","unlock":"태운 나무 30그루","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-lighter-47","page":"match","lane":"match-2","name":"가스 충전","kind":0,"eff":"라이터 점화 시간 -10%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-lighter-49","page":"match","lane":"match-2","name":"토치 분사","kind":1,"eff":"라이터·토치로 불을 붙이면 바로 옆 나무 2그루도 함께 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-lighter-50","page":"match","lane":"match-2","name":"넓은 분사","kind":0,"eff":"함께 붙는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-lighter-52","page":"match","lane":"match-2","name":"가스 토치","kind":2,"eff":"형태 교체: 가스 토치. 푸른 불꽃을 갖다 대면 거의 바로 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-lighter-53","page":"match","lane":"match-2","name":"긴 불길","kind":0,"eff":"라이터·토치 사거리 +0.4m, 화염방사기 불줄기 +2m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-lighter-55","page":"match","lane":"match-2","name":"고압 가스","kind":1,"eff":"라이터·토치 점화 시간 -20%, 화염방사기 불줄기 +3m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-lighter-56","page":"match","lane":"match-2","name":"연료 효율","kind":0,"eff":"라이터·토치 점화 시간 -5%, 화염방사기 불줄기 폭 넓어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-lighter-58","page":"match","lane":"match-2","name":"화염방사기","kind":2,"eff":"형태 교체: 화염방사기. 누르는 동안 긴 불기둥을 뿜어 앞을 휩쓸어 태움.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-match-25","page":"match","lane":"match-3","name":"들불","kind":1,"eff":"불타는 나무가 8초마다 가장 가까운 나무 1그루에 스스로 옮겨붙음. 최근 10초 안에 직접 불을 붙였을 때만 작동.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":1300,"zone":2,"eff":""}]},{"id":"r-match-26","page":"match","lane":"match-3","name":"마른 풀","kind":0,"eff":"","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":"들불 간격 -1초 및 최근 11초 안에 직접 불을 붙였을 때만 작동."},{"cost":2600,"zone":3,"eff":"들불 간격 -1초 및 최근 12초 안에 직접 불을 붙였을 때만 작동."},{"cost":2600,"zone":3,"eff":"들불 간격 -1초 및 최근 15초 안에 직접 불을 붙였을 때만 작동."}]},{"id":"r-match-29","page":"match","lane":"match-3","name":"들불 확산","kind":1,"eff":"들불이 한 번에 2그루로 옮겨붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-match-30","page":"match","lane":"match-3","name":"번지는 불티","kind":0,"eff":"들불이 닿는 거리 +15%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-match-32","page":"match","lane":"match-3","name":"큰 들불","kind":1,"eff":"들불이 한 번에 4그루로 옮겨붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-fuel-70","page":"fuel","lane":"fuel-base","name":"기름통","kind":1,"eff":"연료 계열 해금(키 3). 기름을 뿌린 곳에 불을 붙이면 길을 따라 번짐.","unlock":"태운 나무 500그루","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-71","page":"fuel","lane":"fuel-1","name":"기름 줄기","kind":1,"eff":"15% 확률로 불이 바람 아래쪽 나무 3그루를 연쇄로 건너감. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-72","page":"fuel","lane":"fuel-1","name":"긴 줄기 I~II","kind":0,"eff":"연쇄 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-fuel-74","page":"fuel","lane":"fuel-1","name":"진한 기름","kind":0,"eff":"기름 줄기 확률 +3%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-fuel-76","page":"fuel","lane":"fuel-1","name":"갈라지는 줄기","kind":1,"eff":"연쇄가 2갈래로 갈라짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-fuel-77","page":"fuel","lane":"fuel-1","name":"긴 줄기","kind":0,"eff":"연쇄 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-fuel-79","page":"fuel","lane":"fuel-1","name":"세 갈래","kind":1,"eff":"연쇄가 3갈래로 갈라짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-fuel-80","page":"fuel","lane":"fuel-1","name":"기름 폭풍","kind":2,"eff":"연쇄가 5갈래, 갈래마다 8그루까지.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-fuel-81","page":"fuel","lane":"fuel-2","name":"긴 기름길","kind":1,"eff":"기름을 20m 더 그을 수 있고, 기름통이 50% 빨리 다시 참.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-82","page":"fuel","lane":"fuel-2","name":"넓은 기름띠 I~II","kind":0,"eff":"기름 불이 0.3m 더 넓게 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-fuel-84","page":"fuel","lane":"fuel-2","name":"빠른 채움","kind":0,"eff":"기름통이 25% 빨리 다시 참.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-fuel-86","page":"fuel","lane":"fuel-2","name":"연료 드럼","kind":2,"eff":"형태 교체: 연료 드럼. 세워 두면 불이 닿을 때 터지고, 우클릭으로 한꺼번에 터뜨릴 수도 있음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-fuel-87","page":"fuel","lane":"fuel-2","name":"큰 드럼","kind":0,"eff":"드럼·항공 살포 폭발 반경 +1m, 세울 수 있는 드럼 +1개.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-fuel-89","page":"fuel","lane":"fuel-2","name":"넓은 기름띠","kind":0,"eff":"기름 불이 0.3m 더 넓게 붙음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-fuel-91","page":"fuel","lane":"fuel-2","name":"항공 살포","kind":2,"eff":"형태 교체: 항공 살포. 두 점을 찍으면 비행기가 그 사이를 지나가며 불붙은 연료를 쏟아부음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-fuel-92","page":"fuel","lane":"fuel-3","name":"무거운 줄기","kind":1,"eff":"쓰러진 나무가 15% 확률로 옆 나무에 불을 옮김. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-fuel-93","page":"fuel","lane":"fuel-3","name":"마른 가지","kind":0,"eff":"옮겨붙을 확률 +5%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-fuel-96","page":"fuel","lane":"fuel-3","name":"멀리 쓰러짐","kind":0,"eff":"쓰러진 나무가 0.4m 더 넓게 불을 옮김.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-fuel-98","page":"fuel","lane":"fuel-3","name":"도미노","kind":1,"eff":"깔린 나무에 불이 옮겨붙을 확률이 크게 올라, 쓰러짐이 연달아 이어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-fuel-99","page":"fuel","lane":"fuel-3","name":"숲 붕괴","kind":0,"eff":"쓰러진 나무가 0.4m 더 넓게 불을 옮김.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-fuel-101","page":"fuel","lane":"fuel-3","name":"나무 사태","kind":2,"eff":"깔린 나무에 불 옮길 확률 대폭 증가, 1m 더 넓게.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-flare-102","page":"flare","lane":"flare-base","name":"조명탄 발사기","kind":1,"eff":"조명탄 계열 해금(키 4). 멀리 쏘아 떨어진 자리에 불을 붙임.","unlock":"태운 나무 1,000그루","req":[],"reqMin":0,"steps":[{"cost":1800,"zone":2,"eff":""}]},{"id":"r-flare-103","page":"flare","lane":"flare-1","name":"긴 사거리 I~III","kind":0,"eff":"사거리 +4m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-flare-106","page":"flare","lane":"flare-1","name":"높은 탄도","kind":1,"eff":"사거리 +10m. 산 위와 강 건너 숲도 노릴 수 있음.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-flare-107","page":"flare","lane":"flare-1","name":"정밀 조준","kind":0,"eff":"착탄 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-flare-109","page":"flare","lane":"flare-1","name":"긴 사거리","kind":0,"eff":"사거리 +4m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-flare-111","page":"flare","lane":"flare-1","name":"관측 사격","kind":1,"eff":"사거리 +6m, 착탄 반경 +1m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-flare-112","page":"flare","lane":"flare-2","name":"밝은 조명 I~II","kind":0,"eff":"착탄 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-flare-114","page":"flare","lane":"flare-2","name":"2연발","kind":1,"eff":"한 번 쏘면 둘레에 한 발이 더 떨어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-flare-115","page":"flare","lane":"flare-2","name":"밝은 조명","kind":0,"eff":"착탄 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-flare-117","page":"flare","lane":"flare-2","name":"소이 폭탄","kind":2,"eff":"형태 교체: 소이 폭탄. 떨어진 자리가 넓게 폭발하며 불탐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-flare-118","page":"flare","lane":"flare-2","name":"넓은 소이 I~II","kind":0,"eff":"착탄 반경 +1m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-flare-120","page":"flare","lane":"flare-2","name":"3연발","kind":1,"eff":"둘레에 떨어지는 탄 +1발.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-flare-121","page":"flare","lane":"flare-2","name":"넓은 소이","kind":0,"eff":"착탄 반경 +1m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-flare-123","page":"flare","lane":"flare-2","name":"집속 소이탄","kind":2,"eff":"형태 교체: 집속 소이탄. 공중에서 3개로 갈라져 넓은 숲에 한꺼번에 떨어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-flare-124","page":"flare","lane":"flare-3","name":"빠른 장전 I~III","kind":0,"eff":"장전 시간 -6%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-flare-127","page":"flare","lane":"flare-3","name":"탄약 주머니","kind":1,"eff":"장전 시간 -10%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-flare-128","page":"flare","lane":"flare-3","name":"빠른 장전 IV~V","kind":0,"eff":"장전 시간 -6%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-flare-130","page":"flare","lane":"flare-3","name":"예비 탄창","kind":1,"eff":"장전 시간 -10%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-flare-131","page":"flare","lane":"flare-3","name":"빠른 장전","kind":0,"eff":"장전 시간 -6%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-flare-133","page":"flare","lane":"flare-3","name":"연속 사격","kind":2,"eff":"장전 시간 -20%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":91000,"zone":5,"eff":""}]},{"id":"r-nature-139","page":"nature","lane":"nature-base","name":"피뢰침 말뚝","kind":1,"eff":"자연 계열 해금(키 5). 꽂은 자리에 2초 뒤 번개가 떨어져 반경 6m 숲에 불을 붙임.","unlock":"태운 나무 2,000그루","req":[],"reqMin":0,"steps":[{"cost":1800,"zone":2,"eff":""}]},{"id":"r-nature-140","page":"nature","lane":"nature-1","name":"짧은 방전","kind":0,"eff":"번개가 떨어지기까지 -0.3초.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-nature-143","page":"nature","lane":"nature-1","name":"접지선","kind":1,"eff":"번개 반경 +1.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-nature-144","page":"nature","lane":"nature-1","name":"고전압","kind":0,"eff":"번개 불길 세기 +1.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-nature-146","page":"nature","lane":"nature-1","name":"연쇄 방전","kind":1,"eff":"번개가 둘레 나무 2그루로 가지를 침.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-nature-147","page":"nature","lane":"nature-1","name":"갈라지는 번개","kind":0,"eff":"가지 치는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-nature-149","page":"nature","lane":"nature-1","name":"천둥 벼락","kind":2,"eff":"번개 반경 +3m, 불길 세기 +2.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":91000,"zone":5,"eff":""}]},{"id":"r-nature-150","page":"nature","lane":"nature-2","name":"구리 피뢰침 I~II","kind":0,"eff":"번개 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-nature-152","page":"nature","lane":"nature-2","name":"빠른 설치","kind":1,"eff":"자연 도구를 다시 쓰기까지 -15%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-nature-153","page":"nature","lane":"nature-2","name":"구리 피뢰침","kind":0,"eff":"번개 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-nature-155","page":"nature","lane":"nature-2","name":"유도 로켓","kind":2,"eff":"형태 교체: 유도 로켓. 구리선을 끌고 솟은 로켓이 90m 밖 조준한 자리로 번개를 부름.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":29000,"zone":4,"eff":""}]},{"id":"r-nature-156","page":"nature","lane":"nature-2","name":"긴 구리선","kind":0,"eff":"자연 도구 사거리 +10m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-nature-158","page":"nature","lane":"nature-2","name":"이중 유도","kind":1,"eff":"자연 도구를 다시 쓰기까지 -15%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-nature-159","page":"nature","lane":"nature-2","name":"짙은 구름","kind":0,"eff":"뇌우 번개 +2번.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-nature-161","page":"nature","lane":"nature-2","name":"뇌우 호출","kind":2,"eff":"형태 교체: 뇌우 호출. 조준한 자리 위에 비구름을 불러 8초 동안 반경 22m 안의 나무에 번개를 26번 내리침.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-nature-162","page":"nature","lane":"nature-3","name":"마른 번개","kind":1,"eff":"번개 불길 세기 +1.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":1300,"zone":2,"eff":""}]},{"id":"r-nature-163","page":"nature","lane":"nature-3","name":"정전기","kind":0,"eff":"자연 도구를 다시 쓰기까지 -5%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-nature-166","page":"nature","lane":"nature-3","name":"번개 구름","kind":1,"eff":"1분에 번개 1번이 열린 구역에 저절로 떨어짐.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-nature-167","page":"nature","lane":"nature-3","name":"잦은 낙뢰","kind":0,"eff":"저절로 떨어지는 번개 1분에 +0.5번.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-nature-169","page":"nature","lane":"nature-3","name":"번개 나무","kind":1,"eff":"저절로 떨어지는 번개가 나무 1그루를 더 붙임.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-nature-170","page":"nature","lane":"nature-3","name":"먹구름","kind":0,"eff":"뇌우 번개 +2번.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-nature-172","page":"nature","lane":"nature-3","name":"폭풍 전선","kind":2,"eff":"저절로 떨어지는 번개 1분에 +1번, 번개마다 나무 2그루를 더 붙임.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-lighter-37","page":"fire","lane":"fire-1","name":"불똥 튐","kind":1,"eff":"불을 붙이는 데 성공하면 10% 확률로 반경 3m 안의 나무 2그루가 동시에 붙음. 10번 안에 한 번은 보장. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":220,"zone":1,"eff":""}]},{"id":"r-lighter-38","page":"fire","lane":"fire-1","name":"튀는 불똥","kind":0,"eff":"불똥 튐 확률 +2%.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-lighter-41","page":"fire","lane":"fire-1","name":"멀리 튀는 불똥","kind":0,"eff":"불똥 튐 반경 +0.5m.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-lighter-43","page":"fire","lane":"fire-1","name":"확실한 불똥","kind":1,"eff":"보장이 10번 → 5번 안으로.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-lighter-44","page":"fire","lane":"fire-1","name":"큰 불똥","kind":0,"eff":"불똥 튐으로 붙는 나무 +1그루.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":15000,"zone":5,"eff":""}]},{"id":"r-lighter-46","page":"fire","lane":"fire-1","name":"대폭발","kind":2,"eff":"불똥 튐이 5% 확률로 반경 6m 대폭발로 바뀜(10그루 이상).","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-lighter-59","page":"fire","lane":"fire-2","name":"긴 손","kind":0,"eff":"점화 사거리 +6%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":""},{"cost":450,"zone":2,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-lighter-62","page":"fire","lane":"fire-2","name":"달아오른 숲","kind":1,"eff":"불길 세기 +1, 점화 시간 -10%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":7800,"zone":3,"eff":""}]},{"id":"r-lighter-63","page":"fire","lane":"fire-2","name":"번지는 열기 I~III","kind":0,"eff":"불 번짐 반경 +0.2m. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":2600,"zone":3,"eff":""},{"cost":4900,"zone":4,"eff":""},{"cost":4900,"zone":4,"eff":""}]},{"id":"r-lighter-66","page":"fire","lane":"fire-2","name":"열풍","kind":1,"eff":"불길 세기 +1, 옮겨붙을 확률 +30%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":46000,"zone":5,"eff":""}]},{"id":"r-lighter-67","page":"fire","lane":"fire-2","name":"번지는 열기","kind":0,"eff":"불 번짐 반경 +0.2m. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":15000,"zone":5,"eff":""},{"cost":31000,"zone":6,"eff":""}]},{"id":"r-lighter-69","page":"fire","lane":"fire-2","name":"불바다","kind":2,"eff":"불길 세기 +2, 불 번짐 반경 +1m. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":180000,"zone":6,"eff":""}]},{"id":"r-umwqq3k2t6z6","page":"fire","lane":"fire-3","name":"굵은 성냥","kind":0,"eff":"불이 옆 나무로 옮겨붙을 확률 +10%. 모든 도구에 적용.","unlock":"","req":[],"reqMin":0,"steps":[{"cost":74,"zone":1,"eff":""},{"cost":450,"zone":2,"eff":""}]},{"id":"r-merge-134","page":"merge","lane":"merge-1","name":"불씨 상자","kind":1,"eff":"완벽한 긋기에 성공하면 불똥 튐이 반드시 발동.","unlock":"","req":["r-lighter-37"],"reqMin":0,"steps":[{"cost":440,"zone":1,"eff":""}]},{"id":"r-merge-135","page":"merge","lane":"merge-1","name":"바람 타기","kind":1,"eff":"들불이 닿는 거리 +50%, 쓰러진 나무가 1m 더 넓게 불을 옮김.","unlock":"","req":["r-match-25","r-fuel-92"],"reqMin":0,"steps":[{"cost":2700,"zone":2,"eff":""}]},{"id":"r-merge-136","page":"merge","lane":"merge-1","name":"기름 불꽃","kind":1,"eff":"불똥이 튀면 기름 줄기 연쇄도 반드시 이어짐.","unlock":"","req":["r-lighter-37","r-fuel-71"],"reqMin":0,"steps":[{"cost":440,"zone":1,"eff":""}]},{"id":"r-merge-137","page":"merge","lane":"merge-1","name":"소이 연료","kind":1,"eff":"조명탄·드럼·항공 살포 폭발 반경 +2m.","unlock":"","req":["r-fuel-81","r-flare-102"],"reqMin":0,"steps":[{"cost":2700,"zone":2,"eff":""}]},{"id":"r-final-138","page":"merge","lane":"merge-1","name":"위성 포격","kind":2,"eff":"무전으로 좌표를 불러 하늘에서 포격. 반경 안의 숲이 한 번에 불타오름.","unlock":"","req":["r-lighter-58","r-fuel-91","r-flare-123","r-nature-161"],"reqMin":2,"steps":[{"cost":310000,"zone":6,"eff":""}]},{"id":"r-s-31","page":"haul","lane":"haul-1","name":"넓은 손길","kind":0,"eff":"재 더미를 줍는 거리 단계당 +0.4m.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":11,"zone":1,"eff":""},{"cost":13,"zone":1,"eff":""},{"cost":15,"zone":1,"eff":""},{"cost":18,"zone":1,"eff":""},{"cost":22,"zone":1,"eff":""},{"cost":26,"zone":1,"eff":""},{"cost":31,"zone":1,"eff":""},{"cost":38,"zone":1,"eff":""},{"cost":45,"zone":1,"eff":""},{"cost":54,"zone":1,"eff":""}]},{"id":"r-s-34","page":"haul","lane":"haul-1","name":"송풍 흡입기","kind":1,"eff":"등에 멘 흡입기로 주변 재를 빨아들임. 줍는 거리 +2.5m.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-35","page":"haul","lane":"haul-1","name":"흡입기 출력","kind":0,"eff":"줍는 거리 단계당 +0.8m.","unlock":"","req":["r-s-34"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-32","page":"haul","lane":"haul-2","name":"로봇 청소기","kind":1,"eff":"내 주변 재 더미를 먼지통에 담아, 가득 차면 수거함에 직접 붓고 돌아오는 로봇 1대.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-33","page":"haul","lane":"haul-2","name":"청소기 추가","kind":0,"eff":"로봇 청소기 단계당 +1대.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":720,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1800,"zone":2,"eff":""},{"cost":2900,"zone":3,"eff":""}]},{"id":"r-s-36","page":"haul","lane":"haul-2","name":"청소기 흡입력","kind":0,"eff":"로봇 청소기가 재 더미를 빨아들이는 거리 단계당 +0.4m.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-37","page":"haul","lane":"haul-2","name":"청소기 먼지통","kind":0,"eff":"로봇 청소기 먼지통 용량 단계당 +5개.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""}]},{"id":"r-s-38","page":"haul","lane":"haul-2","name":"청소기 모터","kind":0,"eff":"로봇 청소기 속도 단계당 +20%.","unlock":"","req":["r-s-32"],"reqMin":0,"steps":[{"cost":240,"zone":2,"eff":""},{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":470,"zone":2,"eff":""},{"cost":590,"zone":2,"eff":""},{"cost":730,"zone":2,"eff":""},{"cost":920,"zone":2,"eff":""},{"cost":1100,"zone":2,"eff":""}]},{"id":"r-s-9","page":"haul","lane":"haul-3","name":"큰 자루","kind":0,"eff":"자루 용량 단계당 +50%.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":9,"zone":1,"eff":""},{"cost":11,"zone":1,"eff":""},{"cost":13,"zone":1,"eff":""},{"cost":16,"zone":1,"eff":""},{"cost":19,"zone":1,"eff":""},{"cost":24,"zone":1,"eff":""},{"cost":29,"zone":1,"eff":""},{"cost":35,"zone":1,"eff":""},{"cost":43,"zone":1,"eff":""},{"cost":52,"zone":1,"eff":""},{"cost":64,"zone":1,"eff":""},{"cost":78,"zone":1,"eff":""}]},{"id":"r-s-11","page":"haul","lane":"haul-3","name":"휴대 수거함","kind":1,"eff":"내려놓으면 12m 안의 재 더미를 자동으로 빨아들임.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-12","page":"haul","lane":"haul-3","name":"넓은 흡입","kind":0,"eff":"휴대 수거함 범위 단계당 +2m.","unlock":"","req":["r-s-11"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-13","page":"haul","lane":"haul-3","name":"대량 하역","kind":1,"eff":"자루를 다 비우면 20초간 근처 재를 빨아들이고 드론이 2배 빨라짐.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":5000,"zone":3,"eff":""}]},{"id":"r-s-14","page":"haul","lane":"haul-3","name":"긴 하역","kind":0,"eff":"대량 하역 단계당 +2.5초.","unlock":"","req":["r-s-13"],"reqMin":0,"steps":[{"cost":1300,"zone":3,"eff":""},{"cost":1600,"zone":3,"eff":""},{"cost":2000,"zone":3,"eff":""},{"cost":2500,"zone":3,"eff":""},{"cost":3200,"zone":3,"eff":""},{"cost":4000,"zone":3,"eff":""}]},{"id":"r-s-5","page":"haul","lane":"haul-3","name":"ATV 짐칸","kind":0,"eff":"탄 채로 재 더미를 실음. 단계당 자루 용량의 절반만큼 추가.","unlock":"","req":["r-s-4"],"reqMin":0,"steps":[{"cost":1900,"zone":3,"eff":""},{"cost":2500,"zone":3,"eff":""},{"cost":3400,"zone":3,"eff":""},{"cost":4500,"zone":3,"eff":""}]},{"id":"r-s-10","page":"store","lane":"store-1","name":"빠른 붓기","kind":0,"eff":"수거함에 붓는 속도 단계당 +20%, 붓는 거리 +0.3m.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":9,"zone":1,"eff":""},{"cost":11,"zone":1,"eff":""},{"cost":13,"zone":1,"eff":""},{"cost":16,"zone":1,"eff":""},{"cost":19,"zone":1,"eff":""},{"cost":24,"zone":1,"eff":""},{"cost":29,"zone":1,"eff":""},{"cost":35,"zone":1,"eff":""},{"cost":43,"zone":1,"eff":""},{"cost":52,"zone":1,"eff":""}]},{"id":"r-s-26","page":"store","lane":"store-1","name":"수거함 개량","kind":0,"eff":"수거함 붓는 속도 증가. 2단계는 근처 재를 자동 수거.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":900,"zone":2,"eff":""},{"cost":1600,"zone":2,"eff":""}]},{"id":"r-s-27","page":"store","lane":"store-1","name":"전진 수거함","kind":0,"eff":"단계마다 다음 구역에 수거함 하나.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":900,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""},{"cost":2000,"zone":2,"eff":""},{"cost":2600,"zone":3,"eff":""}]},{"id":"r-s-28","page":"store","lane":"store-1","name":"재 운반 레일","kind":0,"eff":"구역 수거함끼리 재를 이어 나름. 단계마다 처리량 증가.","unlock":"구역 4","req":["r-s-27"],"reqMin":0,"steps":[{"cost":6300,"zone":4,"eff":""},{"cost":7400,"zone":4,"eff":""},{"cost":8700,"zone":4,"eff":""},{"cost":10000,"zone":4,"eff":""},{"cost":12000,"zone":4,"eff":""},{"cost":14000,"zone":4,"eff":""}]},{"id":"r-s-15","page":"store","lane":"store-2","name":"수거 드론","kind":1,"eff":"드론 1대가 재 더미를 수거함으로 나름.","unlock":"태운 나무 3,000그루","req":[],"reqMin":0,"steps":[{"cost":1200,"zone":2,"eff":""}]},{"id":"r-s-16","page":"store","lane":"store-2","name":"드론 추가","kind":0,"eff":"드론 단계당 +1대 (격납고 상한까지).","unlock":"","req":["r-s-15"],"reqMin":0,"steps":[{"cost":750,"zone":2,"eff":""},{"cost":1100,"zone":2,"eff":""},{"cost":1600,"zone":2,"eff":""},{"cost":2300,"zone":2,"eff":""},{"cost":3300,"zone":3,"eff":""},{"cost":4800,"zone":3,"eff":""}]},{"id":"r-s-29","page":"store","lane":"store-2","name":"드론 격납고","kind":0,"eff":"드론 대수 상한 단계당 +3대.","unlock":"구역 3","req":["r-s-15"],"reqMin":0,"steps":[{"cost":5000,"zone":3,"eff":""},{"cost":7500,"zone":3,"eff":""},{"cost":11000,"zone":4,"eff":""}]},{"id":"r-s-20","page":"store","lane":"store-2","name":"드론 편대","kind":1,"eff":"드론들이 편대를 이뤄 구역 전체를 돌며 남은 재를 쓸어 담음.","unlock":"구역 6","req":["r-s-19"],"reqMin":0,"steps":[{"cost":70000,"zone":6,"eff":""}]},{"id":"r-s-17","page":"store","lane":"store-3","name":"빠른 프로펠러","kind":0,"eff":"드론 속도 단계당 +10%.","unlock":"","req":["r-s-15"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""}]},{"id":"r-s-18","page":"store","lane":"store-3","name":"큰 바구니","kind":0,"eff":"드론 적재량 단계당 +25%.","unlock":"","req":["r-s-15"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""},{"cost":1200,"zone":2,"eff":""},{"cost":1500,"zone":2,"eff":""}]},{"id":"r-s-19","page":"store","lane":"store-3","name":"드론 오버드라이브","kind":1,"eff":"R 키로 8초간 드론 3배 속도.","unlock":"구역 4","req":["r-s-15"],"reqMin":0,"steps":[{"cost":10000,"zone":4,"eff":""}]},{"id":"r-s-1","page":"travel","lane":"travel-1","name":"이동력","kind":0,"eff":"걷기·달리기·점프·경사 오르기가 함께 좋아짐. 단계당 이동 속도 +4%, 점프 +2%.","unlock":"처음부터","req":[],"reqMin":0,"steps":[{"cost":7,"zone":1,"eff":""},{"cost":8,"zone":1,"eff":""},{"cost":8,"zone":1,"eff":""},{"cost":9,"zone":1,"eff":""},{"cost":10,"zone":1,"eff":""},{"cost":11,"zone":1,"eff":""},{"cost":12,"zone":1,"eff":""},{"cost":14,"zone":1,"eff":""},{"cost":15,"zone":1,"eff":""},{"cost":17,"zone":1,"eff":""},{"cost":18,"zone":1,"eff":""},{"cost":20,"zone":1,"eff":""},{"cost":22,"zone":1,"eff":""},{"cost":24,"zone":1,"eff":""},{"cost":27,"zone":1,"eff":""},{"cost":29,"zone":1,"eff":""},{"cost":32,"zone":1,"eff":""},{"cost":35,"zone":1,"eff":""},{"cost":39,"zone":1,"eff":""},{"cost":43,"zone":1,"eff":""},{"cost":47,"zone":1,"eff":""},{"cost":52,"zone":1,"eff":""},{"cost":57,"zone":1,"eff":""},{"cost":63,"zone":1,"eff":""}]},{"id":"r-s-2","page":"travel","lane":"travel-1","name":"산악자전거","kind":1,"eff":"이동 속도 ×2. 타는 동안 불을 붙일 수 없음.","unlock":"이동력 6단계 · 구역 2","req":["r-s-1"],"reqMin":0,"steps":[{"cost":1800,"zone":2,"eff":""}]},{"id":"r-s-3","page":"travel","lane":"travel-1","name":"자전거 기어","kind":0,"eff":"자전거 속도 단계당 +7.5%.","unlock":"","req":["r-s-2"],"reqMin":0,"steps":[{"cost":300,"zone":2,"eff":""},{"cost":380,"zone":2,"eff":""},{"cost":480,"zone":2,"eff":""},{"cost":600,"zone":2,"eff":""},{"cost":760,"zone":2,"eff":""},{"cost":950,"zone":2,"eff":""}]},{"id":"r-s-4","page":"travel","lane":"travel-1","name":"사륜 오토바이(ATV)","kind":1,"eff":"자전거보다 빠르고 오르막에 강함. 타는 동안 불을 붙일 수 없음.","unlock":"이동력 14단계 · 구역 3","req":["r-s-2"],"reqMin":0,"steps":[{"cost":8800,"zone":3,"eff":""}]},{"id":"r-s-8","page":"travel","lane":"travel-1","name":"패러글라이더","kind":1,"eff":"산 정상에서 뛰어내려 멀리 활공.","unlock":"이동력 20단계 · 가장 높은 산 정상","req":["r-s-4"],"reqMin":0,"steps":[{"cost":15000,"zone":4,"eff":""}]},{"id":"r-s-6","page":"travel","lane":"travel-2","name":"고무보트","kind":1,"eff":"강과 호수를 건널 수 있음. 강 건너 숲(구역 4부터)에 가려면 필요.","unlock":"구역 3","req":["r-s-1"],"reqMin":0,"steps":[{"cost":7500,"zone":3,"eff":""}]},{"id":"r-s-7","page":"travel","lane":"travel-2","name":"보트 모터","kind":0,"eff":"보트 속도 단계당 +15%.","unlock":"","req":["r-s-6"],"reqMin":0,"steps":[{"cost":1300,"zone":3,"eff":""},{"cost":1600,"zone":3,"eff":""},{"cost":2100,"zone":3,"eff":""},{"cost":2700,"zone":3,"eff":""}]},{"id":"r-s-22","page":"travel","lane":"travel-3","name":"재 더미 표시","kind":1,"eff":"지도에 재 더미 위치 표시.","unlock":"구역 2","req":[],"reqMin":0,"steps":[{"cost":900,"zone":2,"eff":""}]},{"id":"r-s-23","page":"travel","lane":"travel-3","name":"쌍안경","kind":1,"eff":"멀리 있는 숲의 남은 나무를 확대해서 봄.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":3800,"zone":3,"eff":""}]},{"id":"r-s-24","page":"travel","lane":"travel-3","name":"빛기둥 거리","kind":0,"eff":"남은 나무 빛기둥이 보이는 거리 단계당 +25%.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":1300,"zone":3,"eff":""},{"cost":1600,"zone":3,"eff":""},{"cost":2000,"zone":3,"eff":""},{"cost":2500,"zone":3,"eff":""},{"cost":3200,"zone":3,"eff":""},{"cost":4000,"zone":3,"eff":""}]},{"id":"r-s-25","page":"travel","lane":"travel-3","name":"남은 나무 수","kind":1,"eff":"구역별 남은 나무 수를 지도에 표시.","unlock":"구역 4","req":[],"reqMin":0,"steps":[{"cost":5000,"zone":4,"eff":""}]},{"id":"r-s-30","page":"travel","lane":"travel-3","name":"무전 중계탑","kind":0,"eff":"지도 표시 → 남은 나무 빛기둥 → 구조 요청. 마지막 단계가 엔딩의 구조 헬기를 부름.","unlock":"구역 3","req":[],"reqMin":0,"steps":[{"cost":3800,"zone":3,"eff":""},{"cost":6800,"zone":3,"eff":""},{"cost":12000,"zone":4,"eff":""}]}],"memo":""};
 const clone = o => JSON.parse(JSON.stringify(o));
-const KEY = 'onespark-paths-1';
+const KEY = 'onespark-columns-1';
 let D = null;
 try { D = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
 if (!D || D.version !== ORIGINAL.version || !Array.isArray(D.rows) || !Array.isArray(D.lanes)) D = clone(ORIGINAL);
 // 구역: 이름, 나무 수, 다음 구역으로 넘어가는 비율, 나무 1그루당 재. game.gd 구역 설정과 같다.
 const ZONES = [['작은 숲', 607, 0.85, 3], ['큰 숲', 4869, 0.8, 4.5], ['낮은 소나무숲', 11934, 0.65, 12], ['늙은 소나무숲', 17368, 0.4, 21], ['얕은 습지', 28843, 0.33, 48], ['깊은 습지', 36379, 0.3, 84]];
-const KIND = ['단계 강화', '새 기능', '형태 교체'], ICON = ['●', '◉', '◆'];
+const KIND = ['수치 강화', '새 기능', '형태 교체'], ICON = ['●', '■', '◆'];
 const $ = id => document.getElementById(id);
 const esc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fa = v => Math.round(v).toLocaleString();
@@ -159,24 +192,12 @@ const lanesOf = pid => D.lanes.filter(l => l.page === pid);
 const rowsOf = lid => D.rows.filter(r => r.lane === lid);
 const rTot = r => r.steps.reduce((a, s) => a + (+s.cost || 0), 0);
 const lTot = lid => rowsOf(lid).reduce((a, r) => a + rTot(r), 0);
-const optLanes = pid => lanesOf(pid).filter(l => !l.base);
-// 쪽 합계. picked면 갈림길에서 가장 비싼 길(고를 수 있는 개수만큼)만 친다.
-function pTot(pid, picked) {
-  const p = P(pid), ls = lanesOf(pid);
-  if (!picked || !p.fork) return ls.reduce((a, l) => a + lTot(l.id), 0);
-  const opt = optLanes(pid).map(l => lTot(l.id)).sort((a, b) => b - a).slice(0, Math.max(1, +p.fork.pick || 1));
-  return ls.filter(l => l.base).reduce((a, l) => a + lTot(l.id), 0) + opt.reduce((a, b) => a + b, 0);
-}
-// 갈림길에서 고르지 않을 길이면 true(예산 '고른 길 기준'에서 뺌).
-function unpicked(lid) {
-  const l = L(lid), p = l && P(l.page); if (!p || !p.fork || l.base) return false;
-  const keep = optLanes(p.id).map(x => [x.id, lTot(x.id)]).sort((a, b) => b[1] - a[1]).slice(0, Math.max(1, +p.fork.pick || 1)).map(x => x[0]);
-  return !keep.includes(lid);
-}
+const pTot = pid => lanesOf(pid).reduce((a, l) => a + lTot(l.id), 0);
 const prevRow = r => { const l = L(r.lane); if (!l || !l.chain) return null; const rs = rowsOf(r.lane), i = rs.indexOf(r); return i > 0 ? rs[i - 1] : null; };
 const laneLabel = lid => { const l = L(lid); return l ? `${P(l.page)?.name || l.page} · ${l.name}` : lid; };
 const newId = () => 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 const zr = r => { const z = r.steps.map(s => +s.zone || 1); const a = Math.min(...z), b = Math.max(...z); return a === b ? `구역 ${a}` : `구역 ${a}~${b}`; };
+const reqText = r => r.req.length ? '먼저: ' + r.req.map(id => R(id)?.name || '?').join(', ') + (r.reqMin && r.reqMin < r.req.length ? ` 중 ${r.reqMin}개` : '') : '';
 
 // ---------- 저장·되돌리기 (0.8초 안의 연속 변경은 한 번으로 묶는다) ----------
 let hist = [], fut = [], last = JSON.stringify(D), lastT = 0;
@@ -196,115 +217,159 @@ function toast(t, keep) { const el = $('toast'); if (!t) { el.style.display = 'n
 
 // ---------- 화면 ----------
 let tab = localStorage.getItem(KEY + '-tab') || 'match'; if (!P(tab)) tab = D.pages[0].id;
-let sel = [], pane = null; // pane: {t:'row'|'lane'|'fork'|'multi', id}
+let mode = localStorage.getItem(KEY + '-mode') || 'board';
+let sel = [], pane = null; // pane: {t:'row'|'lane'|'multi', id}
 const isSel = id => sel.includes(id);
-function setTab(t) { tab = t; try { localStorage.setItem(KEY + '-tab', t); } catch (e) {} renderTabs(); renderView(); window.scrollTo({ top: 0 }); }
+function setMode(m) { mode = m; try { localStorage.setItem(KEY + '-mode', m); } catch (e) {} renderView(); }
+function setTab(t, m) { tab = t; try { localStorage.setItem(KEY + '-tab', t); } catch (e) {} if (m) mode = m, localStorage.setItem(KEY + '-mode', m); renderTabs(); renderView(); }
 function renderTabs() {
   let h = '', sec = null;
   for (const p of D.pages) {
     if (p.section !== sec) { sec = p.section; h += `<div class="sec">${esc(sec)}</div>`; }
-    const n = D.rows.filter(r => r.page === p.id).length;
-    h += `<button class="tab${p.id === tab ? ' on' : ''}" data-p="${p.id}" style="--c:${p.color}"><b>${esc(p.name)}</b><span>${n}줄 · ${fk(pTot(p.id, true))}재${p.fork ? ' (한 길)' : ''}</span></button>`;
+    h += `<button class="tab${p.id === tab ? ' on' : ''}" data-p="${p.id}" style="--c:${p.color}"><b>${esc(p.name)}</b><span>${D.rows.filter(r => r.page === p.id).length}개 · ${fk(pTot(p.id))}재</span></button>`;
   }
   $('tabs').innerHTML = h;
 }
+function renderView() {
+  document.body.classList.toggle('board', mode === 'board');
+  $('mBoard').classList.toggle('on', mode === 'board'); $('mDetail').classList.toggle('on', mode !== 'board');
+  $('modeHint').innerHTML = mode === 'board'
+    ? '<b>점에 마우스</b> 내용 보기 · <b>누르기</b> 오른쪽에서 고치기 · <b>끌기</b> 순서·줄 옮기기 · <b>Ctrl 누른 채 놓기</b> 단계로 합치기 · <b>기둥 이름</b> 자세히 보기 · <b>줄 이름</b> 줄 고치기 · <b>Ctrl+클릭</b> 여러 개 · <b>Ctrl+C/X/V/D · Delete · Alt+↑↓ · Ctrl+Z/Y</b>'
+    : '<b>카드 누르기</b> 고치기 · <b>카드 끌기</b> 옮기기(왼쪽 기둥 이름에 놓으면 그 기둥으로) · <b>Ctrl 누른 채 놓기</b> 단계로 합치기 · <b>Ctrl+클릭</b> 여러 개 · <b>Ctrl+C/X/V/D · Delete · Alt+↑↓ · Ctrl+Z/Y</b>';
+  if (mode === 'board') renderBoard(); else renderDetail();
+}
+
+// --- 전체 판 ---
+function node(r) {
+  const n = r.steps.length;
+  return `<div class="nd k${r.kind}${isSel(r.id) ? ' sel' : ''}" draggable="true" data-r="${r.id}"><span class="sh"><span>${r.kind === 0 && n > 1 ? n : ''}</span></span><span class="nm">${esc(r.name)}</span></div>`;
+}
+function renderBoard() {
+  const cols = D.pages.map(p => Math.max(1, lanesOf(p.id).filter(l => !l.base).length) + 'fr').join(' ');
+  let h = `<div class="boardwrap"><div class="brd" id="brd" style="grid-template-columns:${cols}">`;
+  for (const p of D.pages) {
+    const base = lanesOf(p.id).filter(l => l.base), ls = lanesOf(p.id).filter(l => !l.base), roots = base.flatMap(l => rowsOf(l.id));
+    h += `<section class="pcol" style="--c:${p.color}"><div class="ph" data-open="${p.id}" title="이 기둥 자세히 보기"><b>${esc(p.name)}</b><small>${esc(p.sub || '')}</small><small>${D.rows.filter(r => r.page === p.id).length}개 · ${fk(pTot(p.id))}재</small></div>`;
+    h += base.map(l => `<div class="roots olane${l.chain ? ' chain' : ''}" data-lane="${l.id}">${rowsOf(l.id).map(node).join('')}</div>`).join('');
+    h += `<div class="olanes${roots.length ? ' hasroot' : ''}" style="grid-template-columns:repeat(${Math.max(1, ls.length)},1fr);--k:${Math.max(1, ls.length)}">`
+      + ls.map(l => `<div class="olane${l.chain ? ' chain' : ''}" data-lane="${l.id}"><div class="ln" data-lh="${l.id}" title="${esc(l.name)} · 누르면 줄 고치기">${esc(l.name)}</div>${rowsOf(l.id).map(node).join('')}<button class="addn" data-add="${l.id}" title="이 줄 끝에 강화 추가">+</button></div>`).join('')
+      + '</div></section>';
+  }
+  $('view').innerHTML = h + '<svg class="links" id="links"></svg></div></div>';
+  drawLinks();
+}
+// 먼저 사야 하는 강화(req)를 점선으로 잇는다. 같은 줄 위아래면 짧은 세로 점선, 다른 줄이면 곡선.
+function drawLinks() {
+  const brd = $('brd'), svg = $('links'); if (!brd || !svg) return;
+  const b = brd.getBoundingClientRect(); svg.setAttribute('width', b.width); svg.setAttribute('height', b.height);
+  const pos = id => { const e = brd.querySelector(`.nd[data-r="${id}"] .sh`); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2 - b.left, r.top + r.height / 2 - b.top, r.height / 2]; };
+  let h = '';
+  for (const r of D.rows) for (const q of r.req) {
+    const A = pos(q), B = pos(r.id); if (!A || !B) continue;
+    const on = isSel(r.id) || isSel(q);
+    const [x1, y1] = [A[0], A[1] + A[2]], [x2, y2] = [B[0], B[1] - B[2]], my = (y1 + y2) / 2;
+    h += `<path d="M${x1} ${y1}C${x1} ${my} ${x2} ${my} ${x2} ${y2}" fill="none" stroke="${on ? '#ffc74d' : '#ffd36b66'}" stroke-width="${on ? 2.2 : 1.5}" stroke-dasharray="4 4"/>`;
+  }
+  svg.innerHTML = h;
+}
+window.addEventListener('resize', () => { if (mode === 'board') drawLinks(); });
+
+// --- 기둥 자세히 ---
 function card(r) {
   const n = r.steps.length, c = P(r.page)?.color || '#999';
   const cost = n > 1 ? `${fk(r.steps[0].cost)} → ${fk(r.steps[n - 1].cost)} · 모두 ${fk(rTot(r))}재` : `${fk(r.steps[0]?.cost || 0)}재`;
   const pips = n > 1 ? `<span class="pips">${'<i></i>'.repeat(Math.min(n, 12))}<em>${n}단계</em></span>` : '';
   const eff = r.eff || r.steps[0]?.eff || '';
-  const q = [];
-  if (r.unlock) q.push('열림: ' + r.unlock);
-  if (r.req.length) q.push('먼저: ' + r.req.map(id => R(id)?.name || '?').join(', ') + (r.reqMin && r.reqMin < r.req.length ? ` 중 ${r.reqMin}개` : ''));
+  const q = []; if (r.unlock) q.push('열림: ' + r.unlock); if (r.req.length) q.push(reqText(r));
   return `<div class="card k${r.kind}${isSel(r.id) ? ' sel' : ''}" draggable="true" data-r="${r.id}" style="--c:${c}">`
     + `<div class="t"><span class="ic">${ICON[r.kind] || '●'}</span><b>${esc(r.name)}</b><span class="z">${zr(r)}</span></div>`
     + `<div class="m">${pips}<span class="pr">${cost}</span></div>`
     + (eff ? `<div class="e">${esc(eff)}</div>` : '') + (q.length ? `<div class="q">${esc(q.join(' · '))}</div>` : '') + '</div>';
 }
-function laneBox(l, cls) {
+function laneBox(l) {
   const rs = rowsOf(l.id), keys = rs.filter(r => r.kind > 0).map(r => r.name);
-  const last = rs.length ? Math.max(...rs.flatMap(r => r.steps.map(s => +s.zone || 1))) : 0;
-  return `<section class="lane ${cls}${l.chain ? ' chain' : ''}" data-lane="${l.id}" style="--c:${P(l.page).color}">`
-    + `<div class="lhead" data-lh="${l.id}"><b>${esc(l.name)}</b><small>${rs.length}줄 · ${rs.reduce((a, r) => a + r.steps.length, 0)}단계 · 모두 ${fa(lTot(l.id))}재${last ? ` · 구역 ${last}까지` : ''}${l.chain ? '' : ' · 순서 자유'}</small>`
-    + (keys.length && cls === 'col' ? `<span class="keys">${esc(keys.join(' → '))}</span>` : '') + (l.note ? `<span class="keys">${esc(l.note)}</span>` : '') + '</div>'
-    + `<div class="${cls === 'col' || l.chain ? 'list' : 'grid'}">${rs.map(card).join('')}</div><button class="add" data-add="${l.id}">+ 줄 추가</button></section>`;
+  const lz = rs.length ? Math.max(...rs.flatMap(r => r.steps.map(s => +s.zone || 1))) : 0;
+  return `<section class="lane${l.chain ? ' chain' : ''}" data-lane="${l.id}" style="--c:${P(l.page).color}">`
+    + `<div class="lhead" data-lh="${l.id}"><b>${esc(l.name)}</b><small>${rs.length}개 · ${rs.reduce((a, r) => a + r.steps.length, 0)}단계 · 모두 ${fa(lTot(l.id))}재${lz ? ` · 구역 ${lz}까지` : ''}${l.chain ? '' : ' · 순서 자유'}</small>`
+    + (keys.length && !l.base ? `<span class="keys">향하는 곳: ${esc(keys.join(' → '))}</span>` : '') + (l.note ? `<span class="keys">${esc(l.note)}</span>` : '') + '</div>'
+    + `<div class="list">${rs.map(card).join('')}</div><button class="add" data-add="${l.id}">+ 강화 추가</button></section>`;
 }
-function renderView() {
-  const p = P(tab), base = lanesOf(tab).filter(l => l.base), opts = optLanes(tab);
-  let h = `<div class="phead" style="--c:${p.color}"><h2>${esc(p.name)}</h2><span class="st">${D.rows.filter(r => r.page === tab).length}줄 · 모두 ${fa(pTot(tab))}재${p.fork ? ` · 한 길만 사면 ${fa(pTot(tab, true))}재` : ''}</span>`
-    + `<span class="sp"></span><button class="btn sm" data-act="pname">쪽 이름</button><button class="btn sm" data-act="fork">${p.fork ? '갈림길 고치기' : '갈림길 만들기'}</button><button class="btn sm" data-act="addlane">+ 길 추가</button></div>`;
-  h += `<div class="hint"><b>카드 누르기</b> 오른쪽에서 고치기 · <b>카드 끌기</b> 순서·길 옮기기(왼쪽 쪽 이름에 놓으면 그 쪽으로) · <b>Ctrl 누른 채 놓기</b> 그 줄의 단계로 합치기 · <b>Ctrl+클릭</b> 여러 개 · <b>Ctrl+C/X/V/D</b> 복사·잘라 내기·붙여 넣기·복제 · <b>Alt+↑↓</b> 순서 · <b>Delete</b> 삭제 · <b>Ctrl+Z/Y</b></div>`;
-  for (const l of base) if (rowsOf(l.id).length || !opts.length) h += laneBox(l, 'base');
-  if (opts.length) {
-    if (p.fork) h += `<div class="fork" data-act="fork" style="--c:${p.color}"><span class="d">◆</span><b>${esc(p.fork.name)}</b><span>${opts.length}개 길 중 ${+p.fork.pick || 1}개 고름 · 구역 ${p.fork.zone}부터${p.fork.note ? ' · ' + esc(p.fork.note) : ''}</span></div>`;
-    h += `<div class="cols" style="grid-template-columns:repeat(${opts.length},minmax(240px,1fr))">${opts.map(l => laneBox(l, 'col')).join('')}</div>`;
-  }
+function renderDetail() {
+  const p = P(tab), base = lanesOf(tab).filter(l => l.base), ls = lanesOf(tab).filter(l => !l.base);
+  let h = `<div class="phead" style="--c:${p.color}"><h2>${esc(p.name)}</h2><span class="st">${esc(p.sub || '')} · ${D.rows.filter(r => r.page === tab).length}개 · 모두 ${fa(pTot(tab))}재</span>`
+    + `<span class="sp"></span><button class="btn sm" data-act="pname">기둥 이름·설명</button><button class="btn sm" data-act="addlane">+ 줄 추가</button></div>`;
+  for (const l of base) h += laneBox(l);
+  if (ls.length) h += `<div class="cols" style="grid-template-columns:repeat(${ls.length},minmax(240px,1fr))">${ls.map(laneBox).join('')}</div>`;
   $('view').innerHTML = h;
 }
 function renderAll() { renderTabs(); renderView(); renderTables(); $('memo').value = D.memo || ''; }
 function changed(full) { save(); renderTabs(); renderView(); clearTimeout(changed.t); changed.t = setTimeout(renderTables, 250); if (full) reopen(); }
 
+// ---------- 점 위 설명 ----------
+const tip = $('tip');
+document.addEventListener('mouseover', e => {
+  const n = e.target.closest && e.target.closest('.nd'); if (!n || drag) { tip.style.display = 'none'; return; }
+  const r = R(n.dataset.r); if (!r) return;
+  const k = r.steps.length, eff = r.eff || r.steps[0]?.eff || '';
+  const steps = r.steps.some(s => s.eff) ? r.steps.map((s, i) => `${i + 1}. ${esc(s.eff || r.eff)}`).join('<br>') : esc(eff);
+  tip.innerHTML = `<h4>${ICON[r.kind]} ${esc(r.name)}</h4><div class="k">${KIND[r.kind]} · ${zr(r)}${k > 1 ? ` · ${k}단계` : ''}</div><div>${steps.replace(/\n/g, '<br>')}</div>`
+    + `<div class="p">${k > 1 ? r.steps.map(s => fk(s.cost)).join(' · ') + ` (모두 ${fa(rTot(r))}재)` : fa(r.steps[0].cost) + '재'}</div>`
+    + (r.unlock || r.req.length ? `<div class="q">${esc([r.unlock && '열림: ' + r.unlock, reqText(r)].filter(Boolean).join(' · '))}</div>` : '');
+  tip.style.setProperty('--c', P(r.page).color); tip.style.display = 'block';
+});
+document.addEventListener('mousemove', e => { if (tip.style.display === 'block') { const x = Math.min(e.clientX + 16, innerWidth - tip.offsetWidth - 8), y = Math.min(e.clientY + 16, innerHeight - tip.offsetHeight - 8); tip.style.left = x + 'px'; tip.style.top = y + 'px'; } });
+document.addEventListener('mouseout', e => { if (e.target.closest && e.target.closest('.nd') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.nd'))) tip.style.display = 'none'; });
+
 // ---------- 오른쪽 편집 창 ----------
 const panel = $('panel');
-function closePanel() { pane = null; panel.style.display = 'none'; document.body.classList.remove('po'); }
-function showPanel(html, color) { panel.innerHTML = html; panel.style.setProperty('--c', color); panel.style.display = 'block'; document.body.classList.add('po'); }
+function closePanel() { pane = null; panel.style.display = 'none'; document.body.classList.remove('po'); if (mode === 'board') requestAnimationFrame(drawLinks); }
+function showPanel(html, color) { panel.innerHTML = html; panel.style.setProperty('--c', color); const was = panel.style.display === 'block'; panel.style.display = 'block'; document.body.classList.add('po'); if (!was && mode === 'board') requestAnimationFrame(drawLinks); }
 function reopen() {
   if (!pane) return closePanel();
   if (pane.t === 'row') { const r = R(pane.id); return r ? rowPanel(r) : closePanel(); }
   if (pane.t === 'lane') { const l = L(pane.id); return l ? lanePanel(l) : closePanel(); }
-  if (pane.t === 'fork') return P(pane.id)?.fork ? forkPanel(P(pane.id)) : closePanel();
   if (pane.t === 'multi') return sel.length > 1 ? multiPanel() : sel.length ? (pane = { t: 'row', id: sel[0] }, reopen()) : closePanel();
 }
 const laneOpts = cur => D.pages.map(p => `<optgroup label="${esc(p.name)}">${lanesOf(p.id).map(l => `<option value="${l.id}"${l.id === cur ? ' selected' : ''}>${esc(p.name)} · ${esc(l.name)}</option>`).join('')}</optgroup>`).join('');
-const rowOpts = skip => '<option value="">+ 먼저 사야 하는 줄 추가</option>' + D.pages.map(p => `<optgroup label="${esc(p.name)}">${D.rows.filter(r => r.page === p.id && r.id !== skip).map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join('')}</optgroup>`).join('');
+const rowOpts = skip => '<option value="">+ 먼저 사야 하는 강화 추가</option>' + D.pages.map(p => `<optgroup label="${esc(p.name)}">${D.rows.filter(r => r.page === p.id && r.id !== skip).map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join('')}</optgroup>`).join('');
 function rowPanel(r) {
   pane = { t: 'row', id: r.id };
   const pr = prevRow(r), l = L(r.lane);
   const st = r.steps.map((s, i) => `<tr><td>${i + 1}</td><td><input class="in" type="number" min="0" data-s="${i}" data-sf="cost" value="${s.cost}"></td>`
     + `<td><select class="in" data-s="${i}" data-sf="zone">${ZONES.map((z, k) => `<option value="${k + 1}"${+s.zone === k + 1 ? ' selected' : ''}>${k + 1}</option>`).join('')}</select></td>`
-    + `<td><input class="in" data-s="${i}" data-sf="eff" value="${esc(s.eff)}" placeholder="비우면 줄 설명"></td>`
-    + `<td>${i > 0 ? `<button class="x" data-split="${i}" title="이 단계부터 떼어 새 줄로">떼기</button>` : ''}${r.steps.length > 1 ? `<button class="x" data-sdel="${i}" title="이 단계 삭제">✕</button>` : ''}</td></tr>`).join('');
+    + `<td><input class="in" data-s="${i}" data-sf="eff" value="${esc(s.eff)}" placeholder="비우면 위 효과"></td>`
+    + `<td>${i > 0 ? `<button class="x" data-split="${i}" title="이 단계부터 떼어 새 강화로">떼기</button>` : ''}${r.steps.length > 1 ? `<button class="x" data-sdel="${i}" title="이 단계 삭제">✕</button>` : ''}</td></tr>`).join('');
   showPanel(`<h3>${ICON[r.kind]} ${esc(r.name)}</h3>
     <label class="f">이름<input class="in" data-f="name" value="${esc(r.name)}"></label>
     <div class="two"><label class="f">종류<select class="in" data-f="kind">${KIND.map((k, i) => `<option value="${i}"${r.kind === i ? ' selected' : ''}>${ICON[i]} ${k}</option>`).join('')}</select></label>
-    <label class="f">쪽 · 길<select class="in" data-f="lane">${laneOpts(r.lane)}</select></label></div>
-    <label class="f">효과 (줄 설명)<textarea class="in" rows="3" data-f="eff">${esc(r.eff)}</textarea></label>
+    <label class="f">기둥 · 줄<select class="in" data-f="lane">${laneOpts(r.lane)}</select></label></div>
+    <label class="f">효과<textarea class="in" rows="3" data-f="eff">${esc(r.eff)}</textarea></label>
     <label class="f">열림 조건 (선택)<input class="in" data-f="unlock" value="${esc(r.unlock)}" placeholder="예: 태운 나무 30그루"></label>
-    <div class="tip">${pr ? `이 길은 차례로 열립니다: <b>${esc(pr.name)}</b>을(를) 다 사야 열림.` : l && l.chain ? '이 길의 첫 줄입니다.' : '이 길은 순서 자유(앞 줄 조건 없음).'}</div>
+    <div class="tip">${pr ? `이 줄은 차례로 열립니다: <b>${esc(pr.name)}</b>을(를) 다 사야 열림.` : l && l.chain ? '이 줄의 첫 강화입니다.' : '이 줄은 순서 자유(아래 조건으로만 막음).'}</div>
     <div>${r.req.map(id => `<span class="chip">${esc(R(id)?.name || id)}<button data-rdel="${id}">✕</button></span>`).join('')}</div>
     <label class="f" style="margin-top:4px"><select class="in" data-radd>${rowOpts(r.id)}</select></label>
     ${r.req.length > 1 ? `<label class="f">조건 중 필요한 개수 (0 = 모두)<input class="in" type="number" min="0" max="${r.req.length}" data-f="reqMin" value="${+r.reqMin || 0}"></label>` : ''}
     <div class="sum">단계 ${r.steps.length}개 · 모두 <b>${fa(rTot(r))}재</b> · ${zr(r)}</div>
     <table class="steps"><tr><th>#</th><th>가격(재)</th><th>구역</th><th>단계 효과</th><th></th></tr>${st}</table>
     <div class="row"><button class="btn sm" data-act="sadd">+ 단계 추가</button><span style="font-size:12px;color:var(--dim);align-self:center">가격 일괄: 첫</span><input class="in" id="g0" type="number" style="width:84px" value="${r.steps[0].cost}"><span style="font-size:12px;color:var(--dim);align-self:center">× 배수</span><input class="in" id="gm" type="number" step="0.05" style="width:64px" value="1.5"><button class="btn sm" data-act="sgrow">적용</button></div>
-    <div class="row"><button class="btn sm" data-act="up">↑ 위로</button><button class="btn sm" data-act="down">↓ 아래로</button><button class="btn sm" data-act="mergeNext">다음 줄과 합치기</button><button class="btn sm" data-act="dup">복제</button><button class="btn sm del" data-act="del">삭제</button><button class="btn sm" data-act="close">닫기</button></div>`, P(r.page).color);
+    <div class="row"><button class="btn sm" data-act="up">↑ 위로</button><button class="btn sm" data-act="down">↓ 아래로</button><button class="btn sm" data-act="mergeNext">아래 강화와 합치기</button><button class="btn sm" data-act="dup">복제</button><button class="btn sm del" data-act="del">삭제</button><button class="btn sm" data-act="close">닫기</button></div>`, P(r.page).color);
 }
 function lanePanel(l) {
-  pane = { t: 'lane', id: l.id }; const p = P(l.page), i = lanesOf(l.page).indexOf(l);
-  showPanel(`<h3>길: ${esc(l.name)}</h3>
+  pane = { t: 'lane', id: l.id }; const p = P(l.page), ls = lanesOf(l.page), i = ls.indexOf(l);
+  showPanel(`<h3>${l.base ? '뿌리' : '줄'}: ${esc(l.name)}</h3>
     <label class="f">이름<input class="in" data-lf="name" value="${esc(l.name)}"></label>
-    <label class="f">메모 (길 머리에 보임)<input class="in" data-lf="note" value="${esc(l.note)}"></label>
-    <label class="ck"><input type="checkbox" data-lf="chain"${l.chain ? ' checked' : ''}> 차례로 열림 (앞 줄을 다 사야 다음 줄)</label>
-    <div class="sum">${rowsOf(l.id).length}줄 · 모두 <b>${fa(lTot(l.id))}재</b>${l.base ? ' · 기본 길(갈림길 위)' : p.fork ? ' · 갈림길 선택지' : ''}</div>
-    <div class="row"><button class="btn sm" data-act="lleft"${i <= 0 ? ' disabled' : ''}>← 앞으로</button><button class="btn sm" data-act="lright">뒤로 →</button><button class="btn sm" data-act="ladd">+ 줄 추가</button>${l.base ? '' : '<button class="btn sm del" data-act="ldel">이 길 삭제</button>'}<button class="btn sm" data-act="close">닫기</button></div>`, p.color);
-}
-function forkPanel(p) {
-  pane = { t: 'fork', id: p.id }; const f = p.fork;
-  showPanel(`<h3>◆ ${esc(p.name)} 갈림길</h3>
-    <label class="f">이름<input class="in" data-ff="name" value="${esc(f.name)}"></label>
-    <div class="two"><label class="f">고르는 길 수<input class="in" type="number" min="1" data-ff="pick" value="${+f.pick || 1}"></label>
-    <label class="f">구역<select class="in" data-ff="zone">${ZONES.map((z, k) => `<option value="${k + 1}"${+f.zone === k + 1 ? ' selected' : ''}>${k + 1} ${z[0]}</option>`).join('')}</select></label></div>
-    <label class="f">설명<input class="in" data-ff="note" value="${esc(f.note)}"></label>
-    <div class="sum">${optLanes(p.id).map(l => `${esc(l.name)}: <b>${fa(lTot(l.id))}재</b>`).join('<br>')}</div>
-    <div class="row"><button class="btn sm" data-act="addlane">+ 길 추가</button><button class="btn sm del" data-act="fdel">갈림길 없애기</button><button class="btn sm" data-act="close">닫기</button></div>`, p.color);
+    <label class="f">메모 (줄 머리에 보임)<input class="in" data-lf="note" value="${esc(l.note)}"></label>
+    <label class="ck"><input type="checkbox" data-lf="chain"${l.chain ? ' checked' : ''}> 차례로 열림 (위 강화를 다 사야 아래 강화)</label>
+    <div class="sum">${rowsOf(l.id).length}개 · 모두 <b>${fa(lTot(l.id))}재</b></div>
+    <div class="row"><button class="btn sm" data-act="lleft"${i <= 0 ? ' disabled' : ''}>← 앞으로</button><button class="btn sm" data-act="lright"${i >= ls.length - 1 ? ' disabled' : ''}>뒤로 →</button><button class="btn sm" data-act="ladd">+ 강화 추가</button>${l.base ? '' : '<button class="btn sm del" data-act="ldel">이 줄 삭제</button>'}<button class="btn sm" data-act="close">닫기</button></div>`, p.color);
 }
 function multiPanel() {
   pane = { t: 'multi' };
   const t = sel.reduce((a, id) => a + rTot(R(id)), 0);
   showPanel(`<h3>${sel.length}개 고름</h3><div class="sum">모두 <b>${fa(t)}재</b></div>
-    <label class="f">쪽 · 길로 옮기기<select class="in" id="mLane"><option value="">고르기</option>${laneOpts('')}</select></label>
+    <label class="f">기둥 · 줄로 옮기기<select class="in" id="mLane"><option value="">고르기</option>${laneOpts('')}</select></label>
     <div class="row"><span style="font-size:13px;align-self:center">가격 ×</span><input class="in" id="mMul" type="number" step="0.1" value="1.2" style="width:80px"><button class="btn sm" data-act="mmul">적용</button><button class="btn sm" data-act="mz-">구역 −1</button><button class="btn sm" data-act="mz+">구역 +1</button></div>
-    <div class="row"><button class="btn sm" data-act="mmerge">한 줄로 합치기</button><button class="btn sm" data-act="copy">복사</button><button class="btn sm del" data-act="mdel">모두 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`, '#ffc74d');
+    <div class="row"><button class="btn sm" data-act="mmerge">하나로 합치기</button><button class="btn sm" data-act="copy">복사</button><button class="btn sm del" data-act="mdel">모두 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`, '#ffc74d');
 }
 
 // ---------- 편집 동작 ----------
@@ -313,7 +378,7 @@ function select(id, add) {
   renderView(); if (sel.length > 1) multiPanel(); else if (sel.length) rowPanel(R(sel[0])); else closePanel();
 }
 function clearSel() { sel = []; closePanel(); renderView(); }
-// 줄들을 lane으로 옮긴다. before가 있으면 그 줄 앞에, 없으면 그 길 끝에.
+// 강화들을 lane으로 옮긴다. before가 있으면 그 강화 앞에, 없으면 그 줄 끝에.
 function moveRows(ids, lane, before) {
   const ms = D.rows.filter(r => ids.includes(r.id)); if (!ms.length) return;
   D.rows = D.rows.filter(r => !ids.includes(r.id));
@@ -327,7 +392,7 @@ function removeRows(ids) {
   for (const r of D.rows) { r.req = r.req.filter(q => !ids.includes(q)); if (r.reqMin > r.req.length) r.reqMin = 0; }
   sel = sel.filter(id => !ids.includes(id));
 }
-// src 줄들의 단계를 target 줄 뒤에 붙인다. 설명이 다르면 단계마다 원래 설명을 옮겨 적는다.
+// src 강화들의 단계를 target 뒤에 붙인다. 효과가 다르면 단계마다 원래 효과를 옮겨 적는다.
 function mergeInto(target, ids) {
   for (const id of ids) {
     const a = R(id); if (!a || a === target) continue;
@@ -341,9 +406,9 @@ function splitRow(r, i) {
   const n = { id: newId(), page: r.page, lane: r.lane, name: `${r.name} (${i + 1}단계부터)`, kind: r.kind, eff: r.eff, unlock: '', req: [], reqMin: 0, steps: r.steps.splice(i) };
   D.rows.splice(D.rows.indexOf(r) + 1, 0, n); sel = [n.id]; return n;
 }
-function addRow(lane, after) {
+function addRow(lane) {
   const l = L(lane), n = { id: newId(), page: l.page, lane, name: '새 강화', kind: 0, eff: '', unlock: '', req: [], reqMin: 0, steps: [{ cost: 100, zone: 1, eff: '' }] };
-  const last = after ? D.rows.indexOf(after) : D.rows.map(r => r.lane).lastIndexOf(lane);
+  const last = D.rows.map(r => r.lane).lastIndexOf(lane);
   D.rows.splice(last >= 0 ? last + 1 : D.rows.length, 0, n); sel = [n.id]; changed(); rowPanel(n);
 }
 function shiftRow(r, d) {
@@ -351,73 +416,76 @@ function shiftRow(r, d) {
   const a = D.rows.indexOf(r), b = D.rows.indexOf(o); D.rows[a] = o; D.rows[b] = r; changed(true);
 }
 function addLane(pid) {
-  const p = P(pid), id = pid + '-' + Date.now().toString(36);
-  D.lanes.splice(D.lanes.map(l => l.page).lastIndexOf(pid) + 1, 0, { id, page: pid, name: '새 길', base: false, chain: true, note: '' });
+  const id = pid + '-' + Date.now().toString(36);
+  D.lanes.splice(D.lanes.map(l => l.page).lastIndexOf(pid) + 1, 0, { id, page: pid, name: '새 줄', base: false, chain: true, note: '' });
   changed(); lanePanel(L(id));
 }
 let clip = null;
-function copySel() { if (!sel.length) return; clip = D.rows.filter(r => isSel(r.id)).map(clone); toast(`줄 ${clip.length}개 복사`); }
+function copySel() { if (!sel.length) return; clip = D.rows.filter(r => isSel(r.id)).map(clone); toast(`강화 ${clip.length}개 복사`); }
 function paste() {
   if (!clip) return;
-  const at = sel.length ? R(sel[sel.length - 1]) : null, lane = at ? at.lane : (optLanes(tab)[0] || lanesOf(tab)[0]).id;
+  const at = sel.length ? R(sel[sel.length - 1]) : null, lane = at ? at.lane : (lanesOf(tab).find(l => !l.base) || lanesOf(tab)[0]).id;
   const ns = clip.map(c => Object.assign(clone(c), { id: newId(), lane, page: L(lane).page }));
   const ids = new Set(clip.map(c => c.id));
   for (const n of ns) n.req = n.req.filter(q => !ids.has(q) && R(q));
   const i = at ? D.rows.indexOf(at) + 1 : D.rows.map(r => r.lane).lastIndexOf(lane) + 1 || D.rows.length;
-  D.rows.splice(i, 0, ...ns); sel = ns.map(n => n.id); changed(true); toast(`줄 ${ns.length}개 붙여 넣음`);
+  D.rows.splice(i, 0, ...ns); sel = ns.map(n => n.id); changed(true); toast(`강화 ${ns.length}개 붙여 넣음`);
 }
 function dupSel() { const c = clip; copySel(); paste(); clip = c; }
-function delSel() { if (!sel.length) return; const n = sel.length; removeRows([...sel]); closePanel(); changed(); toast(`줄 ${n}개 삭제 (Ctrl+Z로 되돌리기)`); }
+function delSel() { if (!sel.length) return; const n = sel.length; removeRows([...sel]); closePanel(); changed(); toast(`강화 ${n}개 삭제 (Ctrl+Z로 되돌리기)`); }
 
 // 보기 영역: 누르기
 $('view').addEventListener('click', e => {
-  const a = e.target.closest('[data-act]'), c = e.target.closest('.card'), lh = e.target.closest('[data-lh]'), ad = e.target.closest('[data-add]');
+  const a = e.target.closest('[data-act]'), it = e.target.closest('[data-r]'), lh = e.target.closest('[data-lh]'), ad = e.target.closest('[data-add]'), op = e.target.closest('[data-open]');
   if (ad) return addRow(ad.dataset.add);
+  if (op) return setTab(op.dataset.open, 'detail');
   if (a) {
     const p = P(tab), act = a.dataset.act;
-    if (act === 'fork') { if (!p.fork) { p.fork = { name: '길 고르기', pick: 1, zone: 1, note: '한 번 고르면 되돌릴 수 없음.' }; if (!optLanes(tab).length) { D.lanes.push({ id: tab + '-' + Date.now().toString(36), page: tab, name: '새 길', base: false, chain: true, note: '' }); } changed(); } forkPanel(p); }
-    else if (act === 'addlane') addLane(tab);
-    else if (act === 'pname') { const v = prompt('쪽 이름', p.name); if (v) { p.name = v.trim(); changed(); } }
+    if (act === 'addlane') addLane(tab);
+    else if (act === 'pname') { const v = prompt('기둥 이름', p.name); if (v) p.name = v.trim(); const s = prompt('한 줄 설명', p.sub || ''); if (s != null) p.sub = s.trim(); changed(); }
     return;
   }
-  if (c) return select(c.dataset.r, e.ctrlKey || e.metaKey);
+  if (it) return select(it.dataset.r, e.ctrlKey || e.metaKey);
   if (lh) return lanePanel(L(lh.dataset.lh));
-  if (!e.target.closest('.lane')) clearSel();
+  if (!e.target.closest('.lane, .olane')) clearSel();
 });
-$('tabs').addEventListener('click', e => { const t = e.target.closest('[data-p]'); if (t) setTab(t.dataset.p); });
+$('tabs').addEventListener('click', e => { const t = e.target.closest('[data-p]'); if (t) setTab(t.dataset.p, 'detail'); });
+$('mBoard').onclick = () => setMode('board');
+$('mDetail').onclick = () => setMode('detail');
 
-// 끌어 옮기기: 카드 위(앞/뒤 끼우기), Ctrl+카드(합치기), 길 빈 곳(끝에), 왼쪽 쪽 이름(그 쪽 첫 길 끝에).
+// 끌어 옮기기: 강화 위(앞/뒤 끼우기), Ctrl+강화(합치기), 줄 빈 곳(끝에), 왼쪽 기둥 이름(그 기둥 첫 줄 끝에).
 let drag = null, mark = null;
 const unmark = () => { if (mark) mark.classList.remove('ib', 'ia', 'mg', 'drop'); mark = null; };
 document.addEventListener('dragstart', e => {
-  const c = e.target.closest && e.target.closest('.card'); if (!c) return;
+  const c = e.target.closest && e.target.closest('[data-r][draggable]'); if (!c) return;
+  tip.style.display = 'none';
   const id = c.dataset.r; drag = isSel(id) && sel.length > 1 ? D.rows.filter(r => isSel(r.id)).map(r => r.id) : [id];
   e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id);
-  setTimeout(() => drag && drag.forEach(x => document.querySelector(`.card[data-r="${x}"]`)?.classList.add('dragging')), 0);
+  setTimeout(() => drag && drag.forEach(x => document.querySelector(`[data-r="${x}"][draggable]`)?.classList.add('dragging')), 0);
 });
 function dropTarget(e) {
-  const c = e.target.closest && e.target.closest('.card');
+  const c = e.target.closest && e.target.closest('[data-r][draggable]');
   if (c && drag.includes(c.dataset.r)) return null;
   if (c) {
     if (e.ctrlKey || e.metaKey) return { el: c, k: 'mg', id: c.dataset.r };
     const b = c.getBoundingClientRect(); return { el: c, k: e.clientY < b.top + b.height / 2 ? 'ib' : 'ia', id: c.dataset.r };
   }
   const t = e.target.closest && e.target.closest('.tab'); if (t) return { el: t, k: 'drop', page: t.dataset.p };
-  const l = e.target.closest && e.target.closest('.lane'); if (l && !c) return { el: l, k: 'drop', lane: l.dataset.lane };
+  const l = e.target.closest && e.target.closest('[data-lane]'); if (l) return { el: l, k: 'drop', lane: l.dataset.lane };
   return null;
 }
 document.addEventListener('dragover', e => {
   if (!drag) return; const t = dropTarget(e); unmark(); if (!t) return;
   e.preventDefault(); mark = t.el; mark.classList.add(t.k);
-  const nm = t.id ? R(t.id).name : t.page ? P(t.page).name : L(t.lane).name;
-  toast(t.k === 'mg' ? `놓으면 "${nm}"의 단계로 합침` : t.k === 'ib' ? `"${nm}" 앞에 끼움` : t.k === 'ia' ? `"${nm}" 뒤에 끼움 (Ctrl: 합치기)` : `"${nm}" 끝으로 옮김`, true);
+  const nm = t.id ? R(t.id).name : t.page ? P(t.page).name : laneLabel(t.lane);
+  toast(t.k === 'mg' ? `놓으면 "${nm}"의 단계로 합침` : t.k === 'ib' ? `"${nm}" 앞에 끼움 (Ctrl: 합치기)` : t.k === 'ia' ? `"${nm}" 뒤에 끼움 (Ctrl: 합치기)` : `"${nm}" 끝으로 옮김`, true);
 });
 document.addEventListener('drop', e => {
   if (!drag) return; const t = dropTarget(e); unmark(); toast(''); if (!t) return; e.preventDefault();
   const ids = drag; drag = null;
   if (t.k === 'mg') { mergeInto(R(t.id), ids); changed(); rowPanel(R(t.id)); toast('단계로 합침'); return; }
   if (t.id) { const tr = R(t.id), rs = rowsOf(tr.lane), nx = t.k === 'ib' ? tr : rs[rs.indexOf(tr) + 1]; moveRows(ids, tr.lane, nx && nx.id); }
-  else if (t.page) { const ls = lanesOf(t.page); moveRows(ids, (ls.find(l => l.base && (rowsOf(l.id).length || ls.length === 1)) || ls[0]).id); toast(`${P(t.page).name}(으)로 옮김`); }
+  else if (t.page) { const ls = lanesOf(t.page); moveRows(ids, (ls.find(l => !l.base) || ls[0]).id); toast(`${P(t.page).name}(으)로 옮김`); }
   else moveRows(ids, t.lane);
   sel = ids; changed(true);
 });
@@ -440,8 +508,6 @@ panel.addEventListener('input', e => {
     const sm = panel.querySelector('.sum'); if (sm) sm.innerHTML = `단계 ${r.steps.length}개 · 모두 <b>${fa(rTot(r))}재</b> · ${zr(r)}`;
   } else if (pane?.t === 'lane' && t.dataset.lf) {
     const l = L(pane.id); l[t.dataset.lf] = t.type === 'checkbox' ? t.checked : t.value; changed();
-  } else if (pane?.t === 'fork' && t.dataset.ff) {
-    const f = P(pane.id).fork, k = t.dataset.ff; f[k] = k === 'pick' || k === 'zone' ? Math.max(1, +t.value || 1) : t.value; changed();
   }
 });
 panel.addEventListener('click', e => {
@@ -451,12 +517,12 @@ panel.addEventListener('click', e => {
   if (pane?.t === 'row') {
     const r = R(pane.id);
     if (b.dataset.rdel) { r.req = r.req.filter(q => q !== b.dataset.rdel); if (r.reqMin > r.req.length) r.reqMin = 0; return changed(true); }
-    if (b.dataset.split) { const n = splitRow(r, +b.dataset.split); changed(); rowPanel(n); return toast('떼어 새 줄로 만듦'); }
+    if (b.dataset.split) { const n = splitRow(r, +b.dataset.split); changed(); rowPanel(n); return toast('떼어 새 강화로 만듦'); }
     if (b.dataset.sdel) { r.steps.splice(+b.dataset.sdel, 1); return changed(true); }
     if (act === 'sadd') { const s = r.steps[r.steps.length - 1]; r.steps.push({ cost: Math.round(s.cost * 1.5), zone: s.zone, eff: '' }); return changed(true); }
     if (act === 'sgrow') { const c0 = +$('g0').value || 0, m = +$('gm').value || 1; r.steps.forEach((s, i) => { s.cost = Math.round(c0 * Math.pow(m, i)); }); return changed(true); }
     if (act === 'up' || act === 'down') return shiftRow(r, act === 'up' ? -1 : 1);
-    if (act === 'mergeNext') { const rs = rowsOf(r.lane), nx = rs[rs.indexOf(r) + 1]; if (!nx) return toast('다음 줄이 없어요'); mergeInto(r, [nx.id]); changed(true); return toast('다음 줄을 단계로 합침'); }
+    if (act === 'mergeNext') { const rs = rowsOf(r.lane), nx = rs[rs.indexOf(r) + 1]; if (!nx) return toast('아래 강화가 없어요'); mergeInto(r, [nx.id]); changed(true); return toast('아래 강화를 단계로 합침'); }
     if (act === 'dup') return dupSel();
     if (act === 'del') return delSel();
   } else if (pane?.t === 'lane') {
@@ -468,18 +534,14 @@ panel.addEventListener('click', e => {
     }
     if (act === 'ldel') {
       const n = rowsOf(l.id).length;
-      if (n && !confirm(`이 길의 줄 ${n}개도 함께 지워집니다. 지울까요?`)) return;
+      if (n && !confirm(`이 줄의 강화 ${n}개도 함께 지워집니다. 지울까요?`)) return;
       removeRows(rowsOf(l.id).map(r => r.id)); D.lanes = D.lanes.filter(x => x !== l); closePanel(); return changed();
     }
-  } else if (pane?.t === 'fork') {
-    const p = P(pane.id);
-    if (act === 'addlane') return addLane(p.id);
-    if (act === 'fdel') { p.fork = null; closePanel(); return changed(); }
   } else if (pane?.t === 'multi') {
     const rs = sel.map(R);
     if (act === 'mmul') { const m = +$('mMul').value || 1; rs.forEach(r => r.steps.forEach(s => { s.cost = Math.round(s.cost * m); })); return changed(true); }
     if (act === 'mz-' || act === 'mz+') { const d = act === 'mz+' ? 1 : -1; rs.forEach(r => r.steps.forEach(s => { s.zone = Math.min(6, Math.max(1, +s.zone + d)); })); return changed(true); }
-    if (act === 'mmerge') { const ord = D.rows.filter(r => isSel(r.id)); mergeInto(ord[0], ord.slice(1).map(r => r.id)); changed(); rowPanel(ord[0]); return toast('한 줄로 합침'); }
+    if (act === 'mmerge') { const ord = D.rows.filter(r => isSel(r.id)); mergeInto(ord[0], ord.slice(1).map(r => r.id)); changed(); rowPanel(ord[0]); return toast('하나로 합침'); }
     if (act === 'copy') return copySel();
     if (act === 'mdel') return delSel();
   }
@@ -503,60 +565,58 @@ window.addEventListener('keydown', e => {
 });
 $('search').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return; const q = e.target.value.trim(); if (!q) return;
-  const hits = D.rows.filter(r => (r.name + ' ' + r.eff).includes(q)); if (!hits.length) return toast('찾는 줄이 없어요');
+  const hits = D.rows.filter(r => (r.name + ' ' + r.eff).includes(q)); if (!hits.length) return toast('찾는 강화가 없어요');
   const cur = hits.findIndex(r => isSel(r.id)), r = hits[(cur + 1) % hits.length];
-  if (r.page !== tab) setTab(r.page); select(r.id);
-  document.querySelector(`.card[data-r="${r.id}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  if (mode !== 'board' && r.page !== tab) setTab(r.page); select(r.id);
+  document.querySelector(`[data-r="${r.id}"][draggable]`)?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
   toast(`${hits.length}개 중 ${hits.indexOf(r) + 1}번째`);
 });
 
 // ---------- 표 ----------
 function renderTables() {
-  // 구역별 예산
-  const all = ZONES.map(() => [0, 0]), pick = ZONES.map(() => 0);
-  for (const r of D.rows) for (const s of r.steps) { const z = Math.min(5, Math.max(0, (+s.zone || 1) - 1)); all[z][0]++; all[z][1] += +s.cost || 0; if (!unpicked(r.lane)) pick[z] += +s.cost || 0; }
-  let ca = 0, cp = 0, cn = 0, h = '<tr><th>구역</th><th>나무</th><th>얻는 재 (다음 구역까지)</th><th>얻는 재 (전부 태움)</th><th>단계 수</th><th>모두 사면</th><th>고른 길 기준</th><th>고른 길 ÷ 얻는 재</th><th>누적 얻는 재</th><th>누적 (고른 길)</th></tr>';
+  const all = ZONES.map(() => [0, 0]);
+  for (const r of D.rows) for (const s of r.steps) { const z = Math.min(5, Math.max(0, (+s.zone || 1) - 1)); all[z][0]++; all[z][1] += +s.cost || 0; }
+  let ca = 0, cn = 0, h = '<tr><th>구역</th><th>나무</th><th>얻는 재 (다음 구역까지)</th><th>얻는 재 (전부 태움)</th><th>단계 수</th><th>모두 사면</th><th>모두 사면 ÷ 얻는 재</th><th>누적 얻는 재</th><th>누적 강화 값</th></tr>';
   ZONES.forEach((z, i) => {
-    const nx = z[1] * z[2] * z[3], full = z[1] * z[3]; ca += nx; cp += pick[i]; cn += all[i][1];
-    const rt = pick[i] / nx;
-    h += `<tr><td>${i + 1} ${z[0]}</td><td>${fa(z[1])}</td><td>${fa(nx)}</td><td>${fa(full)}</td><td>${all[i][0]}</td><td>${fa(all[i][1])}</td><td>${fa(pick[i])}</td><td class="${rt > 1.5 ? 'warn' : 'ok'}">${Math.round(rt * 100)}%</td><td>${fa(ca)}</td><td>${fa(cp)}</td></tr>`;
+    const nx = z[1] * z[2] * z[3], full = z[1] * z[3]; ca += nx; cn += all[i][1];
+    const rt = all[i][1] / nx;
+    h += `<tr><td>${i + 1} ${z[0]}</td><td>${fa(z[1])}</td><td>${fa(nx)}</td><td>${fa(full)}</td><td>${all[i][0]}</td><td>${fa(all[i][1])}</td><td class="${rt > 3 ? 'warn' : 'ok'}">${Math.round(rt * 100)}%</td><td>${fa(ca)}</td><td>${fa(cn)}</td></tr>`;
   });
-  h += `<tr><td><b>합계</b></td><td>${fa(ZONES.reduce((a, z) => a + z[1], 0))}</td><td>${fa(ca)}</td><td>${fa(ZONES.reduce((a, z) => a + z[1] * z[3], 0))}</td><td>${all.reduce((a, x) => a + x[0], 0)}</td><td>${fa(cn)}</td><td>${fa(cp)}</td><td>${Math.round(cp / ca * 100)}%</td><td></td><td></td></tr>`;
+  h += `<tr><td><b>합계</b></td><td>${fa(ZONES.reduce((a, z) => a + z[1], 0))}</td><td>${fa(ca)}</td><td>${fa(ZONES.reduce((a, z) => a + z[1] * z[3], 0))}</td><td>${all.reduce((a, x) => a + x[0], 0)}</td><td>${fa(cn)}</td><td>${Math.round(cn / ca * 100)}%</td><td></td><td></td></tr>`;
   $('budget').innerHTML = h;
-  // 길 비교
-  let f = '<tr><th>쪽</th><th>길</th><th>줄</th><th>단계</th><th>새 기능·형태 교체</th><th>모두 사면</th><th>마지막 구역</th></tr>';
-  for (const p of D.pages.filter(p => p.fork)) for (const l of optLanes(p.id)) {
+  let f = '<tr><th>기둥</th><th>줄</th><th>강화</th><th>단계</th><th>새 기능·형태 교체</th><th>모두 사면</th><th>마지막 구역</th></tr>';
+  for (const p of D.pages) for (const l of lanesOf(p.id)) {
     const rs = rowsOf(l.id), lz = rs.length ? Math.max(...rs.flatMap(r => r.steps.map(s => +s.zone || 1))) : '-';
     f += `<tr><td>${esc(p.name)}</td><td>${esc(l.name)}</td><td>${rs.length}</td><td>${rs.reduce((a, r) => a + r.steps.length, 0)}</td><td>${esc(rs.filter(r => r.kind).map(r => r.name).join(' → '))}</td><td>${fa(lTot(l.id))}</td><td>${lz}</td></tr>`;
   }
-  $('forks').innerHTML = f;
+  $('lanes').innerHTML = f;
   renderSheet();
 }
 function renderSheet() {
   const q = $('tblQ').value.trim(), pf = $('tblP').value;
   const rs = D.rows.filter(r => (!pf || r.page === pf) && (!q || (r.name + ' ' + r.eff).includes(q)));
-  $('tblN').textContent = `${rs.length}줄`;
-  $('sheet').innerHTML = '<tr><th></th><th>쪽 · 길</th><th>이름</th><th>종류</th><th>가격 (단계마다)</th><th>구역 (단계마다)</th><th>효과</th><th>열림 조건</th></tr>'
+  $('tblN').textContent = `${rs.length}개`;
+  $('sheet').innerHTML = '<tr><th></th><th>기둥 · 줄</th><th>이름</th><th>종류</th><th>가격 (단계마다)</th><th>구역 (단계마다)</th><th>효과</th><th>열림 조건</th></tr>'
     + rs.map(r => `<tr data-r="${r.id}"><td><button class="btn sm" data-go="${r.id}">보기</button></td><td><select class="in" data-c="lane">${laneOpts(r.lane)}</select></td>`
       + `<td><input class="in" data-c="name" value="${esc(r.name)}" style="min-width:130px"></td><td><select class="in" data-c="kind">${KIND.map((k, i) => `<option value="${i}"${r.kind === i ? ' selected' : ''}>${ICON[i]} ${k}</option>`).join('')}</select></td>`
       + `<td><input class="in" data-c="cost" value="${r.steps.map(s => s.cost).join(', ')}" style="min-width:150px"></td><td><input class="in" data-c="zone" value="${r.steps.map(s => s.zone).join(', ')}" style="min-width:90px"></td>`
       + `<td><input class="in" data-c="eff" value="${esc(r.eff)}" style="min-width:260px"></td><td><input class="in" data-c="unlock" value="${esc(r.unlock)}" style="min-width:120px"></td></tr>`).join('');
 }
-$('tblP').innerHTML = '<option value="">모든 쪽</option>' + D.pages.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+$('tblP').innerHTML = '<option value="">모든 기둥</option>' + D.pages.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
 $('tblQ').addEventListener('input', renderSheet); $('tblP').addEventListener('change', renderSheet);
-$('sheet').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; const r = R(b.dataset.go); setTab(r.page); select(r.id); });
+$('sheet').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; const r = R(b.dataset.go); setTab(r.page, 'detail'); select(r.id); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 $('sheet').addEventListener('change', e => {
   const t = e.target, tr = t.closest('tr'), r = tr && R(tr.dataset.r), c = t.dataset.c; if (!r || !c) return;
   if (c === 'lane') moveRows([r.id], t.value);
   else if (c === 'kind') r.kind = +t.value;
   else if (c === 'cost' || c === 'zone') {
-    const vs = t.value.split(/[,\s]+/).map(Number).filter(v => !isNaN(v) && t.value.trim()); if (!vs.length) return;
+    const vs = t.value.split(/[,\s]+/).filter(Boolean).map(Number).filter(v => !isNaN(v)); if (!vs.length) return;
     while (r.steps.length < vs.length) { const s = r.steps[r.steps.length - 1]; r.steps.push({ cost: s.cost, zone: s.zone, eff: '' }); }
     if (c === 'cost') r.steps.length = vs.length;
     r.steps.forEach((s, i) => { if (i < vs.length) s[c] = c === 'zone' ? Math.min(6, Math.max(1, vs[i])) : vs[i]; });
   } else r[c] = t.value;
   save(); renderTabs(); renderView(); reopen();
-  const bt = $('budget'); clearTimeout(bt.t); bt.t = setTimeout(() => { const s = $('sheet').parentElement.scrollTop; renderTables(); $('sheet').parentElement.scrollTop = s; }, 50);
+  clearTimeout(renderSheet.t); renderSheet.t = setTimeout(() => { const box = $('sheet').parentElement, s = box.scrollTop; renderTables(); box.scrollTop = s; }, 50);
 });
 $('memo').addEventListener('input', e => { D.memo = e.target.value; save(); });
 
@@ -571,40 +631,38 @@ function makeReq() {
   const O = ORIGINAL, out = [], oR = new Map(O.rows.map(r => [r.id, r]));
   const pName = (id, src) => (src.pages.find(p => p.id === id) || {}).name || id;
   for (const p of D.pages) {
-    const o = O.pages.find(x => x.id === p.id);
-    if (!o) { out.push(`새 쪽: ${p.name}`); continue; }
-    if (o.name !== p.name) out.push(`쪽 이름: ${o.name} → ${p.name}`);
-    if (JSON.stringify(o.fork) !== JSON.stringify(p.fork)) out.push(p.fork ? `${p.name} 갈림길: "${p.fork.name}", ${p.fork.pick}개 고름, 구역 ${p.fork.zone}, ${p.fork.note}` : `${p.name} 갈림길 없앰`);
+    const o = O.pages.find(x => x.id === p.id); if (!o) continue;
+    if (o.name !== p.name) out.push(`기둥 이름: ${o.name} → ${p.name}`);
+    if ((o.sub || '') !== (p.sub || '')) out.push(`${p.name} 설명 → ${p.sub}`);
   }
   for (const l of D.lanes) {
     const o = O.lanes.find(x => x.id === l.id);
-    if (!o) out.push(`새 길: ${pName(l.page, D)} · ${l.name}${l.chain ? ' (차례로 열림)' : ''}`);
-    else { const ch = []; if (o.name !== l.name) ch.push(`이름 ${o.name} → ${l.name}`); if (!!o.chain !== !!l.chain) ch.push(l.chain ? '차례로 열림' : '순서 자유'); if ((o.note || '') !== (l.note || '')) ch.push(`메모: ${l.note}`); if (ch.length) out.push(`길 ${pName(l.page, D)} · ${o.name}: ${ch.join(', ')}`); }
+    if (!o) out.push(`새 줄: ${pName(l.page, D)} · ${l.name}${l.chain ? ' (차례로 열림)' : ' (순서 자유)'}`);
+    else { const ch = []; if (o.name !== l.name) ch.push(`이름 ${o.name} → ${l.name}`); if (!!o.chain !== !!l.chain) ch.push(l.chain ? '차례로 열림' : '순서 자유'); if ((o.note || '') !== (l.note || '')) ch.push(`메모: ${l.note}`); if (ch.length) out.push(`줄 ${pName(l.page, D)} · ${o.name}: ${ch.join(', ')}`); }
   }
-  for (const o of O.lanes) if (!D.lanes.find(l => l.id === o.id)) out.push(`길 삭제: ${pName(o.page, O)} · ${o.name}`);
+  for (const o of O.lanes) if (!D.lanes.find(l => l.id === o.id)) out.push(`줄 삭제: ${pName(o.page, O)} · ${o.name}`);
   for (const r of D.rows) {
     const o = oR.get(r.id);
-    if (!o) { out.push('새 줄: ' + rowDesc(r, D)); continue; }
+    if (!o) { out.push('새 강화: ' + rowDesc(r, D)); continue; }
     const ch = [];
     if (o.name !== r.name) ch.push(`이름 → ${r.name}`);
     if (o.kind !== r.kind) ch.push(`종류 → ${KIND[r.kind]}`);
     if (o.lane !== r.lane) ch.push(`옮김 → ${laneLabel(r.lane)}`);
     if (o.eff !== r.eff) ch.push(`효과 → ${r.eff.replace(/\n/g, ' ')}`);
     if (o.unlock !== r.unlock) ch.push(`열림 조건 → ${r.unlock || '없음'}`);
-    if (JSON.stringify(o.req) !== JSON.stringify(r.req) || (o.reqMin || 0) !== (r.reqMin || 0)) ch.push(`먼저 사야 하는 줄 → ${r.req.map(id => R(id)?.name || id).join(', ') || '없음'}${r.reqMin ? ` 중 ${r.reqMin}개` : ''}`);
-    if (JSON.stringify(o.steps) !== JSON.stringify(r.steps)) ch.push(`단계 ${o.steps.length} → ${r.steps.length}개: ` + r.steps.map((s, i) => `${fa(s.cost)}재(구역 ${s.zone})${s.eff ? ' ' + s.eff : ''}`).join(' / '));
+    if (JSON.stringify(o.req) !== JSON.stringify(r.req) || (o.reqMin || 0) !== (r.reqMin || 0)) ch.push(`먼저 사야 하는 강화 → ${r.req.map(id => R(id)?.name || id).join(', ') || '없음'}${r.reqMin ? ` 중 ${r.reqMin}개` : ''}`);
+    if (JSON.stringify(o.steps) !== JSON.stringify(r.steps)) ch.push(`단계 ${o.steps.length} → ${r.steps.length}개: ` + r.steps.map(s => `${fa(s.cost)}재(구역 ${s.zone})${s.eff ? ' ' + s.eff : ''}`).join(' / '));
     if (ch.length) out.push(`[${laneLabel(r.lane)}] ${o.name}: ${ch.join('; ')}`);
   }
-  for (const o of O.rows) if (!R(o.id)) out.push(`줄 삭제: [${pName(o.page, O)}] ${o.name}`);
-  // 길 안 순서가 바뀐 곳
+  for (const o of O.rows) if (!R(o.id)) out.push(`강화 삭제: [${pName(o.page, O)}] ${o.name}`);
   for (const l of D.lanes) {
     const now = rowsOf(l.id).map(r => r.id), was = O.rows.filter(r => r.lane === l.id).map(r => r.id);
     const a = now.filter(id => was.includes(id)), b = was.filter(id => now.includes(id));
     if (a.join() !== b.join()) out.push(`순서 바꿈 [${laneLabel(l.id)}]: ${now.map(id => R(id).name).join(' → ')}`);
   }
   if ((D.memo || '') !== (O.memo || '')) out.push('메모: ' + D.memo);
-  return '불씨 하나 강화 목록(갈림길 + 단계 줄) 수정 요청\n'
-    + `줄 ${D.rows.length}개 · 단계 ${D.rows.reduce((a, r) => a + r.steps.length, 0)}개 · 모두 ${fa(D.rows.reduce((a, r) => a + rTot(r), 0))}재\n\n`
+  return '불씨 하나 강화 판(기둥형) 수정 요청\n'
+    + `강화 ${D.rows.length}개 · 단계 ${D.rows.reduce((a, r) => a + r.steps.length, 0)}개 · 모두 ${fa(D.rows.reduce((a, r) => a + rTot(r), 0))}재\n\n`
     + (out.length ? out.map(s => '- ' + s).join('\n') : '- 바뀐 내용 없음');
 }
 $('btnOut').onclick = () => { $('outText').value = makeReq(); $('copyMsg').textContent = ''; $('dlg').showModal(); };
@@ -612,11 +670,11 @@ $('btnCopy').onclick = () => { navigator.clipboard.writeText($('outText').value)
 const download = (name, text, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); };
 $('btnTxt').onclick = () => download('onespark-강화-요청.txt', $('outText').value, 'text/plain');
 $('btnClose').onclick = () => $('dlg').close();
-$('btnSave').onclick = () => download('onespark-paths.json', JSON.stringify(D, null, 1), 'application/json');
+$('btnSave').onclick = () => download('onespark-columns.json', JSON.stringify(D, null, 1), 'application/json');
 $('btnLoad').onclick = () => $('file').click();
 $('file').onchange = e => {
   const f = e.target.files[0]; if (!f) return;
-  f.text().then(t => { const d = JSON.parse(t); if (!Array.isArray(d.rows) || !Array.isArray(d.lanes)) return toast('강화 목록 파일이 아니에요'); hist.push(last); D = d; save(); restore(JSON.stringify(D)); toast('불러옴'); }).catch(() => toast('파일을 읽지 못했어요'));
+  f.text().then(t => { const d = JSON.parse(t); if (!Array.isArray(d.rows) || !Array.isArray(d.lanes)) return toast('강화 판 파일이 아니에요'); hist.push(last); D = d; save(); restore(JSON.stringify(D)); toast('불러옴'); }).catch(() => toast('파일을 읽지 못했어요'));
   e.target.value = '';
 };
 $('btnReset').onclick = () => { if (!confirm('모든 수정을 지우고 처음 초안으로 돌릴까요? (되돌리기로 복구 가능)')) return; hist.push(last); D = clone(ORIGINAL); save(); restore(JSON.stringify(D)); };
