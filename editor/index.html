@@ -326,6 +326,7 @@ function moveNodeEl(n) { placeEl(n.id, n.x, n.y); }
 function fit() {
   const r = svg.getBoundingClientRect();
   if (!TL.all) {
+    if (!P.size) return;
     const ps = [...P.values()], x0 = Math.min(...ps.map(p => p[0])) - SLOT / 2 - 20, x1 = Math.max(...ps.map(p => p[0])) + SLOT / 2 + 20, y0 = -110, y1 = Math.max(0, ...ps.map(p => p[1])) + 90;
     view.k = Math.min(1.1, r.width / (x1 - x0), r.height / (y1 - y0));
     view.x = r.width / 2 - (x0 + x1) / 2 * view.k; view.y = 20 - y0 * view.k; applyView(); return;
