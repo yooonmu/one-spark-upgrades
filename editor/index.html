@@ -664,7 +664,7 @@ function paintShop() {
   shopCW = CW;
   shopTables();
   const tot = D.shop.reduce((a, s) => a + itemTotal(s), 0), pm = +D.playMin || 0, pct = pm ? Math.round(tot / pm * 100) : 0;
-  document.getElementById('shopStat').innerHTML = `재 상점 전체 <b style="color:#fff">${fm(tot)}분</b>어치 · 목표 플레이 시간 <input class="in" type="number" id="playMin" value="${pm}" style="width:70px;display:inline-block;min-height:28px;padding:2px 6px">분 · 비율 <b class="${pct >= 80 && pct <= 95 ? 'ok' : 'warn'}" style="color:${pct >= 80 && pct <= 95 ? '#5fd39a' : '#ff9b6b'}">${pct}%</b> (목표 약 90%: 엔딩까지 거의 다 살 수 있음)`;
+  document.getElementById('shopStat').innerHTML = `재 상점 전체 <b style="color:#fff">${fa(D.shop.reduce((a, s) => a + itemAsh(s), 0))}재</b> (${fm(tot)}분어치) ·목표 플레이 시간 <input class="in" type="number" id="playMin" value="${pm}" style="width:70px;display:inline-block;min-height:28px;padding:2px 6px">분 · 비율 <b class="${pct >= 80 && pct <= 95 ? 'ok' : 'warn'}" style="color:${pct >= 80 && pct <= 95 ? '#5fd39a' : '#ff9b6b'}">${pct}%</b> (목표 약 90%: 엔딩까지 거의 다 살 수 있음)`;
   document.getElementById('playMin').onchange = e => { D.playMin = +e.target.value || 0; save(); paintShop(); };
   document.getElementById('shopAdd').replaceChildren(...CATS.map(c => { const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = '+ ' + c[1] + ' 항목';
     b.onclick = () => { const id = 's' + Date.now().toString(36); D.shop.push({ id, cat: c[0], name: '새 항목', eff: '', max: 1, cost: 2, growth: 1.6, unlock: '', req: [] }); selShop = id; sel = null; save(); paint(); paintShop(); openShopPanel(); }; return b; }));
@@ -689,7 +689,7 @@ function openShopPanel() {
   <div class="two"><label class="f">갈래<select class="in" data-k="cat">${opts}</select></label>
   <label class="f">최대 단계<input class="in" type="number" min="1" data-k="max" value="${esc(s.max)}"></label></div>
   <div class="two"><label class="f">첫 가격(재) · 구역 ${zoneOf(s) + 1}<input class="in" type="number" min="0" data-ash value="${Math.round((+s.cost || 0) * apmOf(s))}"></label>
-  <label class="f">다음 단계마다 배수<input class="in" type="number" min="1" step="0.05" data-k="growth" value="${esc(s.growth)}"></label></div>
+  <label class="f">다음 단계마다 배수<input class="in" type="number" min="1" step="0.05" data-k="growth" value="${+(+s.growth || 0).toFixed(3)}"></label></div>
   <label class="f">해금 조건 (예: 구역 3, 이동 강화 합계 10단계)<input class="in" data-k="unlock" value="${esc(s.unlock)}"></label>
   <label class="f">먼저 사야 하는 항목<div class="reqs">${D.shop.filter(x => x.id !== s.id).map(x => `<label><input type="checkbox" data-req="${esc(x.id)}"${(s.req || []).includes(x.id) ? ' checked' : ''}> ${esc(catName(x.cat))} · ${esc(x.name)}</label>`).join('')}</div></label>
   <div class="row"><button class="btn sm" data-act="dup">⧉ 복제</button><button class="btn sm del" data-act="del">이 항목 삭제</button><button class="btn sm" data-act="close">닫기</button></div>`;
@@ -769,7 +769,7 @@ function shopTables(force) {
   tbl.innerHTML = '<tr><th>구역</th><th>갈래</th><th>이름</th><th>최대 단계</th><th>첫 가격(재)</th><th>배수</th><th>마지막 단계(재)</th><th>모두 사면(재)</th><th>해금 조건</th><th>먼저 살 것</th><th>효과</th><th></th></tr>' +
     rows.map(([z, , , s]) => { const la = lvAsh(s);
       return `<tr data-sid="${esc(s.id)}"><td>${z + 1}</td><td><select class="in" data-f="cat">${CATS.map(c => `<option value="${c[0]}"${c[0] === s.cat ? ' selected' : ''}>${c[1]}</option>`).join('')}</select></td>` +
-        `<td>${inp('name', s.name, 150)}</td><td>${inp('max', s.max, 60, 1)}</td><td>${inp('ash', Math.round((+s.cost || 0) * APM[z]), 90, 1)}</td><td>${inp('growth', s.growth, 60, 1)}</td>` +
+        `<td>${inp('name', s.name, 150)}</td><td>${inp('max', s.max, 60, 1)}</td><td>${inp('ash', Math.round((+s.cost || 0) * APM[z]), 90, 1)}</td><td>${inp('growth', +(+s.growth || 0).toFixed(3), 60, 1)}</td>` +
         `<td>${fa(la[la.length - 1] || 0)}</td><td><b>${fa(itemAsh(s))}</b></td><td>${inp('unlock', s.unlock || '', 170)}</td>` +
         `<td style="color:var(--dim);font-size:13px">${esc((s.req || []).map(r => (D.shop.find(x => x.id === r) || {}).name || '?').join(', '))}</td>` +
         `<td>${inp('eff', s.eff || '', 260)}</td><td style="white-space:nowrap"><button class="btn sm" data-a="dup">복제</button> <button class="btn sm del" data-a="del">삭제</button></td></tr>`; }).join('');
