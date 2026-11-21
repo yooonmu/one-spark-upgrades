@@ -31,6 +31,12 @@ textarea.in{resize:vertical;line-height:1.4}.in:focus{outline:2px solid var(--go
 #web .pr{font:600 10.5px "Pretendard","Malgun Gothic",sans-serif;fill:#c9a24a;paint-order:stroke;stroke:#0d0f0f;stroke-width:3px;pointer-events:none}
 #web.far .lb,#web.far .pr{display:none}
 #web .hitl{stroke:transparent;stroke-width:14;cursor:pointer}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 14px 0}
+.tab{background:#161a19;border:1px solid #2f3433;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;padding:7px 14px;cursor:pointer;color:var(--dim);font-weight:700;font-size:15px}
+.tab span{font-weight:500;font-size:12px;opacity:.75;margin-left:4px}.tab:hover{color:var(--c)}
+.tab.on{color:var(--c);border-color:#3a403f;border-bottom-color:var(--c);background:#1d2120}
+#web .bd{font:600 10.5px "Pretendard","Malgun Gothic",sans-serif;fill:#8fb8ff;cursor:pointer;paint-order:stroke;stroke:#0d0f0f;stroke-width:3px}
+#web .bd:hover{fill:#cfe2ff}
 #web .nd.hl{filter:drop-shadow(0 0 8px #7fd1ff) drop-shadow(0 0 3px #7fd1ff)}
 #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:12;background:#1d2120f2;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:8px 16px;font-size:14px;display:none;pointer-events:none;box-shadow:0 8px 24px #000a}
 .hint{position:absolute;left:10px;bottom:10px;right:10px;font-size:12.5px;color:#cfcac0;background:#0d0f0fcc;border:1px solid #2f3433;border-radius:8px;padding:6px 10px;pointer-events:none}
@@ -89,11 +95,12 @@ dialog textarea{width:100%;height:52vh;font:13px/1.45 ui-monospace,Consolas,mono
   <input type="file" id="file" accept=".json,application/json" hidden>
 </header>
 <div class="note">숙련 트리와 재 상점을 <b>하나의 판</b>으로 합쳤습니다. 모든 노드는 <b>재</b>로 삽니다. 가운데 <b>불씨</b>에서 시작해, <b>이미 산 노드와 선으로 이어진 노드</b>만 살 수 있습니다. 판은 <b>무기</b>(도구별) · <b>불 강화</b>(모든 도구에 적용) · <b>이동</b> · <b>줍기</b> · <b>운반</b> · <b>저장</b> · <b>자동화</b> · <b>정찰</b> 구역으로 나뉩니다. 예전 상점에서 여러 번 사던 항목은 단계마다 노드 하나로 쪼개 사슬로 이었습니다. 금색 점선은 추가 조건(그 노드들을 먼저 사야 함)입니다. 가격은 초안입니다: 트리 노드는 원래 포인트 × 그 구역에서 1포인트를 버는 동안 모이는 재, 상점 단계는 원래 가격을 그 구역 1분 수입으로 바꾼 값입니다.</div>
-<div class="stage" style="margin-top:10px">
+<div class="tabs" id="tabs"></div>
+<div class="stage">
   <svg id="web"><g id="vp"></g></svg>
   <div class="mode" id="modeTag">연결 모드: 노드 두 개를 차례로 누르면 선이 생기고, 이미 이어져 있으면 끊어집니다 (Esc로 끝)</div>
   <div class="legend">● 작은 노드 · ◉ 큰 노드(새 기능) · ◆ 핵심 노드(형태 교체)<br>노드 아래 금색 숫자 = 가격(재)</div>
-  <div class="hint"><b>휠</b> 확대 · <b>빈 곳 끌기</b> 화면 이동 · <b>노드 끌기</b> 옮기기(Alt: 격자) · <b>노드를 다른 노드 위에 놓기</b> 붙이기/떼기 · <b>Shift+끌기</b> 선 잇기/끊기 · <b>Ctrl+클릭 / Ctrl+빈 곳 끌기</b> 여러 개 고르기 · <b>Ctrl+C/X/V</b> 복사·잘라 내기·붙여 넣기 · <b>Ctrl+D</b> 복제 · <b>Ctrl+A</b> 같은 갈래 모두 · <b>방향키</b> 조금씩 밀기 · <b>우클릭</b> 메뉴 · <b>Ctrl+Z/Y</b> 되돌리기 · <b>Delete</b> 삭제 · <b>F</b> 전체 보기</div>
+  <div class="hint"><b>위 탭</b> 구역 고르기 · <b>↗ 파란 꼬리표</b> 다른 구역과 이어진 곳(누르면 이동) · <b>휠</b> 확대 · <b>빈 곳 끌기</b> 화면 이동 · <b>노드를 다른 노드 위에 놓기</b> 그 아래로 옮기기(지금 부모 위면 떼기) · <b>빈 곳에 놓기</b> 가지에서 떼어 그 열 갈래 맨 위로 · <b>Shift+끌기</b> 선 잇기/끊기 · <b>Ctrl+클릭 / Ctrl+빈 곳 끌기</b> 여러 개 고르기 · <b>Ctrl+C/X/V</b> 복사·잘라 내기·붙여 넣기 · <b>Ctrl+D</b> 복제 · <b>Ctrl+A</b> 같은 갈래 모두 · <b>방향키</b> 조금씩 밀기 · <b>우클릭</b> 메뉴 · <b>Ctrl+Z/Y</b> 되돌리기 · <b>Delete</b> 삭제 · <b>F</b> 전체 보기</div>
 </div>
 <main>
 <section>
@@ -176,10 +183,72 @@ let nodeEl = new Map(), linkEl = [], tmpLine = null;
 const RAD = n => n.id === 'start' ? 24 : +n.kind === 2 ? 19 : +n.kind === 1 ? 15 : 10;
 function applyView() { vp.setAttribute('transform', `translate(${view.x} ${view.y}) scale(${view.k})`); svg.classList.toggle('far', view.k < 0.55); }
 const isReq = (a, b) => (byId(b)?.req || []).includes(a) || (byId(a)?.req || []).includes(b);
+// ---------- 구역 탭과 가지 트리 ----------
+// 탭마다 그 구역 노드만 보인다. 탭 안은 갈래별 열로 나누고, 불씨에서 가까운 노드가 위, 먼 노드가 아래인 가지 트리로 자동 배치한다.
+// 트리의 부모 = 같은 갈래에서 불씨 쪽으로 한 걸음 더 가까운 이웃. 다른 구역과 이어진 선은 노드 위 꼬리표로 보여 준다.
+let tab = localStorage.getItem(KEY + '-tab') || 'tool', P = new Map(), TL = null;
+const regionOf = n => n.grp === 'merge' ? 'merge' : (grp(n.grp).region || n.grp);
+const TABS = () => [...(D.regions || []).map(r => [r.id, r.name, r.color]), ['merge', '합류', '#ffd36b'], ['all', '전체 그물', '#a3a69f']];
+function setTab(t) { tab = t; try { localStorage.setItem(KEY + '-tab', t); } catch (e) {} drawTabs(); draw(); fit(); }
+function drawTabs() {
+  $('tabs').innerHTML = TABS().map(([id, nm, c]) => {
+    const ns = D.nodes.filter(n => n.id !== 'start' && (id === 'all' || regionOf(n) === id));
+    return `<button class="tab${tab === id ? ' on' : ''}" data-t="${id}" style="--c:${c}">${esc(nm)} <span>${ns.length}개 · ${fk(ns.reduce((a, n) => a + tot(n), 0))}재</span></button>`;
+  }).join('');
+  $('tabs').querySelectorAll('[data-t]').forEach(b => b.onclick = () => setTab(b.dataset.t));
+}
+function distances() {
+  const adj = new Map(), add = (a, b) => { if (!adj.has(a)) adj.set(a, []); adj.get(a).push(b); };
+  for (const [a, b] of D.links) { add(a, b); add(b, a); }
+  const d = new Map([['start', 0]]), q = ['start'];
+  while (q.length) { const x = q.shift(); for (const y of adj.get(x) || []) if (!d.has(y)) { d.set(y, d.get(x) + 1); q.push(y); } }
+  return d;
+}
+const SLOT = 150, ROWH = 104;
+function treeLayout(t) {
+  const ns = D.nodes.filter(n => n.id !== 'start' && regionOf(n) === t), ids = new Set(ns.map(n => n.id)), dist = distances();
+  const ord = new Map(D.nodes.map((n, i) => [n.id, i])), dv = id => dist.has(id) ? dist.get(id) : 1e6;
+  const parent = new Map(), kids = new Map(ns.map(n => [n.id, []]));
+  for (const n of ns) {
+    const c = nbs(n.id).map(byId).filter(m => m && ids.has(m.id) && m.grp === n.grp && dv(m.id) < dv(n.id)).sort((a, b) => dv(a.id) - dv(b.id) || ord.get(a.id) - ord.get(b.id));
+    if (c[0]) { parent.set(n.id, c[0].id); kids.get(c[0].id).push(n.id); }
+  }
+  for (const k of kids.values()) k.sort((a, b) => ord.get(a) - ord.get(b));
+  const pos = new Map(), spans = []; let slot = 0, maxDep = 0;
+  const place = (id, dep) => {
+    maxDep = Math.max(maxDep, dep); const ks = kids.get(id); let x;
+    if (!ks.length) x = slot++; else { const xs = ks.map(k => place(k, dep + 1)); x = (xs[0] + xs[xs.length - 1]) / 2; }
+    pos.set(id, [x, dep]); return x;
+  };
+  for (const g of D.groups.filter(g => ns.some(n => n.grp === g.id))) {
+    const s0 = slot;
+    for (const r of ns.filter(n => n.grp === g.id && !parent.has(n.id)).sort((a, b) => dv(a.id) - dv(b.id) || ord.get(a.id) - ord.get(b.id))) place(r.id, 0);
+    spans.push({ g, a: s0, b: slot - 1 }); slot += 1;
+  }
+  for (const [id, [x, dep]] of pos) pos.set(id, [x * SLOT, dep * ROWH]);
+  const tree = new Set([...parent].map(([c, p]) => [c, p].sort().join('|'))), badges = new Map();
+  for (const n of ns) { const o = nbs(n.id).filter(m => !ids.has(m)); if (o.length) badges.set(n.id, o); }
+  return { pos, show: ids, spans, tree, badges, parent, kids, maxDep };
+}
+function allLayout() { return { pos: new Map(D.nodes.map(n => [n.id, [n.x, n.y]])), show: new Set(D.nodes.map(n => n.id)), all: true }; }
+// 트리의 부모→자식 선은 부드러운 곡선, 그 밖의 선(돌아가는 길)은 옅은 점선 곡선.
+const pathD = (ax, ay, bx, by, curve) => curve ? `M${ax} ${ay}C${ax} ${(ay + by) / 2} ${bx} ${(ay + by) / 2} ${bx} ${by}` : `M${ax} ${ay}L${bx} ${by}`;
+function jumpTo(id) { const n = byId(id); if (!n) return; if (!P.has(id) || !TL.show.has(id)) setTab(TL.all ? 'all' : regionOf(n)); select(id); focusNode(id); }
 function draw() {
   vp.replaceChildren(); nodeEl = new Map(); linkEl = [];
+  TL = tab === 'all' ? allLayout() : treeLayout(tab); P = TL.pos;
   const gBg = mk('g', {}, vp), gL = mk('g', {}, vp), gN = mk('g', {}, vp);
+  if (!TL.all) {
+    for (const s of TL.spans) {
+      const x0 = s.a * SLOT - SLOT / 2 + 8, x1 = s.b * SLOT + SLOT / 2 - 8, ns = D.nodes.filter(n => n.grp === s.g.id && TL.show.has(n.id));
+      mk('rect', { x: x0, y: -96, width: x1 - x0, height: TL.maxDep * ROWH + 160, rx: 12, fill: s.g.color + '0a', stroke: s.g.color + '40', 'stroke-width': 1.5 }, gBg);
+      const t = mk('text', { x: (x0 + x1) / 2, y: -60, 'text-anchor': 'middle', fill: s.g.color, 'font-size': 20, 'font-weight': 800, 'font-family': 'Pretendard, Malgun Gothic, sans-serif', 'pointer-events': 'none' }, gBg); t.textContent = s.g.name;
+      const u = mk('text', { x: (x0 + x1) / 2, y: -40, 'text-anchor': 'middle', fill: '#8e918b', 'font-size': 12, 'font-family': 'Pretendard, Malgun Gothic, sans-serif', 'pointer-events': 'none' }, gBg);
+      u.textContent = `${ns.length}개 · 모두 ${fa(ns.reduce((a, n) => a + tot(n), 0))}재`;
+    }
+  }
   const maxR = Math.max(300, ...D.nodes.map(n => Math.hypot(n.x, n.y)));
+  if (TL.all) {
   for (let r = 128; r <= maxR + 64; r += 128) mk('circle', { cx: 0, cy: 0, r, fill: 'none', stroke: '#ffffff08', 'stroke-width': 1.5 }, gBg);
   // 큰 구역(무기 강화 · 범용 불 강화 · 재·이동·시설): 옅은 부채꼴 바탕과 경계선, 바깥 큰 이름.
   for (const R of D.regions || []) {
@@ -197,17 +266,22 @@ function draw() {
     const t = mk('text', { x: Math.cos(a) * r, y: Math.sin(a) * r, 'text-anchor': 'middle', fill: g.color, 'font-size': 26, 'font-weight': 800, opacity: 0.85, 'font-family': 'Pretendard, Malgun Gothic, sans-serif', 'pointer-events': 'none' }, gBg);
     t.textContent = g.name;
   }
+  }
   const near = sel ? new Set([sel, ...nbs(sel)]) : null;
   for (const [a, b] of D.links) {
-    const A = byId(a), B = byId(b); if (!A || !B) continue;
+    if (!TL.show.has(a) || !TL.show.has(b)) continue;
+    const [ax, ay] = P.get(a), [bx, by] = P.get(b);
     const g = mk('g', { class: 'ln', 'data-a': a, 'data-b': b }, gL);
-    const on = sel && (a === sel || b === sel), rq = isReq(a, b);
-    const vis = mk('line', { x1: A.x, y1: A.y, x2: B.x, y2: B.y, stroke: on ? '#ffc74d' : rq ? '#ffd36b88' : '#4a514e', 'stroke-width': on ? 4 : 3, 'stroke-dasharray': rq ? '7 6' : '', 'stroke-linecap': 'round' }, g);
-    const hit = mk('line', { x1: A.x, y1: A.y, x2: B.x, y2: B.y, class: 'hitl' }, g);
-    linkEl.push({ a, b, vis, hit });
+    const on = sel && (a === sel || b === sel), rq = isReq(a, b), side = !TL.all && !TL.tree.has([a, b].sort().join('|'));
+    const curve = !TL.all, d = pathD(ax, ay, bx, by, curve);
+    const vis = mk('path', { d, fill: 'none', stroke: on ? '#ffc74d' : rq ? '#ffd36b88' : side ? '#4a514e99' : '#4a514e', 'stroke-width': on ? 4 : side ? 2 : 3, 'stroke-dasharray': rq ? '7 6' : side ? '4 6' : '', 'stroke-linecap': 'round' }, g);
+    const hit = mk('path', { d, fill: 'none', class: 'hitl' }, g);
+    linkEl.push({ a, b, vis, hit, curve });
   }
   for (const n of D.nodes) {
-    const g = mk('g', { class: 'nd', 'data-id': n.id, transform: `translate(${n.x} ${n.y})` }, gN);
+    if (!TL.show.has(n.id)) continue;
+    const [nx, ny] = P.get(n.id);
+    const g = mk('g', { class: 'nd', 'data-id': n.id, transform: `translate(${nx} ${ny})` }, gN);
     const c = grp(n.grp).color, r = RAD(n), dim = near && !near.has(n.id);
     if (isSel(n.id)) mk('circle', { r: r + 9, fill: extra.size ? '#ffc74d22' : 'none', stroke: '#ffc74d', 'stroke-width': 3 }, g);
     if (linkFrom === n.id) mk('circle', { r: r + 9, fill: 'none', stroke: '#7fd1ff', 'stroke-width': 3, 'stroke-dasharray': '5 4' }, g);
@@ -219,20 +293,35 @@ function draw() {
     if ((+n.max || 1) > 1) { const t = mk('text', { y: 4, 'text-anchor': 'middle', fill: c, 'font-size': 11, 'font-weight': 800, 'pointer-events': 'none' }, g); t.textContent = n.max; }
     const lb = mk('text', { class: 'lb', y: r + 15, 'text-anchor': 'middle', opacity: dim ? 0.5 : 1 }, g); lb.textContent = n.name;
     if (n.id !== 'start') { const pr = mk('text', { class: 'pr', y: r + 28, 'text-anchor': 'middle', opacity: dim ? 0.5 : 1 }, g); pr.textContent = fk(+n.cost || 0) + ((+n.max || 1) > 1 ? '~' : ''); }
+    // 다른 구역과 이어진 노드: 위에 꼬리표. 누르면 그 노드로 건너간다.
+    const bd = TL.badges && TL.badges.get(n.id);
+    if (bd) {
+      const names = bd.map(o => o === 'start' ? '불씨' : (byId(o)?.name || '')), txt = '↗ ' + names.slice(0, 2).join(', ') + (names.length > 2 ? ` 외 ${names.length - 2}` : '');
+      const b = mk('text', { class: 'bd', y: -r - 9, 'text-anchor': 'middle', 'data-go': bd.find(o => o !== 'start') || '' }, g); b.textContent = txt;
+    }
     nodeEl.set(n.id, g);
   }
   tmpLine = mk('line', { stroke: '#7fd1ff', 'stroke-width': 3, 'stroke-dasharray': '6 5', display: 'none', 'pointer-events': 'none' }, vp);
   applyView();
 }
-function moveNodeEl(n) {
-  nodeEl.get(n.id)?.setAttribute('transform', `translate(${n.x} ${n.y})`);
-  for (const L of linkEl) {
-    if (L.a === n.id) for (const e of [L.vis, L.hit]) { e.setAttribute('x1', n.x); e.setAttribute('y1', n.y); }
-    if (L.b === n.id) for (const e of [L.vis, L.hit]) { e.setAttribute('x2', n.x); e.setAttribute('y2', n.y); }
+// 노드 하나의 그림과 이어진 선을 (x, y)로 옮긴다(데이터는 건드리지 않음).
+function placeEl(id, x, y) {
+  P.set(id, [x, y]);
+  nodeEl.get(id)?.setAttribute('transform', `translate(${x} ${y})`);
+  for (const L of linkEl) if (L.a === id || L.b === id) {
+    const [ax, ay] = P.get(L.a), [bx, by] = P.get(L.b), d = pathD(ax, ay, bx, by, L.curve);
+    L.vis.setAttribute('d', d); L.hit.setAttribute('d', d);
   }
 }
+function moveNodeEl(n) { placeEl(n.id, n.x, n.y); }
 function fit() {
-  const r = svg.getBoundingClientRect(), xs = D.nodes.map(n => n.x), ys = D.nodes.map(n => n.y);
+  const r = svg.getBoundingClientRect();
+  if (!TL.all) {
+    const ps = [...P.values()], x0 = Math.min(...ps.map(p => p[0])) - SLOT / 2 - 20, x1 = Math.max(...ps.map(p => p[0])) + SLOT / 2 + 20, y0 = -110, y1 = Math.max(0, ...ps.map(p => p[1])) + 90;
+    view.k = Math.min(1.1, r.width / (x1 - x0), r.height / (y1 - y0));
+    view.x = r.width / 2 - (x0 + x1) / 2 * view.k; view.y = 20 - y0 * view.k; applyView(); return;
+  }
+  const xs = D.nodes.map(n => n.x), ys = D.nodes.map(n => n.y);
   // 큰 구역 이름은 가장 바깥 노드보다 210px 밖에 있으므로 그 원 전체가 들어오게 맞춘다.
   const RR = Math.max(300, ...D.nodes.map(n => Math.hypot(n.x, n.y))) + 260;
   const pad = 140, x0 = D.regions ? -RR : Math.min(...xs) - pad, x1 = D.regions ? RR : Math.max(...xs) + pad, y0 = D.regions ? -RR : Math.min(...ys) - pad, y1 = D.regions ? RR : Math.max(...ys) + pad;
@@ -240,8 +329,10 @@ function fit() {
   view.x = r.width / 2 - (x0 + x1) / 2 * view.k; view.y = r.height / 2 - (y0 + y1) / 2 * view.k; applyView();
 }
 function focusNode(id) {
-  const n = byId(id); if (!n) return; const r = svg.getBoundingClientRect();
-  view.k = Math.max(view.k, 0.9); view.x = r.width / 2 - n.x * view.k; view.y = r.height / 2 - n.y * view.k; applyView();
+  const n = byId(id); if (!n) return;
+  if (!TL.show.has(id)) setTab(regionOf(n));
+  const r = svg.getBoundingClientRect(), [px, py] = P.get(id);
+  view.k = Math.max(view.k, 0.9); view.x = r.width / 2 - px * view.k; view.y = r.height / 2 - py * view.k; applyView();
   svg.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
 const world = e => { const r = svg.getBoundingClientRect(); return [(e.clientX - r.left - view.x) / view.k, (e.clientY - r.top - view.y) / view.k]; };
@@ -251,25 +342,52 @@ let act = null;
 svg.addEventListener('mousedown', e => {
   if (e.button !== 0) return;
   hideCtx(); e.preventDefault();
+  const bd = e.target.closest('.bd'); if (bd && bd.dataset.go) { jumpTo(bd.dataset.go); return; }
   const g = e.target.closest('.nd'), [wx, wy] = world(e);
   if (g) {
     const id = g.dataset.id;
     if (linkMode || e.shiftKey) {
       if (linkMode && linkFrom && linkFrom !== id) { toggleLink(linkFrom, id); linkFrom = null; save(); renderAll(); return; }
       act = { type: 'link', from: id, sx: e.clientX, sy: e.clientY };
-      const n = byId(id); tmpLine.setAttribute('x1', n.x); tmpLine.setAttribute('y1', n.y); tmpLine.setAttribute('x2', n.x); tmpLine.setAttribute('y2', n.y);
+      const [px, py] = P.get(id); tmpLine.setAttribute('x1', px); tmpLine.setAttribute('y1', py); tmpLine.setAttribute('x2', px); tmpLine.setAttribute('y2', py);
       return;
     }
     if (e.ctrlKey || e.metaKey) { toggleSel(id); return; }
-    // 고른 노드를 끌면 고른 노드 전부가 함께 움직인다.
-    const ids = isSel(id) && extra.size ? selIds() : [id];
-    act = { type: 'node', id, grp: ids.map(i => { const n = byId(i); return { n, x0: n.x, y0: n.y }; }), wx0: wx, wy0: wy, sx: e.clientX, sy: e.clientY, moved: false, tg: null };
+    // 전체 그물에서는 고른 노드 전부가 함께 움직인다. 트리 탭에서는 끈 노드 하나만(놓을 자리로 가지를 고친다).
+    const ids = TL.all && isSel(id) && extra.size ? selIds() : [id];
+    act = { type: 'node', id, grp: ids.map(i => { const n = byId(i), [x0, y0] = P.get(i); return { n, x0, y0 }; }), wx0: wx, wy0: wy, sx: e.clientX, sy: e.clientY, moved: false, tg: null };
   } else if (e.ctrlKey || e.metaKey) {
     act = { type: 'box', wx0: wx, wy0: wy };
     boxEl = mk('rect', { x: wx, y: wy, width: 0, height: 0, fill: '#ffc74d14', stroke: '#ffc74d', 'stroke-width': 1.5 / view.k, 'stroke-dasharray': `${6 / view.k} ${4 / view.k}`, 'pointer-events': 'none' }, vp);
   } else { act = { type: 'pan', sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y, moved: false }; svg.classList.add('panning'); }
 });
 svg.addEventListener('mousemove', e => { mouseW = world(e); });
+// 트리 탭에서 노드를 놓았을 때: 다른 노드 위면 그 아래로 옮기고(지금 부모 위면 떼어 냄), 빈 곳이면 가지에서 떼어 놓은 열의 갈래 맨 위로.
+function treeDrop(a, e) {
+  const n = byId(a.id), tg = a.tg ? byId(a.tg) : null, p = TL.parent.get(n.id);
+  if (a.tg) setHL(a.tg, false);
+  const connect = () => { if (!nbs(n.id).length) D.links.push(['start', n.id]); };
+  if (tg) {
+    const desc = new Set(), st = [n.id];
+    while (st.length) for (const k of TL.kids.get(st.pop()) || []) if (!desc.has(k)) { desc.add(k); st.push(k); }
+    if (desc.has(tg.id)) { toast('자기 아래 가지에는 붙일 수 없어요'); draw(); return; }
+    if (p === tg.id) { toggleLink(n.id, tg.id); connect(); toast(`"${n.name}"을(를) "${tg.name}"에서 떼어 냄`); }
+    else {
+      if (p) toggleLink(n.id, p);
+      if (linkIdx(n.id, tg.id) < 0) D.links.push([n.id, tg.id]);
+      if (tg.grp !== n.grp) n.grp = tg.grp;
+      toast(`"${n.name}"을(를) "${tg.name}" 아래로 옮김`);
+    }
+  } else {
+    const [wx, wy] = world(e), s = TL.spans.find(s => wx >= s.a * SLOT - SLOT / 2 && wx <= s.b * SLOT + SLOT / 2);
+    // 조금만 움직였다 놓은 것은 실수로 보고 그대로 둔다.
+    if (Math.hypot(wx - a.wx0, wy - a.wy0) < 70 || !p && (!s || s.g.id === n.grp)) { toast('', true); draw(); return; }
+    if (p) toggleLink(n.id, p);
+    if (s && s.g.id !== n.grp) n.grp = s.g.id;
+    connect(); toast(`"${n.name}"을(를) 가지에서 떼어 ${grp(n.grp).name} 맨 위로`);
+  }
+  sel = n.id; extra.clear(); save(); renderAll();
+}
 const nodeUnder = e => { const h = document.elementFromPoint(e.clientX, e.clientY), g = h && h.closest ? h.closest('#web .nd') : null; return g ? g.dataset.id : null; };
 function setHL(id, on) { const g = nodeEl.get(id); if (g) g.classList.toggle('hl', on); }
 window.addEventListener('mousemove', e => {
@@ -281,6 +399,7 @@ window.addEventListener('mousemove', e => {
     if (!act.moved) { act.moved = true; hideTip(); for (const m of act.grp) nodeEl.get(m.n.id).style.pointerEvents = 'none'; }
     const [wx, wy] = world(e), G = 16;
     for (const m of act.grp) {
+      if (!TL.all) { placeEl(m.n.id, m.x0 + wx - act.wx0, m.y0 + wy - act.wy0); continue; }
       m.n.x = Math.round(m.x0 + wx - act.wx0); m.n.y = Math.round(m.y0 + wy - act.wy0);
       if (e.altKey) { m.n.x = Math.round(m.n.x / G) * G; m.n.y = Math.round(m.n.y / G) * G; }
       moveNodeEl(m.n);
@@ -288,8 +407,11 @@ window.addEventListener('mousemove', e => {
     // 노드 하나를 다른 노드 위로 끌면: 놓을 때 붙이거나(이어져 있으면) 뗀다.
     if (act.grp.length === 1) {
       const t = nodeUnder(e), tg = t && t !== act.id ? t : null;
-      if (tg !== act.tg) { if (act.tg) setHL(act.tg, false); act.tg = tg; if (tg) setHL(tg, true);
-        toast(tg ? (linkIdx(act.id, tg) >= 0 ? `놓으면 "${byId(tg).name}"에서 떼어 냄` : `놓으면 "${byId(tg).name}"에 붙임`) : '', !tg); }
+      if (tg !== act.tg || !TL.all) {
+        if (act.tg && act.tg !== tg) setHL(act.tg, false); act.tg = tg; if (tg) setHL(tg, true);
+        if (TL.all) toast(tg ? (linkIdx(act.id, tg) >= 0 ? `놓으면 "${byId(tg).name}"에서 떼어 냄` : `놓으면 "${byId(tg).name}"에 붙임`) : '', !tg);
+        else toast(tg ? (TL.parent.get(act.id) === tg ? `놓으면 "${byId(tg).name}"에서 떼어 냄` : `놓으면 "${byId(tg).name}" 아래로 옮김`) : '빈 곳에 놓으면 가지에서 떼어 그 갈래의 맨 위로');
+      }
     }
   } else if (act.type === 'box') {
     const [wx, wy] = world(e);
@@ -306,13 +428,14 @@ window.addEventListener('mouseup', e => {
   if (a.type === 'box') {
     const [wx, wy] = world(e), x0 = Math.min(wx, a.wx0), x1 = Math.max(wx, a.wx0), y0 = Math.min(wy, a.wy0), y1 = Math.max(wy, a.wy0);
     boxEl.remove(); boxEl = null;
-    for (const n of D.nodes) if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && !isSel(n.id)) { if (!sel) sel = n.id; else extra.add(n.id); }
+    for (const [id, [px, py]] of P) if (TL.show.has(id) && px >= x0 && px <= x1 && py >= y0 && py <= y1 && !isSel(id)) { if (!sel) sel = id; else extra.add(id); }
     draw(); openPanel(); if (extra.size) toast(`노드 ${selIds().length}개 선택`);
     return;
   }
   if (a.type === 'node') {
     for (const m of a.grp) { const g = nodeEl.get(m.n.id); if (g) g.style.pointerEvents = ''; }
     if (!a.moved) { select(a.id); return; }
+    if (!TL.all) { treeDrop(a, e); return; }
     if (a.tg) {
       const n = byId(a.id), t = byId(a.tg); setHL(a.tg, false);
       if (linkIdx(n.id, t.id) >= 0) { toggleLink(n.id, t.id); n.x = a.grp[0].x0; n.y = a.grp[0].y0; toast(`"${n.name}"을(를) "${t.name}"에서 떼어 냄`); }
@@ -350,7 +473,12 @@ svg.addEventListener('contextmenu', e => {
     ['⧉ 복제 <span class="k">Ctrl+D</span>', dupSel], ['⟷ 가까운 순서로 한 줄 잇기', chainSel], ['✂ 고른 노드끼리 선 끊기', unlinkSel], ['hr'], ['모두 삭제 <span class="k">Delete</span>', () => delMany(selIds()), 'del']], e);
   else if (g) openCtx(nodeMenu(g.dataset.id), e);
   else if (l) openCtx([['t', `${byId(l.dataset.a)?.name} — ${byId(l.dataset.b)?.name}`], ['연결 끊기', () => { toggleLink(l.dataset.a, l.dataset.b); save(); renderAll(); }, 'del']], e);
-  else openCtx([['＋ 여기에 새 노드 추가', () => addNode(nearestGrp(wx, wy), Math.round(wx), Math.round(wy), null)], ['📋 여기에 붙여 넣기 <span class="k">Ctrl+V</span>', () => pasteAt(wx, wy)]], e);
+  else openCtx([['＋ 여기에 새 노드 추가', () => {
+    if (TL.all) { addNode(nearestGrp(wx, wy), Math.round(wx), Math.round(wy), null); return; }
+    // 트리 탭: 누른 열의 갈래 맨 위(불씨에 바로 이어진 노드)로 만든다.
+    const s = TL.spans.find(s => wx >= s.a * SLOT - SLOT / 2 && wx <= s.b * SLOT + SLOT / 2) || TL.spans[0];
+    addNode(s ? s.g.id : D.groups[0].id, 0, 0, 'start');
+  }], ['📋 여기에 붙여 넣기 <span class="k">Ctrl+V</span>', () => pasteAt(wx, wy)]], e);
 });
 
 // ---------- 툴팁 ----------
@@ -622,7 +750,7 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Escape') { hideCtx(); if (linkMode) setLinkMode(false); else if (sel) { clearSel(); draw(); } }
   else if (e.key === 'Delete' && sel) { if (extra.size) delMany(selIds()); else delNode(sel); }
-  else if (e.key.startsWith('Arrow') && sel) {
+  else if (e.key.startsWith('Arrow') && sel && TL.all) {
     // 방향키로 고른 노드를 조금씩 민다(Shift: 크게).
     e.preventDefault(); const s = e.shiftKey ? 16 : 4, dx = e.key === 'ArrowLeft' ? -s : e.key === 'ArrowRight' ? s : 0, dy = e.key === 'ArrowUp' ? -s : e.key === 'ArrowDown' ? s : 0;
     for (const n of selIds().map(byId)) { n.x += dx; n.y += dy; moveNodeEl(n); } save();
@@ -687,7 +815,7 @@ $('btnPng').onclick = () => {
   img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
 };
 const memo = $('memo'); memo.oninput = () => { D.memo = memo.value; save(); };
-function renderAll() { draw(); tables(); memo.value = D.memo || ''; if (sel) openPanel(); }
+function renderAll() { drawTabs(); draw(); tables(); memo.value = D.memo || ''; if (sel) openPanel(); }
 renderAll();
 requestAnimationFrame(fit);
 addEventListener('resize', () => applyView());
