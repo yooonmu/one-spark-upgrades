@@ -226,7 +226,9 @@ function moveNodeEl(n) {
 }
 function fit() {
   const r = svg.getBoundingClientRect(), xs = D.nodes.map(n => n.x), ys = D.nodes.map(n => n.y);
-  const pad = D.regions ? 300 : 140, x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+  // 큰 구역 이름은 가장 바깥 노드보다 210px 밖에 있으므로 그 원 전체가 들어오게 맞춘다.
+  const RR = Math.max(300, ...D.nodes.map(n => Math.hypot(n.x, n.y))) + 260;
+  const pad = 140, x0 = D.regions ? -RR : Math.min(...xs) - pad, x1 = D.regions ? RR : Math.max(...xs) + pad, y0 = D.regions ? -RR : Math.min(...ys) - pad, y1 = D.regions ? RR : Math.max(...ys) + pad;
   view.k = Math.min(r.width / (x1 - x0), r.height / (y1 - y0));
   view.x = r.width / 2 - (x0 + x1) / 2 * view.k; view.y = r.height / 2 - (y0 + y1) / 2 * view.k; applyView();
 }
