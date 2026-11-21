@@ -206,7 +206,16 @@ function distances() {
 }
 const SLOT = 150, ROWH = 104;
 function treeLayout(t) {
-  const ns = D.nodes.filter(n => n.id !== 'start' && regionOf(n) === t), ids = new Set(ns.map(n => n.id)), dist = distances();
+  const ns = D.nodes.filter(n => n.id !== 'start' && regionOf(n) === t), ids = new Set(ns.map(n => n.id)), gd = distances();
+  // 가지는 같은 갈래 안의 선으로만 정한다: 갈래 입구(불씨와 이어진 노드, 없으면 불씨에 가장 가까운 노드)에서 갈래 안 걸음 수.
+  const dist = new Map();
+  for (const g of new Set(ns.map(n => n.grp))) {
+    const gs = ns.filter(n => n.grp === g), gi = new Set(gs.map(n => n.id)), gv = id => gd.has(id) ? gd.get(id) : 1e6;
+    let src = gs.filter(n => nbs(n.id).includes('start')).map(n => n.id);
+    if (!src.length) { const m = Math.min(...gs.map(n => gv(n.id))); src = gs.filter(n => gv(n.id) === m).map(n => n.id); }
+    const q = [...src]; for (const s of src) dist.set(s, 0);
+    while (q.length) { const x = q.shift(); for (const y of nbs(x)) if (gi.has(y) && !dist.has(y)) { dist.set(y, dist.get(x) + 1); q.push(y); } }
+  }
   const ord = new Map(D.nodes.map((n, i) => [n.id, i])), dv = id => dist.has(id) ? dist.get(id) : 1e6;
   const parent = new Map(), kids = new Map(ns.map(n => [n.id, []]));
   for (const n of ns) {
