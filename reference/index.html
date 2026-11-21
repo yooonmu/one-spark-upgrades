@@ -1,0 +1,118 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>불씨 하나 — 참고 게임 강화 시스템</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#0d0f0f;color:#ece8de;font:16px/1.6 "Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+header{padding:44px 20px 20px;max-width:1080px;margin:auto}
+h1{font-size:32px;margin:0 0 6px;color:#ffc74d;letter-spacing:-.5px}
+header p{margin:4px 0;color:#a3a69f}
+nav{position:sticky;top:0;z-index:2;background:#0d0f0fee;backdrop-filter:blur(6px);border-bottom:1px solid #2a2e2d}
+nav div{max-width:1080px;margin:auto;padding:10px 20px;display:flex;gap:8px;overflow-x:auto}
+nav a{flex:none;color:#ece8de;text-decoration:none;font-size:14px;padding:6px 12px;border:1px solid #333837;border-radius:99px}
+nav a:hover,nav a.on{border-color:#ffc74d;color:#ffc74d}
+main{max-width:1080px;margin:auto;padding:0 20px 80px}section{scroll-margin-top:60px}
+h2{font-size:24px;margin:44px 0 8px}
+.g{margin-top:18px;border:1px solid #2a2e2d;border-left:4px solid var(--c);border-radius:8px;background:#151818;padding:4px 18px 16px}
+.g h3{font-size:20px;color:var(--c);margin:12px 0 2px;display:flex;flex-wrap:wrap;gap:10px;align-items:baseline}
+.g h3 small{font-size:13px;font-weight:400;color:#8e918b}
+.g dl{display:grid;grid-template-columns:120px minmax(0,1fr);gap:6px 14px;margin:12px 0 0}
+.g dt{color:#a3a69f;font-size:14px;padding-top:1px}.g dd{margin:0}
+.g dd b{color:#ffc74d;font-weight:600}
+.src{font-size:13px;color:#8e918b;margin-top:10px}.src a{color:#8fb8ff}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:15px;min-width:760px;margin-top:8px}
+th{font-size:12px;font-weight:600;color:#8e918b;text-align:left;padding:7px 10px;background:#111313;border-top:1px solid #2a2e2d}
+td{padding:9px 10px;border-top:1px solid #232727;vertical-align:top}
+td:first-child{font-weight:700;white-space:nowrap}
+ul.t{padding-left:20px}ul.t li{margin:6px 0}ul.t b{color:#ffc74d}
+.note{background:#1a1d1d;border:1px solid #333837;border-radius:8px;padding:10px 14px;color:#c9c6bd;font-size:14px;margin-top:14px}
+@media(max-width:640px){.g dl{grid-template-columns:minmax(0,1fr)}.g dt{margin-top:6px}h1{font-size:25px}}
+</style></head><body>
+<header><h1>참고 게임 강화 시스템</h1>
+<p>불씨 하나와 비슷한 짧은 증분게임들이 강화를 어떻게 짰는지 정리했습니다.</p>
+<p>공략 사이트·Steam 가이드·스토어 설명을 바탕으로 했고, 일부 수치는 팬 자료라 대략입니다. (2026년 11월 조사)</p></header>
+<nav><div><a href="../">강화 목록</a><a href="../editor/">강화 설계 편집기</a><a class="on" href="./">참고 게임</a><a href="#cmp">한눈에 비교</a><a href="#nb">Nodebuster</a><a href="#sd">Shelldiver</a><a href="#omc">One Million Coins</a><a href="#lia">Leaf it Alone</a><a href="#pp">Potato Please</a><a href="#lesson">불씨 하나에 적용할 점</a></div></nav>
+<main>
+
+<section id="cmp"><h2>한눈에 비교</h2>
+<div class="tw"><table>
+<tr><th>게임</th><th>강화 형태</th><th>규모</th><th>재화</th><th>해금 방식</th><th>분량</th><th>플레이어 불만</th></tr>
+<tr><td>Nodebuster</td><td>가운데서 퍼지는 큰 가지형 트리</td><td>노드마다 여러 단계</td><td>6종(비트·노드·코어 등)</td><td>앞 노드 1단계 또는 최대 단계</td><td>약 5시간</td><td>거의 없음(97% 긍정)</td></tr>
+<tr><td>Shelldiver</td><td>별 모양 5갈래 트리, 가운데 최종 노드</td><td>800개</td><td>조개 + 지역별 재료 + 생명 약병</td><td>앞 노드 구매, 재료는 지역에서만</td><td>—</td><td>거의 없음(99% 긍정)</td></tr>
+<tr><td>One Million Coins</td><td>7갈래 트리 + 도구 교체</td><td>250+개</td><td>동전 1종</td><td>앞 노드 구매</td><td>약 2시간</td><td>자석이 나오면 다른 도구를 안 씀</td></tr>
+<tr><td>Leaf it Alone</td><td>도구별 세로 열(손·갈퀴·송풍기)</td><td>도구당 3갈래</td><td>돈 1종</td><td>도구 구매 시 열이 열림</td><td>1~3시간</td><td>다 사면 할 게 없음</td></tr>
+<tr><td>Potato Please</td><td>도구 → 기계 → 운반 자동화 상점</td><td>상점 품목 + 스킬 포인트</td><td>돈 + 스킬 포인트</td><td>가격과 순서</td><td>약 5시간</td><td>짧음, 자동화 후 지루함</td></tr>
+</table></div>
+</section>
+
+<section id="nb"><div class="g" style="--c:#7ee0ff">
+<h3>Nodebuster <small>2024 · $2.99 · 리뷰 약 1.4만, 97% 긍정</small></h3>
+<dl>
+<dt>모양</dt><dd>한 장짜리 큰 가지형 트리. 가운데에서 바깥으로 퍼짐.</dd>
+<dt>단계</dt><dd>노드 대부분이 <b>여러 번 구매</b>되고 단계마다 비싸짐. 예: 공격력 +1을 15단계, 숙련 +3을 10단계.</dd>
+<dt>해금</dt><dd>어떤 노드는 앞 노드에 <b>1단계만</b> 투자하면 열리고, 어떤 노드는 앞 노드를 <b>최대 단계</b>까지 올려야 열림. 두 규칙을 섞어 빠른 확장과 깊은 투자를 같이 요구.</dd>
+<dt>재화</dt><dd>처음엔 비트 하나. 보스를 잡으면 특수 재화가 생겨 새 무기·흡혈 같은 큰 강화를 삼. 후반엔 재화 6종을 서로 바꿔 가며 씀.</dd>
+<dt>엔딩</dt><dd>트리 9갈래를 열어야 연구소가 열리고 최종 목표(갓바이러스)로 감. 명성(초기화) 최대 25회.</dd>
+</dl>
+<p class="src">출처: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3414691532">Steam 가이드 전체 트리</a> · <a href="https://game-vault.net/wiki/Guide:Nodebuster_Beginners_Guide">Game Vault 초보 가이드</a> · <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3404397009">Steam 가이드(명성)</a></p>
+</div></section>
+
+<section id="sd"><div class="g" style="--c:#5fd39a">
+<h3>Shelldiver <small>2025 · $4.99 · 리뷰 약 1.7만, 99% 긍정</small></h3>
+<dl>
+<dt>모양</dt><dd><b>별 모양 5갈래</b>가 가운데 하나의 최종 노드로 모임. 갈래는 버블건·산소·도구·상점·장비·채집.</dd>
+<dt>규모</dt><dd>노드 <b>800개</b>. 마지막 가운데 노드는 조개 10Q(1경)짜리.</dd>
+<dt>재화</dt><dd>조개(기본) + 지역마다 나오는 재료(얕은 바다 고철, 빙하 수정, 늪 버섯, 마그마 흑요석) + 연금술로 만드는 생명 약병. <b>지역 재료 때문에 새 지역에 가야 다음 노드를 삼.</b></dd>
+<dt>진행 등급</dt><dd>강화를 살수록 등급이 오르고, 등급이 기준을 넘으면 새 지역이 열림. 초기화가 없어서 산 강화는 그대로.</dd>
+<dt>숨은 노드</dt><dd>"???" 노드 4개와 재료 강화 4개를 사야 최종 노드가 열림. 재화 숫자에 마우스를 올리면 그 재화를 쓰는 노드가 강조됨.</dd>
+</dl>
+<p class="src">출처: <a href="https://casualgameguides.com/walkthroughs/shelldiver/skill-tree-prestige-guide">트리·등급 가이드</a> · <a href="https://casualgameguides.com/walkthroughs/shelldiver/alchemy-ending-exact-solutions">연금술·엔딩 가이드</a> · <a href="https://www.xboxachievements.com/game/shelldiver/guide/">XboxAchievements 로드맵</a></p>
+</div></section>
+
+<section id="omc"><div class="g" style="--c:#ffc74d">
+<h3>One Million Coins <small>2026 · $2.49 · 리뷰 1,633, 92% 긍정 · 1인칭</small></h3>
+<dl>
+<dt>구조</dt><dd>정해진 동전 100만 개를 떠서 입금소로 나르고, 입금한 돈으로 강화. <b>끝이 정해진 양을 없애는 구조</b>가 불씨 하나(10만 그루)와 가장 비슷함.</dd>
+<dt>모양</dt><dd>250개 넘는 노드가 <b>7갈래</b>: 손, 가방, 입금, 유틸리티, 삽, 자석, 슈트(자동 운반로).</dd>
+<dt>도구</dt><dd>맨손 → 삽 → 자석처럼 더 센 도구로 넘어감. 가방·배낭으로 운반량을 늘림.</dd>
+<dt>재화</dt><dd>동전 하나. 한 판 안에서 숙련 포인트도 씀.</dd>
+<dt>불만</dt><dd>"자석을 빨리 얻으면 <b>다른 두 도구는 끝까지 안 쓰게 된다</b>." 도구 하나가 다른 도구를 완전히 대체하는 문제.</dd>
+</dl>
+<p class="src">출처: <a href="https://store.steampowered.com/app/5258340/One_Million_Coins/">Steam 스토어</a> · <a href="https://steamcommunity.com/app/5258340">Steam 커뮤니티</a> · <a href="https://www.exophase.com/game/one-million-coins-steam/achievements/">업적 목록</a></p>
+</div></section>
+
+<section id="lia"><div class="g" style="--c:#ff9b6b">
+<h3>Leaf it Alone <small>2025 · 1~3시간 · 1인칭 낙엽 치우기</small></h3>
+<dl>
+<dt>도구</dt><dd>손 → 갈퀴($7.49) → 송풍기($49.99). 후반 맵에서 가방·트랙터.</dd>
+<dt>모양</dt><dd>트리가 아니라 <b>도구마다 세로 한 열</b>. 도구를 사면 그 도구의 강화 열이 열림.</dd>
+<dt>강화 예</dt><dd>손: 움켜쥐기·손재주 / 갈퀴: 손잡이 길이·쓸기 반경·잎 붙음 / 송풍기: 힘·바람 퍼짐·바람 폭.</dd>
+<dt>구역 보상</dt><dd>구역을 완전히 치우면 추가 보상. 특정 구역 완료 시 <b>낙엽 값이 오름</b>. 미로 맵에서는 산 강화 전부가 10% 강해짐.</dd>
+<dt>불만</dt><dd>도구 트리를 다 사고 나면 더 할 게 없음.</dd>
+</dl>
+<p class="src">출처: <a href="https://www.leaf-it-alone.wiki/guide/leaf-it-alone-skill-tree">강화 전체 가이드</a> · <a href="https://playwanderer.online/game-reviews/leaf-it-alone">Wanderer 리뷰</a></p>
+</div></section>
+
+<section id="pp"><div class="g" style="--c:#c9a2ff">
+<h3>Potato Please <small>2026 · $9.99 · 리뷰 약 2,300, 87% 긍정 · 1인칭+스토리</small></h3>
+<dl>
+<dt>흐름</dt><dd>녹슨 칼 → 강철 칼 → 작업대 → 크랭크 기계 → 자동 기계 → 운반(자루 갠트리·크레인) → 크레인 자동 조종 → 감자 진공기(마지막).</dd>
+<dt>재화</dt><dd>돈(상점 구매) + 스킬 포인트(개인 능력).</dd>
+<dt>가격 예</dt><dd>첫 자동 기계 $280, 두 번째 $420, 진공기 $2,800(팬 자료).</dd>
+<dt>설계 포인트</dt><dd>기계만 늘리면 자루·운반이 병목이 됨. <b>병목을 풀어 주는 강화를 사는 것</b>이 진행의 핵심.</dd>
+<dt>불만</dt><dd>짧다. 손으로 깎는 재미가 <b>자동화로 대체되면서 지루해짐</b>.</dd>
+</dl>
+<p class="src">출처: <a href="https://www.whisperofthehouse.com/potato-please/automation">자동화 가이드</a> · <a href="https://steamah.com/potato-please-upgrade-price-list-and-money-event-guide/">가격표</a> · <a href="https://steamcommunity.com/app/5266240/reviews/?browsefilter=toprated">Steam 리뷰</a></p>
+</div></section>
+
+<section id="lesson"><h2>불씨 하나에 적용할 점</h2>
+<ul class="t">
+<li><b>노드는 여러 단계로.</b> 흥행작은 노드 하나를 5~15번 사게 합니다. 노드 수를 늘리지 않고도 구매 횟수와 "또 샀다"는 느낌을 늘리는 방법입니다.</li>
+<li><b>해금 조건을 두 가지 섞기.</b> "1단계만 사면 다음이 열림"(넓히기)과 "최대까지 올려야 열림"(깊이 파기)을 섞으면, 넓게 볼지 깊게 팔지 고르는 재미가 생깁니다. 지금 불씨 하나는 노드를 한 번씩만 사고, 앞 노드를 사면 다음 노드가 열립니다.</li>
+<li><b>구역별 재료.</b> Shelldiver처럼 구역마다 다른 부산물(예: 소나무 송진, 습지 숯)이 있어야 살 수 있는 노드를 두면, 새 구역에 가야 하는 이유가 생깁니다.</li>
+<li><b>도구 대체 문제를 피하기.</b> One Million Coins는 자석이 나머지 도구를 쓸모없게 만들었습니다. 불씨 하나는 계열을 하나 골라 끝까지 키우는 방식이라 이 문제를 이미 피하고 있고, 계열마다 쓰는 장면(넓게 번지기, 한 점 폭발, 먼 거리)이 겹치지 않게 유지하면 됩니다.</li>
+<li><b>자동화 후 지루함 경계.</b> Potato Please의 가장 큰 불만입니다. 수거 봇이 후반 중심이라면, 봇이 재를 모으는 동안 플레이어가 할 일(더 큰 불, 쓰러뜨리기 전략)이 남아 있어야 합니다.</li>
+<li><b>끝을 미리 알려 주기.</b> 짧은 게임의 흔한 불만은 "경고 없이 끝난다"입니다. 남은 나무 수와 마지막 구역이 눈에 보이는 불씨 하나는 유리하지만, 엔딩 직전에 한 번 더 알려 주면 좋습니다.</li>
+<li><b>최종 노드는 상징적으로 비싸게.</b> Shelldiver의 가운데 노드(1경)처럼, 트리 끝에 모든 갈래가 모이는 한 점이 있으면 목표가 분명해집니다.</li>
+</ul>
+<div class="note">수치(판매량·가격·노드 수)는 외부 추정치와 팬 자료라 정확하지 않을 수 있습니다. 설계 방향을 잡는 참고용입니다.</div>
+</section>
+</main></body></html>
