@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 · 성장 설계 v5 (재로 사는 소모품)</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #14110f; color: #e9e3d8; font: 16px/1.65 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 40px 24px 96px; }
+  h1 { font-size: 30px; margin: 0 0 6px; }
+  h2 { font-size: 21px; margin: 44px 0 10px; padding-top: 18px; border-top: 1px solid #3a322b; color: #ffb37a; }
+  h3 { font-size: 17px; margin: 26px 0 8px; color: #f3d9a8; }
+  p { margin: 8px 0; }
+  .lead { color: #b9ae9f; }
+  .note { background: #221c18; border-left: 3px solid #ff8a4c; padding: 12px 16px; margin: 16px 0; border-radius: 4px; }
+  .tw { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 6px; font-size: 15px; }
+  th, td { border: 1px solid #3a322b; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #241e19; color: #f3d9a8; white-space: nowrap; }
+  td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  a { color: #ffb37a; }
+  small { color: #9b9082; }
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 · 성장 설계 v5</h1>
+<p class="lead">재로 소모품을 사서 불을 붙이는 방식. v0.44의 섬·숲·무기·엔딩은 그대로 쓰고, 성장(무엇을 어떻게 얻는가)만 처음부터 다시 짠 안입니다. 아직 개발 전이며, 아래 값은 계산으로 잡은 첫 안이라 봇 측정 뒤 바뀝니다.</p>
+<p><small>이전 판: <a href="v103.html">v103 (나무마다 탄 정도)</a> · <a href="v044.html">v0.44 판</a></small></p>
+
+<h2>1. 뼈대가 되는 규칙</h2>
+<ol>
+  <li><b>돈은 재 하나입니다.</b> 강화 포인트와 포인트 게이지, 기둥 모양 강화 판은 없앱니다. 모든 것을 재로 삽니다.</li>
+  <li><b>불을 붙이는 것은 전부 소모품입니다.</b> 성냥은 한 개로 나무 한 그루. 라이터는 가스, 조명탄은 탄, 기름통은 기름을 씁니다. 다 쓰면 재로 다시 삽니다.</li>
+  <li><b>처음에는 불이 번지지 않습니다.</b> 성냥 한 개로 딱 한 그루만 탑니다. 번지는 것은 재로 사는 강화입니다.</li>
+  <li><b>재는 주워서 수거함에 부어야 쓸 수 있습니다.</b> v0.44와 같습니다. 줍지 않으면 다음 성냥을 살 수 없으니, 불만 붙이고 지나가는 일이 없어집니다.</li>
+  <li><b>상점은 어디서나 Tab으로 열고, 산 것은 바로 들어옵니다.</b> 사러 걸어가지 않습니다.</li>
+  <li><b>막히지 않습니다.</b> 성냥이 0개이고 가진 재로 성냥 한 개도 못 살 때는 무전으로 성냥 3개를 받습니다. 그 상황에서만 나옵니다.</li>
+</ol>
+<div class="note">한 줄로 줄이면: <b>재를 써서 불을 붙이고, 붙인 불이 쓴 것보다 많은 재를 돌려준다.</b> 강화는 "같은 값의 소모품으로 더 많은 나무를 태우게" 하거나 "돌아온 재를 더 빨리 거두게" 합니다.</div>
+
+<h2>2. 시작할 때</h2>
+<div class="tw"><table>
+  <tr><th>가진 것</th><th>값</th></tr>
+  <tr><td>성냥</td><td>5개 (성냥갑에 20개까지 들어감)</td></tr>
+  <tr><td>불 붙이기</td><td>나무에 3초 대고 있으면 붙음. 성냥 한 개가 사라짐. 시간 제한으로 꺼지는 일은 없음</td></tr>
+  <tr><td>불 번짐</td><td>없음. 한 그루만 탐</td></tr>
+  <tr><td>나무 한 그루의 재</td><td>3덩이 (첫 숲)</td></tr>
+  <tr><td>자루</td><td>재 30개</td></tr>
+  <tr><td>줍는 거리</td><td>1.5m (거의 밟아야 주워짐)</td></tr>
+  <tr><td>수거함</td><td>시작 지점에 한 개. 곁에서 E를 누르고 있으면 부음</td></tr>
+</table></div>
+<p>첫 5분의 모습: 성냥 5개로 5그루를 태워 재 15개를 얻고, 그중 5개로 성냥을 다시 삽니다. 남는 10개를 모아 자루나 자석을 삽니다. 성냥 값이 아깝다는 것을 몸으로 알게 된 다음에 "옮겨붙기"를 사면, 성냥 한 개로 두 그루가 타는 순간이 첫 번째 큰 보상이 됩니다.</p>
+
+<h2>3. 스테이지와 벌이</h2>
+<p class="lead">섬과 숲은 v0.44 그대로입니다. 다음 숲은 지금 숲의 70%를 태우면 열립니다.</p>
+<div class="tw"><table>
+  <tr><th>스테이지</th><th>나무</th><th>한 그루의 재</th><th>70% 태웠을 때 재</th><th>목표 시간</th><th>이 숲에서 달라지는 것</th></tr>
+  <tr><td>1 작은 숲</td><td class="n">607</td><td class="n">3</td><td class="n">약 1,300</td><td class="n">20분</td><td>성냥 한 개 한 그루 → 옮겨붙기로 두세 그루. 끝에 라이터</td></tr>
+  <tr><td>2 큰 숲</td><td class="n">4,869</td><td class="n">9</td><td class="n">약 31,000</td><td class="n">35분</td><td>불이 덩어리로 번지기 시작. 기름통·조명탄 중 하나를 들임. 자전거</td></tr>
+  <tr><td>3 낮은 소나무숲</td><td class="n">11,934</td><td class="n">30</td><td class="n">약 250,000</td><td class="n">40분</td><td>화염방사기, 번개 말뚝. 불이 스스로 이어져 감</td></tr>
+  <tr><td>4 늙은 소나무숲</td><td class="n">17,368</td><td class="n">90</td><td class="n">약 1,090,000</td><td class="n">35분</td><td>항공 살포, 불티. ATV</td></tr>
+  <tr><td>5 얕은 습지</td><td class="n">28,843</td><td class="n">300</td><td class="n">약 6,060,000</td><td class="n">40분</td><td>집속 소이탄, 뇌우. 큰불 한 번에 수천 그루</td></tr>
+  <tr><td>6 깊은 습지</td><td class="n">36,379</td><td class="n">900</td><td class="n">약 22,900,000</td><td class="n">30분</td><td>위성 포격. 섬 끝까지</td></tr>
+</table></div>
+
+<h2>4. 불 붙이는 도구 (소모품)</h2>
+<p class="lead">도구는 한 번 사면 계속 갖고, 쓸 때마다 드는 것(성냥·가스·기름·탄)을 따로 삽니다. "한 번 채우는 값으로 몇 그루를 태우나"가 도구의 값어치입니다.</p>
+
+<h3>손불</h3>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>도구 값</th><th>쓸 때 드는 것</th><th>효과</th></tr>
+  <tr><td>성냥</td><td>처음</td><td class="n">-</td><td>성냥 1개 = 재 1</td><td>3초 대면 한 그루에 불이 붙음. 한 개로 한 그루</td></tr>
+  <tr><td>큰 성냥갑 I · II</td><td>1</td><td class="n">30 · 120</td><td>-</td><td>성냥갑에 들어가는 성냥 20개 → 40개 → 80개</td></tr>
+  <tr><td>잘 마른 성냥</td><td>1</td><td class="n">40</td><td>-</td><td>불 붙이는 시간 3초 → 2초</td></tr>
+  <tr><td>라이터</td><td>1</td><td class="n">250</td><td>가스 한 통 = 재 15. 불꽃 30초</td><td>누르고 있는 동안 불꽃이 나옴. 1.2초 대면 붙음. 한 통으로 20그루쯤</td></tr>
+  <tr><td>큰 가스통</td><td>2</td><td class="n">400</td><td>-</td><td>가스 한 통의 불꽃 30초 → 60초</td></tr>
+  <tr><td>가스 토치</td><td>2</td><td class="n">4,000</td><td>가스 한 통 = 재 40. 불꽃 30초</td><td>0.4초 대면 붙음. 한 통으로 50그루쯤</td></tr>
+  <tr><td>화염방사기</td><td>3</td><td class="n">60,000</td><td>연료 한 통 = 재 600. 20초</td><td>불줄기 10m 안의 나무에 한꺼번에 불이 붙음</td></tr>
+</table></div>
+
+<h3>기름</h3>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>도구 값</th><th>쓸 때 드는 것</th><th>효과</th></tr>
+  <tr><td>기름통</td><td>2</td><td class="n">3,000</td><td>기름 한 통 = 재 100. 30m</td><td>누른 채 걸으면 기름길을 그음. 불을 대면 길을 따라 곁의 나무가 탐</td></tr>
+  <tr><td>불붙는 드럼</td><td>2</td><td class="n">6,000</td><td>드럼 한 개 = 재 300</td><td>세워 둔 드럼에 불이 닿으면 터져 반경 6m의 나무에 불이 붙음</td></tr>
+  <tr><td>항공 살포</td><td>4</td><td class="n">400,000</td><td>한 번 = 재 30,000</td><td>비행기가 지나가며 150m 길이로 불붙은 연료를 뿌림</td></tr>
+</table></div>
+
+<h3>조명탄</h3>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>도구 값</th><th>쓸 때 드는 것</th><th>효과</th></tr>
+  <tr><td>조명탄 발사기</td><td>2</td><td class="n">5,000</td><td>조명탄 한 발 = 재 60</td><td>40m까지 쏨. 떨어진 자리 반경 5m의 나무에 불이 붙음</td></tr>
+  <tr><td>소이탄</td><td>3</td><td class="n">50,000</td><td>한 발 = 재 600</td><td>반경 9m</td></tr>
+  <tr><td>집속 소이탄</td><td>5</td><td class="n">1,500,000</td><td>한 발 = 재 8,000</td><td>한 발이 다섯 군데로 흩어져 떨어짐</td></tr>
+</table></div>
+
+<h3>번개와 위성</h3>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>도구 값</th><th>쓸 때 드는 것</th><th>효과</th></tr>
+  <tr><td>피뢰침 말뚝</td><td>3</td><td class="n">40,000</td><td>말뚝 한 개 = 재 800</td><td>꽂은 자리에 60초 동안 4초마다 번개가 떨어져 반경 7m의 나무에 불이 붙음</td></tr>
+  <tr><td>뇌우 호출</td><td>5</td><td class="n">2,000,000</td><td>한 번 = 재 40,000</td><td>8초 동안 반경 22m에 번개 20번</td></tr>
+  <tr><td>위성 포격</td><td>6</td><td class="n">6,000,000</td><td>한 번 = 재 200,000</td><td>지도에서 찍은 자리 반경 30m를 한꺼번에 태움</td></tr>
+</table></div>
+
+<h2>5. 불 번짐 (한 번 사면 계속 남는 강화)</h2>
+<p class="lead">처음에는 0입니다. 이 줄이 게임에서 가장 크게 체감되는 성장입니다. 값은 "성냥 한 개로 평균 몇 그루가 타는가"로 적었고, 실제 확률은 봇으로 맞춥니다.</p>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>값</th><th>효과</th></tr>
+  <tr><td>옮겨붙기 I</td><td>1</td><td class="n">80</td><td>타는 나무가 바로 옆 나무에 불을 옮기기 시작함. 불 하나에 평균 1.3그루</td></tr>
+  <tr><td>옮겨붙기 II</td><td>1</td><td class="n">300</td><td>불 하나에 평균 1.3그루 → 2그루</td></tr>
+  <tr><td>옮겨붙기 III</td><td>2</td><td class="n">2,500</td><td>평균 2그루 → 4그루</td></tr>
+  <tr><td>옮겨붙기 IV</td><td>2</td><td class="n">9,000</td><td>평균 4그루 → 8그루</td></tr>
+  <tr><td>옮겨붙기 V</td><td>3</td><td class="n">60,000</td><td>평균 8그루 → 20그루</td></tr>
+  <tr><td>옮겨붙기 VI</td><td>4</td><td class="n">300,000</td><td>평균 20그루 → 60그루</td></tr>
+  <tr><td>옮겨붙기 VII</td><td>5</td><td class="n">1,800,000</td><td>평균 60그루 → 200그루</td></tr>
+  <tr><td>옮겨붙기 VIII</td><td>6</td><td class="n">7,000,000</td><td>불이 끊기지 않는 한 숲을 따라 계속 번짐</td></tr>
+  <tr><td>멀리 옮겨붙기 I · II · III</td><td>2 · 3 · 5</td><td class="n">4,000 · 40,000 · 1,200,000</td><td>불이 옮겨붙는 거리 3m → 5m → 8m → 12m</td></tr>
+  <tr><td>오래 타는 불 I · II</td><td>2 · 4</td><td class="n">3,000 · 200,000</td><td>나무가 타는 시간이 길어져 옮겨붙을 기회가 늘어남</td></tr>
+  <tr><td>불티</td><td>4</td><td class="n">350,000</td><td>타는 나무에서 불티가 날아가 30m 안의 다른 나무에 새 불을 냄</td></tr>
+</table></div>
+
+<h2>6. 재 모으기</h2>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>값</th><th>효과</th></tr>
+  <tr><td>자루 I ~ VII</td><td>1 · 1 · 2 · 2 · 3 · 4 · 5</td><td class="n">20 · 100 · 800 · 5,000 · 30,000 · 200,000 · 1,200,000</td><td>자루 용량 30 → 60 → 120 → 250 → 500 → 1,000 → 2,500 → 6,000</td></tr>
+  <tr><td>자석 I ~ V</td><td>1 · 1 · 2 · 3 · 4</td><td class="n">25 · 150 · 2,000 · 25,000 · 300,000</td><td>재가 끌려오는 거리 1.5m → 3m → 5m → 8m → 12m → 18m</td></tr>
+  <tr><td>빠른 붓기 I · II</td><td>1 · 2</td><td class="n">60 · 3,000</td><td>자루를 다 붓는 시간 4초 → 2초 → 1초</td></tr>
+  <tr><td>수거함 부르기 I · II</td><td>2 · 3</td><td class="n">500 · 20,000</td><td>G로 수거함을 다시 부르기까지 30초 → 10초 → 3초</td></tr>
+  <tr><td>수거함 자석 I · II</td><td>3 · 4</td><td class="n">10,000 · 200,000</td><td>수거함 둘레에 떨어진 재가 저절로 수거함에 들어감. 반경 6m → 12m</td></tr>
+  <tr><td>고운 재 I ~ IV</td><td>1 · 2 · 4 · 5</td><td class="n">300 · 8,000 · 150,000 · 2,000,000</td><td>얻는 재 +25%</td></tr>
+</table></div>
+
+<h2>7. 이동</h2>
+<div class="tw"><table>
+  <tr><th>이름</th><th>열림</th><th>값</th><th>효과</th></tr>
+  <tr><td>운동화</td><td>1</td><td class="n">40</td><td>이동 속도 +15%</td></tr>
+  <tr><td>다리 힘 I · II · III</td><td>1 · 2 · 3</td><td class="n">150 · 2,000 · 30,000</td><td>이동 속도 +10%</td></tr>
+  <tr><td>산악자전거</td><td>2</td><td class="n">2,500</td><td>V로 타고 내림. 걷는 속도의 1.8배. 탄 채로 불을 붙일 수 있음</td></tr>
+  <tr><td>사륜 오토바이</td><td>4</td><td class="n">150,000</td><td>걷는 속도의 2.5배</td></tr>
+</table></div>
+
+<h2>8. 없애는 것</h2>
+<ul>
+  <li>강화 포인트, 포인트 게이지, 기둥 모양 강화 판 (재로 사는 상점 하나로 합침)</li>
+  <li>무기 빌드를 고르는 무전 (도구는 재가 있으면 무엇이든 삼)</li>
+  <li>성냥이 시간이 지나면 꺼지는 규칙, 긋기 실패</li>
+  <li>처음부터 있던 불 번짐, 쓴 포인트에 따라 불이 세지는 숨은 보너스</li>
+  <li>로봇 청소기, 수거 드론, 점화 드론 (아래 "정해야 할 것" 참고)</li>
+</ul>
+
+<h2>9. 화면에 필요한 것</h2>
+<ul>
+  <li>지금 든 도구의 남은 양: "성냥 3", "가스 12초", "조명탄 4발". 바닥나면 붉게 표시</li>
+  <li>남은 양이 0일 때 조준점 아래 안내: "성냥이 없습니다 · Tab으로 사기"</li>
+  <li>상점에서 소모품은 한 번에 1개 / 10개 / 가득 채우기로 삼</li>
+  <li>강화를 살 때 바뀌기 전과 후의 값을 함께 보여 줌</li>
+</ul>
+
+<h2>10. 정해야 할 것</h2>
+<ol>
+  <li><b>자동화를 넣을지.</b> 재를 대신 줍거나 대신 불을 붙여 주는 것(드론·로봇)을 뺐습니다. 넣으면 후반이 편해지지만 "줍는 것이 의미 있다"는 이번 설계의 뼈대가 약해집니다.</li>
+  <li><b>소모품 자동 구매.</b> 후반에는 성냥 값이 푼돈이라 매번 사는 것이 귀찮아집니다. "떨어지면 저절로 채움"을 강화로 팔지, 처음부터 설정으로 둘지.</li>
+  <li><b>도구를 여러 개 들고 다닐지.</b> 지금 안은 산 도구를 전부 갖고 숫자 키로 바꿔 씁니다.</li>
+  <li><b>다음 숲이 열리는 조건.</b> 70% 태우기를 그대로 둘지, 재로 "통행"을 사는 방식으로 바꿀지.</li>
+</ol>
+</main>
+</body>
+</html>
