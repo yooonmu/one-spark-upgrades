@@ -33,6 +33,9 @@ svg.drag{cursor:grabbing}
 .ash{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
 .ash small{font-size:13px;color:var(--dim);font-weight:400;margin-right:6px}
 .legend{position:absolute;left:20px;bottom:12px;color:var(--dim);font-size:12px;display:flex;gap:16px;pointer-events:none}
+.prog{position:absolute;right:20px;top:16px;width:300px;pointer-events:none}
+.pt{font-size:13px;color:var(--dim);display:flex;gap:8px;align-items:baseline}.pt b{color:var(--text);font-size:16px}.pt span{margin-left:auto;font-variant-numeric:tabular-nums}
+.pb{height:5px;background:#2a2d31;border-radius:3px;margin-top:5px;overflow:hidden}.pb i{display:block;width:12%;height:100%;background:var(--ember)}
 .gates{position:absolute;right:16px;bottom:12px;display:flex}
 .g{padding:6px 11px;border:1px solid var(--line);border-left:none;background:#17191bee;cursor:pointer;min-width:98px}
 .g:first-child{border-left:1px solid var(--line);border-radius:6px 0 0 6px;cursor:default}.g:last-child{border-radius:0 6px 6px 0}
@@ -82,7 +85,8 @@ aside{border-left:1px solid var(--line);background:#141617;padding:14px;display:
     <svg id="svg"><g id="g"></g></svg>
     <div id="shop" hidden></div>
     <div class="hud"><div class="tabs"><button data-tab="tree" class="on">강화</button><button data-tab="shop">상점</button></div><div class="ash"><small>가진 재</small><span id="ash">0</span></div></div>
-    <div class="legend"><span>◎ 큰 구매 · 하는 방식이 바뀝니다</span><span>◇ 갈림길 · 둘 중 하나</span><span>○ 단계 강화</span></div>
+    <div class="legend"><span>◎ 큰 구매 · 하는 방식이 바뀝니다</span><span>○ 단계 강화</span></div>
+    <div class="prog"><div class="pt"><b>섬의 12%</b>를 태웠습니다 <span>남은 나무 41,200그루</span></div><div class="pb"><i></i></div></div>
     <div class="gates" id="gates"></div>
   </div>
   <aside>
@@ -93,68 +97,71 @@ aside{border-left:1px solid var(--line);background:#141617;padding:14px;display:
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const COLS = {fire: ['불', '#d9643a'], tool: ['도구', '#d0a24a'], ash: ['재', '#a9b1b5'], move: ['이동', '#7fae88']};
+const COLS = {fire: ['불', '#d9643a'], tool: ['도구', '#d0a24a'], ash: ['재', '#a9b1b5'], move: ['나르기', '#7fae88']};
 // 갈래가 뻗는 방향 d와 옆으로 벌어지는 방향 p. 가장 긴 재 갈래를 오른쪽으로 둔다.
 const DIR = {fire: [[0, -1], [1, 0]], ash: [[1, 0], [0, 1]], tool: [[0, 1], [-1, 0]], move: [[-1, 0], [0, -1]]};
 const R0 = 250, STEP = 66, LANE = 92, HUB = 140;
 // at: [옆 줄, 시작 칸]. 갈림길은 두 선택지의 자리.
 const ITEMS = [
   {id: 'spread', col: 'fire', kind: 'line', at: [0, 0], name: '옮겨붙기', vals: [1, 2, 4, 7, 12, 20, 30], cost: [15, 60, 300, 2000, 15000, 120000], unit: '그루', label: '불 한 번에 평균',
-    desc: '불이 근처 나무로 더 잘 옮겨붙고, 옮겨붙어도 덜 약해집니다.', bigAt: {0: '이제 불이 스스로 옆 나무로 옮겨붙습니다. 성냥 하나로 여러 그루가 탑니다.'}},
-  {id: 'fall', col: 'fire', kind: 'big', at: [-1, 1], name: '쓰러지는 나무', cost: 500, req: ['spread', 1], reqText: '옮겨붙기 I',
-    desc: '타는 나무가 쓰러지면서 닿는 나무에 불을 옮깁니다.', chg: '나무가 쓰러지는 쪽으로 불이 건너갑니다. 불이 어디로 갈지 눈에 보입니다.'},
-  {id: 'fstyle', col: 'fire', kind: 'fork', at: [[-1, 3], [-1, 4.15]], name: '불의 성격', cost: 1500, req: ['spread', 3], reqText: '옮겨붙기 III',
-    a: {name: '큰불', desc: '여러 그루가 함께 탈수록 더 잘 옮겨붙습니다. 빽빽한 숲에서 셉니다.'},
-    b: {name: '끈질긴 불', desc: '옮겨붙어도 거의 약해지지 않아 길게 갑니다. 듬성한 숲에서 셉니다.'}},
+    desc: '나무에 불이 붙을 때 근처 나무로 옮겨붙을 확률이 오릅니다. 불은 옮겨붙을 때마다 약해져서 얼마 못 가 꺼집니다.', bigAt: {0: '이제 불이 스스로 옆 나무로 옮겨붙습니다. 성냥 하나로 여러 그루가 탑니다.'}},
+  {id: 'burn', col: 'fire', kind: 'line', at: [-1, 0], name: '빨리 타기', vals: ['10초', '8초', '6.5초', '5초', '4초', '3초'], cost: [20, 150, 1200, 10000, 80000], unit: '', label: '나무가 타는 시간',
+    desc: '나무가 더 빨리 타서 재가 일찍 떨어집니다. 옮겨붙는 수는 줄지 않습니다.'},
   {id: 'reach', col: 'fire', kind: 'line', at: [1, 0], name: '멀리 옮겨붙기', vals: [4.5, 7, 10, 14], cost: [80, 1200, 20000], unit: 'm', label: '건너가는 거리', desc: '불이 더 멀리 떨어진 나무로도 건너갑니다.'},
   {id: 'multi', col: 'fire', kind: 'line', at: [2, 0], name: '같이 붙이기', vals: [0, 1, 2, 3, 4], cost: [40, 400, 4000, 40000], unit: '그루', label: '함께 붙는 나무', desc: '불을 붙일 때 바로 옆 나무에도 함께 붙습니다.'},
   {id: 'ember', col: 'fire', kind: 'line', at: [-2, 0], name: '불똥', vals: [0, 5, 10, 20, 30], cost: [3000, 12000, 60000, 300000], unit: '%', label: '불똥이 튈 확률',
     desc: '타는 나무에서 불똥이 날아가 떨어진 곳의 나무에 새 불을 냅니다.', bigAt: {0: '불똥이 날아가 빈터 건너편에서 새 불이 납니다.'}},
 
-  {id: 'auto', col: 'tool', kind: 'big', at: [-0.5, 0], name: '자동 보충', cost: 1500, desc: '성냥이나 가스가 떨어지면 가진 재로 저절로 사서 채웁니다.', chg: '상점에 들르지 않아도 성냥과 가스가 채워집니다.'},
-  {id: 'consum', col: 'tool', kind: 'fork', at: [[-1.5, 0], [-1.5, 1.15]], name: '성냥과 가스', cost: 400,
-    a: {name: '아껴 쓰기', desc: '불을 붙여도 성냥·가스가 줄지 않을 때가 있습니다. 직접 많이 붙일수록 이득입니다.'},
-    b: {name: '헐값', desc: '성냥·가스를 훨씬 싸게 삽니다. 가끔만 붙이는 사람에게 이득입니다.'}},
-  {id: 'hand', col: 'tool', kind: 'line', at: [0.5, 0], name: '익숙한 손', vals: [100, 80, 60, 45, 30], cost: [12, 120, 1200, 12000], unit: '%', label: '불 붙이는 시간', desc: '어떤 도구로든 불을 더 빨리 붙입니다.'},
-  {id: 'pocket', col: 'tool', kind: 'line', at: [1.5, 0], name: '넉넉한 주머니', vals: [20, 40, 80, 160, 320, 640], cost: [10, 60, 400, 2500, 15000], unit: '개', label: '들고 다니는 성냥', desc: '성냥과 가스를 더 많이 들고 다닙니다.'},
+  {id: 'save', col: 'tool', kind: 'line', at: [-2, 0], name: '아껴 쓰기', vals: ['0%', '30%', '60%', '닳지 않음'], cost: [200, 5000, 200000], unit: '', label: '쓰고도 줄지 않을 확률',
+    names: ['아껴 쓰기 I', '아껴 쓰기 II', '닳지 않는 불씨'], desc: '불을 붙여도 성냥, 가스, 기름, 신호탄이 줄지 않을 때가 있습니다.', bigAt: {2: '성냥, 가스, 기름, 신호탄이 더는 줄지 않습니다.'}},
+  {id: 'dline', col: 'tool', kind: 'line', at: [1, 0], name: '굵은 기름줄', vals: [2, 3, 4.5, 6, 8], cost: [1500, 10000, 80000, 500000], unit: 'm', label: '기름 불이 닿는 너비',
+    desc: '드립 토치로 흘린 불이 길 양옆으로 더 넓게 닿습니다.', req: ['shop', 'drip'], reqText: '상점에서 드립 토치를 산'},
+  {id: 'fline', col: 'tool', kind: 'line', at: [2, 0], name: '큰 신호탄', vals: [3, 5, 8, 12, 18], cost: [8000, 50000, 300000, 1500000], unit: 'm', label: '불이 붙는 범위',
+    desc: '신호탄이 떨어진 자리에서 더 넓은 범위의 나무에 불이 붙습니다.', req: ['shop', 'flare'], reqText: '상점에서 신호탄 총을 산'},
+  {id: 'hand', col: 'tool', kind: 'line', at: [-1, 0], name: '익숙한 손', vals: [100, 80, 60, 45, 30], cost: [12, 120, 1200, 12000], unit: '%', label: '불 붙이는 시간', desc: '어떤 도구로든 불을 더 빨리 붙입니다.'},
+  {id: 'pocket', col: 'tool', kind: 'line', at: [0, 0], name: '넉넉한 주머니', vals: [20, 40, 80, 160, 320, 640], cost: [10, 60, 400, 2500, 15000], unit: '개', label: '들고 다니는 성냥', desc: '성냥과 가스를 더 많이 들고 다닙니다.'},
 
   {id: 'bag', col: 'ash', kind: 'line', at: [0, 0], name: '자루', vals: [10, 20, 40, 80, 150, 300, 600, 1200, 2500, 5000, 10000], cost: [4, 10, 25, 60, 150, 380, 950, 2400, 6000, 15000], unit: '', label: '자루에 담는 재', desc: '자루에 재를 더 많이 담습니다.'},
   {id: 'magnet', col: 'ash', kind: 'line', at: [1, 0], name: '자석', vals: [1.5, 2, 3, 4, 6, 8, 12, 17, 25, 32, 40], cost: [6, 15, 40, 100, 250, 600, 1500, 4000, 10000, 25000], unit: 'm', label: '재가 끌려오는 거리', desc: '더 먼 곳에 떨어진 재가 저절로 끌려옵니다.'},
   {id: 'yield', col: 'ash', kind: 'line', at: [2, 0], name: '수북한 재', vals: [1, 2, 5, 10, 20, 50], cost: [30, 250, 2500, 25000, 300000], unit: '개', label: '나무 한 그루의 재',
     desc: '나무 한 그루에서 재가 더 나옵니다.', bigAt: {2: '재 10개는 황금 재 한 덩이로 떨어집니다. 주우면 재 10이 들어옵니다.'}},
   {id: 'pour', col: 'ash', kind: 'line', at: [-1, 0], name: '빠른 붓기', vals: ['4초', '2초', '1초', '바로'], cost: [15, 300, 6000], unit: '', label: '자루를 비우는 시간', desc: '자루를 수거함에 더 빨리 비웁니다.'},
-  {id: 'gather', col: 'ash', kind: 'fork', at: [[-1, 3.3], [-1, 4.45]], name: '재 모으기', cost: 800, req: ['bag', 3], reqText: '자루 III',
-    a: {name: '넓은 자석', desc: '자석 거리가 2배가 됩니다. 계속 움직이며 줍는 방식에 맞습니다.'},
-    b: {name: '큰 짐', desc: '자루에 3배를 담지만 걸음이 조금 느려집니다. 한자리에서 크게 태우는 방식에 맞습니다.'}},
-  {id: 'direct', col: 'ash', kind: 'big', at: [-2.1, 0], name: '곧바로 수거함으로', cost: 1500000, desc: '주운 재가 자루를 거치지 않고 곧바로 수거함에 쌓입니다.', chg: '자루를 비우러 갈 일이 없어집니다.'},
 
-  {id: 'move', col: 'move', kind: 'line', at: [-0.5, 0], name: '다리 힘', vals: [100, 115, 130, 145, 160], cost: [15, 150, 1500, 15000], unit: '%', label: '걷고 달리는 빠르기', desc: '더 빨리 걷고 달립니다.'},
-  {id: 'tune', col: 'move', kind: 'line', at: [0.5, 0], name: '탈것 손보기', vals: [100, 115, 130, 150], cost: [3000, 30000, 300000], unit: '%', label: '탈것의 빠르기', desc: '상점에서 산 자전거와 오토바이가 더 빨라집니다.'},
+  {id: 'move', col: 'move', kind: 'line', at: [2, 0], name: '다리 힘', vals: [100, 115, 130, 145, 160], cost: [15, 150, 1500, 15000], unit: '%', label: '걷고 달리는 빠르기', desc: '더 빨리 걷고 달립니다.'},
+  {id: 'tune', col: 'move', kind: 'line', at: [-2, 0], name: '탈것 손보기', vals: [100, 115, 130, 150], cost: [3000, 30000, 300000], unit: '%', label: '탈것의 빠르기', desc: '상점에서 산 자전거와 오토바이가 더 빨라집니다.'},
+  {id: 'dcount', col: 'move', kind: 'line', at: [0, 0], name: '드론', vals: [0, 1, 2, 4, 8, 16, 30], cost: [120, 600, 4000, 30000, 200000, 1000000], unit: '대', label: '하늘에 뜬 드론',
+    desc: '드론이 땅에 떨어진 재를 주워 수거함으로 나릅니다. 수거함이 멀수록 오가는 데 오래 걸립니다.', bigAt: {0: '드론이 땅의 재를 주워 수거함으로 나릅니다. 내가 줍지 못한 재도 버려지지 않습니다.'}},
+  {id: 'dcap', col: 'move', kind: 'line', at: [-1, 1], name: '드론 짐칸', vals: [5, 10, 25, 60, 150, 400], cost: [200, 1500, 12000, 100000, 800000], unit: '개', label: '드론이 한 번에 싣는 재',
+    desc: '드론이 한 번에 재를 더 많이 실어 갑니다.', req: ['dcount', 1], reqText: '드론 I'},
+  {id: 'dspeed', col: 'move', kind: 'line', at: [1, 1], name: '드론 속도', vals: [100, 130, 160, 200, 250], cost: [300, 3000, 30000, 300000], unit: '%', label: '드론의 빠르기',
+    desc: '드론이 더 빨리 오갑니다.', req: ['dcount', 1], reqText: '드론 I'},
+  {id: 'dbag', col: 'move', kind: 'big', at: [1, 5.4], name: '자루 비우는 드론', cost: 150000, req: ['dcount', 4], reqText: '드론 IV',
+    desc: '드론이 내 자루에 든 재도 덜어 가서 수거함에 넣습니다.', chg: '수거함까지 돌아갈 일이 없어집니다. 달리며 불만 붙이면 됩니다.'},
 ];
 // 상점: 손에 쥐거나 타는 물건과 소모품. 강화 나무와 따로 산다.
 const SHOP = [
   {g: '도구', id: 'match', name: '성냥', cost: 0, own: true, desc: '그어서 나무에 대고 기다리면 불이 붙습니다. 한 개로 나무 한 그루입니다.', chg: '처음부터 가지고 있습니다.'},
   {g: '도구', id: 'lighter', name: '라이터', cost: 150, desc: '성냥보다 훨씬 빨리 불이 붙습니다. 성냥 대신 가스를 씁니다.', chg: '긋고 기다리지 않습니다. 나무에 대고 있으면 불이 붙습니다.'},
   {g: '도구', id: 'torch', name: '가스 토치', cost: 4000, need: 'lighter', desc: '센 불꽃이 나오는 토치입니다. 가스를 씁니다.', chg: '나무에 대는 순간 불이 붙습니다. 뛰면서 붙일 수 있습니다.'},
-  {g: '도구', id: 'oil', name: '기름통', cost: 1200, desc: '땅에 기름을 뿌립니다. 불이 기름을 따라갑니다.', chg: '불이 갈 길을 직접 그립니다. 떨어져 있는 나무 무리를 이을 수 있습니다.'},
-  {g: '도구', id: 'bottle', name: '화염병', cost: 20000, need: 'oil', desc: '멀리 던지면 떨어진 자리의 나무 여러 그루에 한꺼번에 불이 붙습니다.', chg: '가지 않고도 멀리 있는 나무에 불을 냅니다.'},
-  {g: '도구', id: 'flamer', name: '화염방사기', cost: 60000, need: 'torch', desc: '불줄기를 길게 뿜습니다. 가스를 많이 씁니다.', chg: '걸어가며 쓸듯이 붙입니다.'},
+  {g: '도구', id: 'drip', name: '드립 토치', cost: 3000, desc: '불붙은 기름을 흘리는 통입니다. 기름을 씁니다.', chg: '지나온 길을 따라 불이 납니다. 탈것을 타고 달리면 달린 자국이 불길이 됩니다.'},
+  {g: '도구', id: 'flare', name: '신호탄 총', cost: 20000, desc: '신호탄을 멀리 쏩니다. 떨어진 자리의 나무에 불이 붙습니다.', chg: '가지 않고도 멀리 있는 숲에 불을 냅니다.'},
   {g: '탈것', id: 'bike', name: '산악자전거', cost: 2500, desc: '달릴 때보다 1.8배 빠릅니다. V 키로 타고 내립니다.', chg: '숲 사이를 훨씬 빨리 오갑니다.'},
   {g: '탈것', id: 'atv', name: '사륜 오토바이', cost: 150000, desc: '달릴 때보다 2.6배 빠릅니다. 비탈과 덤불을 그대로 넘습니다.', chg: '섬 끝까지 금방 갑니다.'},
-  {g: '장비', id: 'pager', name: '수거함 호출기', cost: 1000, desc: 'G 키로 수거함을 내 곁으로 부릅니다. 10초마다 부를 수 있습니다.', chg: '수거함까지 걸어서 돌아가지 않습니다.'},
-  {g: '소모품', id: 'buy_match', name: '성냥 10개', cost: 3, use: 'match', n: 10, desc: '성냥 10개를 삽니다.'},
-  {g: '소모품', id: 'buy_gas', name: '가스 한 통', cost: 15, use: 'gas', n: 30, need: 'lighter', desc: '불꽃을 30초 낼 가스를 삽니다. 라이터, 토치, 화염방사기가 함께 씁니다.'},
+  {g: '소모품', id: 'buy_match', name: '성냥 10개', cost: 3, use: 'match', n: 10, have: '성냥', u: '개', desc: '성냥 10개를 삽니다.'},
+  {g: '소모품', id: 'buy_gas', name: '가스 한 통', cost: 15, use: 'gas', n: 30, have: '가스', u: '초', need: 'lighter', desc: '불꽃을 30초 낼 가스를 삽니다. 라이터와 가스 토치가 함께 씁니다.'},
+  {g: '소모품', id: 'buy_oil', name: '기름 한 통', cost: 40, use: 'oil', n: 100, have: '기름', u: 'm', need: 'drip', desc: '100m를 흘릴 기름을 삽니다.'},
+  {g: '소모품', id: 'buy_flare', name: '신호탄 5발', cost: 100, use: 'flare', n: 5, have: '신호탄', u: '발', need: 'flare', desc: '신호탄 5발을 삽니다.'},
 ];
 const SBY = Object.fromEntries(SHOP.map(x => [x.id, x]));
-const fresh = () => ({ash: 20, lv: {}, pick: {}, gate: 0, log: [], shop: {match: true}, match: 5, gas: 0});
-const GATES = [['시작 숲', 0], ['큰 숲', 400], ['소나무 숲', 12000], ['늙은 소나무 숲', 120000], ['습지', 600000], ['깊은 습지', 3000000]];
+const fresh = () => ({ash: 20, lv: {}, pick: {}, gate: 0, log: [], shop: {match: true}, match: 5, gas: 0, oil: 0, flare: 0});
+const GATES = [];
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 const BY = Object.fromEntries(ITEMS.map(x => [x.id, x]));
 let S = fresh();
 let hover = null, tab = 'tree';
 const fmt = n => typeof n === 'number' ? n.toLocaleString('ko-KR') : n;
 const lv = id => S.lv[id] || 0;
-const reqOk = it => !it.req || lv(it.req[0]) >= it.req[1];
+const reqOk = it => !it.req || (it.req[0] === 'shop' ? !!S.shop[it.req[1]] : lv(it.req[0]) >= it.req[1]);
 const stepName = (it, i) => it.names ? it.names[i] : it.name + ' ' + ROMAN[i];
 const swapCost = it => Math.round(it.cost * 0.2);
 const P = (col, lane, tier, r) => { const [d, p] = DIR[col], k = r != null ? r : R0 + tier * STEP; return [d[0] * k + p[0] * lane * LANE, d[1] * k + p[1] * lane * LANE]; };
@@ -163,7 +170,7 @@ const P = (col, lane, tier, r) => { const [d, p] = DIR[col], k = r != null ? r :
 const NODES = [], EDGES = [], HUBS = {};
 for (const c in COLS) HUBS[c] = P(c, 0, 0, HUB);
 const reqPos = it => {
-  if (!it.req) return HUBS[it.col];
+  if (!it.req || it.req[0] === 'shop') return HUBS[it.col];
   const q = BY[it.req[0]];
   return q.kind === 'line' ? P(q.col, q.at[0], q.at[1] + it.req[1] - 1) : P(q.col, q.at[0], q.at[1]);
 };
@@ -240,20 +247,19 @@ function render() {
   let b = `<h3>내 성장</h3><div class="cnt">${got} <span style="font-size:13px;color:var(--dim);font-weight:400">/ ${all} 노드</span></div>` +
     forks.map(f => `<div class="line"><span>${f.name}</span><span>${S.pick[f.id] ? '<b>' + f[S.pick[f.id]].name + '</b>' : '<span style="color:var(--dim)">아직 안 고름</span>'}</span></div>`).join('');
   const owned = g => SHOP.filter(x => x.g === g && S.shop[x.id]).map(x => x.name).join(', ') || '없음';
-  b += `<div class="line"><span>가진 도구</span><span>${owned('도구')}</span></div><div class="line"><span>탈것 · 장비</span><span>${owned('탈것')} · ${owned('장비')}</span></div>`;
+  b += `<div class="line"><span>가진 도구</span><span>${owned('도구')}</span></div><div class="line"><span>탈것</span><span>${owned('탈것')}</span></div>`;
+  b += `<div class="line"><span>드론</span><span><b>${BY.dcount.vals[lv('dcount')]}</b>대${lv('dbag') ? ' · 자루도 비움' : ''}</span></div>`;
   b += `<div class="line"><span>성냥 · 가스</span><span><b>${S.match}</b>개 · <b>${S.gas}</b>초</span></div>`;
-  const far = (S.pick.fstyle === 'b') + !!S.shop.bottle + (S.pick.gather === 'b') + (S.pick.consum === 'b');
-  const near = (S.pick.fstyle === 'a') + !!S.shop.flamer + (S.pick.gather === 'a') + (S.pick.consum === 'a');
-  if (far + near >= 2) b += `<div class="style">${far > near ? '한 번 붙이고 불이 번지길 기다리는 방식' : near > far ? '뛰어다니며 직접 붙이고 바로 줍는 방식' : '두 방식을 섞은 방식'}</div>`;
+  if (S.shop.drip || S.shop.flare) b += `<div class="line"><span>기름 · 신호탄</span><span><b>${S.oil}</b>m · <b>${S.flare}</b>발</span></div>`;
   document.getElementById('build').innerHTML = b;
   document.getElementById('log').innerHTML = S.log.length ? S.log.slice(0, 6).map(x => `<div>${x}</div>`).join('') : '<div style="color:var(--dim)">아직 없습니다.</div>';
   // 상점
   let sh = '';
-  for (const g of ['도구', '탈것', '장비', '소모품']) {
+  for (const g of ['도구', '탈것', '소모품']) {
     sh += `<h2>${g}</h2><div class="sg">` + SHOP.filter(x => x.g === g).map(x => {
       const own = !x.use && S.shop[x.id], lock = x.need && !S.shop[x.need], can = !own && !lock && S.ash >= x.cost;
       const right = own ? '가짐' : lock ? SBY[x.need].name + ' 필요' : fmt(x.cost);
-      const sub = x.use ? (x.use === 'match' ? `가진 성냥 <b>${S.match}</b>개` : `가진 가스 <b>${S.gas}</b>초`) : x.chg;
+      const sub = x.use ? `가진 ${x.have} <b>${S[x.use]}</b>${x.u}` : x.chg;
       return `<div class="si ${own ? 'own' : lock ? 'lock' : can ? 'can' : 'poor'}" data-shop="${x.id}"><div class="r"><span class="nm">${x.name}</span><span class="cost">${right}</span></div><div class="sub">${sub}</div></div>`;
     }).join('') + '</div>';
   }
@@ -284,7 +290,7 @@ function detail() {
     h = `<h3>${big ? '큰 구매' : '단계 강화'} · ${i + 1} / ${it.cost.length}</h3><div class="nm">${stepName(it, i)}</div><p>${it.desc}</p>`;
     if (big) h += `<p class="chg">${it.bigAt[i]}</p>`;
     h += `<p>${it.label} ${fmt(it.vals[i])}${it.unit} → <b>${fmt(it.vals[i + 1])}${it.unit}</b></p>`;
-    h += `<div class="buy">${l > i ? '이미 배웠습니다' : l < i ? '앞 단계를 먼저 사야 합니다 · 재 ' + fmt(it.cost[i]) : '사기 · 재 ' + fmt(it.cost[i])}</div>`;
+    h += `<div class="buy">${l > i ? '이미 배웠습니다' : !reqOk(it) ? it.reqText + ' 뒤에 살 수 있습니다' : l < i ? '앞 단계를 먼저 사야 합니다 · 재 ' + fmt(it.cost[i]) : '사기 · 재 ' + fmt(it.cost[i])}</div>`;
   }
   el.innerHTML = h;
 }
@@ -299,7 +305,7 @@ function pay(c) { if (S.ash < c) { toast('재가 모자랍니다', '재 ' + fmt(
 
 // 화면 이동·확대
 const svg = document.getElementById('svg');
-let vb = {x: -720, y: -700, w: 1750, h: 1330}, drag = null, moved = false;
+let vb = {x: -900, y: -740, w: 1900, h: 1444}, drag = null, moved = false;
 const setVB = () => svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
 svg.addEventListener('pointerdown', ev => { drag = {x: ev.clientX, y: ev.clientY, vx: vb.x, vy: vb.y}; moved = false; });
 window.addEventListener('pointermove', ev => {
