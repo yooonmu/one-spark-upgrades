@@ -3,208 +3,410 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>불씨 하나 · 성장 설계 v7 (열린 섬, 잘게 나눈 강화)</title>
+<title>불씨 하나 · 강화 수치 편집</title>
 <style>
-  :root { color-scheme: dark; }
-  body { margin: 0; background: #14110f; color: #e9e3d8; font: 16px/1.65 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
-  main { max-width: 980px; margin: 0 auto; padding: 40px 24px 96px; }
-  h1 { font-size: 30px; margin: 0 0 6px; }
-  h2 { font-size: 21px; margin: 44px 0 10px; padding-top: 18px; border-top: 1px solid #3a322b; color: #ffb37a; }
-  h3 { font-size: 17px; margin: 26px 0 8px; color: #f3d9a8; }
-  p { margin: 8px 0; }
-  .lead { color: #b9ae9f; }
-  .note { background: #221c18; border-left: 3px solid #ff8a4c; padding: 12px 16px; margin: 16px 0; border-radius: 4px; }
-  .tw { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; margin: 10px 0 6px; font-size: 15px; }
-  th, td { border: 1px solid #3a322b; padding: 7px 10px; text-align: left; vertical-align: top; }
-  th { background: #241e19; color: #f3d9a8; white-space: nowrap; }
-  td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  ul, ol { margin: 8px 0; padding-left: 22px; }
-  li { margin: 4px 0; }
-  a { color: #ffb37a; }
-  small { color: #9b9082; }
+:root{--bg:#15171a;--panel:#1d2024;--line:#2e3238;--text:#e6e3dc;--dim:#9a9c9a;--acc:#e0a84e;--warn:#e2684f;--in:#121417}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Pretendard","Malgun Gothic",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#101214;border-bottom:1px solid var(--line);padding:10px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:600}
+header .tot{color:var(--dim)} header .tot b{color:var(--text);font-weight:600}
+header .sp{flex:1}
+button{background:#272b30;color:var(--text);border:1px solid var(--line);border-radius:5px;padding:5px 11px;font:inherit;cursor:pointer}
+button:hover{background:#31363c} button.pri{background:#6b4d1c;border-color:#8a6628} button.sm{padding:2px 7px;font-size:12px;color:var(--dim)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;padding:18px 20px 80px;max-width:1700px;margin:0 auto}
+.help{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:10px 14px;color:var(--dim);margin-bottom:18px}
+.help b{color:var(--text);font-weight:600}
+.br{margin-bottom:26px}
+.brh{display:flex;align-items:center;gap:10px;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:7px}
+.dot{width:10px;height:10px;border-radius:2px;flex:none}
+.brh input{font-size:17px;font-weight:600;width:110px}
+.brh .cnt{color:var(--dim)} .brh .sp{flex:1}
+.card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:7px;padding:11px 14px;margin-bottom:10px}
+.head{display:flex;gap:8px;align-items:center}
+.head .nm{font-size:16px;font-weight:600;width:190px}
+.head .sum{color:var(--dim);flex:1}
+.head .sum b{color:var(--text);font-weight:600}
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;align-items:center}
+label{color:var(--dim);display:flex;gap:6px;align-items:center;font-size:13px}
+label.wide{flex:1;min-width:300px} label.wide input{flex:1}
+input,select,textarea{background:var(--in);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:4px 7px;font:inherit;min-width:0}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--acc);border-color:var(--acc)}
+input.n{width:74px;text-align:right} input.n2{width:54px;text-align:right}
+.fxbox{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.fxbox h4,.card summary{margin:0 0 6px;font-size:13px;color:var(--dim);font-weight:500}
+.fxr{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:5px}
+.fxr .lb{width:210px}
+details{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+summary{cursor:pointer}
+table{border-collapse:collapse;width:100%}
+th{font-weight:500;color:var(--dim);font-size:12px;text-align:left;padding:3px 4px;border-bottom:1px solid var(--line)}
+td{padding:2px 4px;vertical-align:middle}
+td.i{color:var(--dim);width:26px;text-align:right}
+td input{width:100%} td.c{width:110px} td.v{width:96px} td.nmc{width:170px} td.rt{width:54px;color:var(--dim);font-size:12px;text-align:right}
+td.rt.hi{color:var(--warn);font-weight:600}
+td input::placeholder{color:#c9c6bf;opacity:1}
+td input:not(:placeholder-shown){color:var(--acc);border-color:#6b4d1c}
+td.c input,td.v input{text-align:right}
+aside{position:sticky;top:64px;align-self:start;max-height:calc(100vh - 84px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:11px 12px}
+aside h3{margin:0 0 4px;font-size:14px} aside p{margin:0 0 8px;color:var(--dim);font-size:12px}
+.lad{display:flex;gap:8px;align-items:baseline;padding:1px 0 1px 7px;border-left:3px solid var(--c);font-size:13px}
+.lad .p{width:78px;text-align:right;font-variant-numeric:tabular-nums}
+.lad .q{color:var(--dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gap{color:var(--warn);font-size:11px;padding:1px 0 1px 10px}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;width:min(760px,92vw);padding:16px}
+dialog::backdrop{background:#000a}
+dialog textarea{width:100%;height:320px;font:12px/1.4 Consolas,monospace}
+dialog .row{justify-content:flex-end}
+@media(max-width:1100px){main{grid-template-columns:1fr} aside{position:static;max-height:none}}
 </style>
 </head>
 <body>
+<header>
+  <h1>불씨 하나 · 강화 수치 편집</h1>
+  <span class="tot" id="tot"></span>
+  <span class="sp"></span>
+  <button data-act="undo">되돌리기</button>
+  <button data-act="import">가져오기</button>
+  <button data-act="reset">처음 안으로</button>
+  <button class="pri" data-act="export">내보내기</button>
+</header>
 <main>
-<h1>불씨 하나 · 성장 설계 v7</h1>
-<p class="lead">스테이지가 없는 열린 섬에서, 재로 소모품과 강화를 사는 방식입니다. v0.44의 섬·나무·도구·연출을 바탕으로 쓰고 성장만 새로 짰습니다. 아직 개발 전이며, 값은 계산으로 잡은 첫 안이라 봇 측정 뒤 바뀝니다.</p>
-<p><small>이전 판: <a href="v6.html">v6 (강화가 굵던 안)</a> · <a href="v5.html">v5 (스테이지가 있던 안)</a> · <a href="v103.html">v103</a> · <a href="v044.html">v0.44 판</a></small></p>
-
-<h2>1. 뼈대가 되는 규칙</h2>
-<ol>
-  <li><b>돈은 재 하나입니다.</b> 강화 포인트, 포인트 게이지, 기둥 모양 강화 판은 없습니다.</li>
-  <li><b>불을 붙이는 것은 전부 소모품입니다.</b> 성냥 한 개로 나무 한 그루. 다 쓰면 재로 다시 삽니다. 초반의 불편이고, 나중에 강화로 풉니다.</li>
-  <li><b>처음에는 불이 번지지 않습니다.</b> 번지는 것은 재로 사는 강화입니다.</li>
-  <li><b>재는 주워서 수거함에 부어야 쓸 수 있습니다.</b> 대신 주워 주는 것은 없습니다. 내가 줍는 범위가 넓어지고, 붓는 일이 강화로 사라집니다.</li>
-  <li><b>스테이지가 없습니다.</b> 섬 전체가 처음부터 열려 있습니다. 다만 바깥 숲의 나무는 화력이 모자라면 불이 붙지 않습니다.</li>
-  <li><b>"언제 열린다"는 조건이 없습니다.</b> 모든 강화가 처음부터 보이고, 재가 모이면 삽니다. 같은 줄 안에서만 앞 단계를 먼저 사야 합니다.</li>
-  <li><b>끝은 하나입니다.</b> 섬 맨 끝의 거목을 태우면 끝납니다. <small>(나중에 바뀔 수 있음)</small></li>
-  <li><b>막히지 않습니다.</b> 성냥이 0개이고 가진 재로 성냥 한 개도 못 살 때는 무전으로 성냥 3개를 받습니다.</li>
-</ol>
-<div class="note">한 줄로: <b>재를 써서 불을 붙이고, 붙인 불이 쓴 것보다 많은 재를 돌려준다.</b> 상점은 Tab으로 어디서나 열고, 산 것은 바로 들어옵니다.</div>
-
-<h2>2. 시작할 때</h2>
-<div class="tw"><table>
-  <tr><th>가진 것</th><th>값</th></tr>
-  <tr><td>성냥</td><td>5개 (성냥갑에 20개까지)</td></tr>
-  <tr><td>불 붙이기</td><td>나무에 3초 대고 있으면 붙고, 성냥 한 개가 사라짐. 시간이 지나 꺼지는 일은 없음</td></tr>
-  <tr><td>화력</td><td>1 (작은 숲의 나무만 붙음)</td></tr>
-  <tr><td>불 번짐</td><td>없음. 한 그루만 탐</td></tr>
-  <tr><td>자루</td><td>재 30개</td></tr>
-  <tr><td>줍는 거리</td><td>1.5m</td></tr>
-  <tr><td>수거함</td><td>시작 지점에 한 개. 곁에서 E를 누르고 있으면 부음</td></tr>
-</table></div>
-
-<h2>3. 섬: 숲마다 다른 나무와 환경</h2>
-<p class="lead">가운데에서 바깥으로 갈수록 나무가 값지고, 붙이는 데 필요한 화력이 높습니다. 화력이 모자라면 불을 대도 붙지 않고, 번지던 불도 그 나무 앞에서 멈춥니다. 갈 수는 있지만 얻을 것이 없습니다.</p>
-<div class="tw"><table>
-  <tr><th>숲</th><th>나무</th><th>한 그루의 재</th><th>필요한 화력</th><th>환경</th><th>이 환경을 푸는 강화</th></tr>
-  <tr><td>작은 숲 (한가운데)</td><td class="n">607</td><td class="n">3</td><td class="n">1</td><td>없음</td><td>-</td></tr>
-  <tr><td>큰 숲</td><td class="n">4,869</td><td class="n">9</td><td class="n">5</td><td>없음</td><td>-</td></tr>
-  <tr><td>비 오는 소나무숲</td><td class="n">11,934</td><td class="n">30</td><td class="n">10</td><td>늘 비가 옴. 붙은 불이 타는 동안 60% 확률로 꺼짐</td><td>꺼지지 않는 불</td></tr>
-  <tr><td>늙은 소나무숲</td><td class="n">17,368</td><td class="n">90</td><td class="n">15</td><td>없음</td><td>-</td></tr>
-  <tr><td>습지</td><td class="n">28,843</td><td class="n">300</td><td class="n">20</td><td>없음</td><td>-</td></tr>
-  <tr><td>겨울 숲 (섬 가장자리)</td><td class="n">36,379</td><td class="n">900</td><td class="n">25</td><td>나무가 얼어 있어 불 붙이는 시간이 4배</td><td>언 나무 녹이기</td></tr>
-  <tr><td>거목 (섬 맨 끝)</td><td class="n">1</td><td class="n">-</td><td class="n">30</td><td>오래 태워야 쓰러짐</td><td>-</td></tr>
-</table></div>
-<p><small>환경은 처음에 비와 겨울 둘만 넣는 안입니다. 종류는 나중에 늘릴 수 있습니다.</small></p>
-
-<h2>4. 화력과 불 번짐 (한 번 사면 남는 강화)</h2>
-<p class="lead">화력은 "어떤 나무를 태울 수 있는가", 번짐은 "한 번 붙인 불이 몇 그루를 태우는가"입니다. 서로 다른 줄이라 따로 삽니다.</p>
-<h3>잘게 나눈 줄</h3>
-<div class="tw"><table>
-  <tr><th>줄</th><th>단계</th><th>한 단계의 효과</th><th>처음 → 끝</th><th>첫 값</th><th>단계마다</th><th>마지막 값</th></tr>
-  <tr><td>화력</td><td class="n">29</td><td>화력 +1. 필요한 화력보다 1 높을 때마다 불이 10% 빨리 붙음(절반까지)</td><td>화력 1 → 30</td><td class="n">60</td><td class="n">×1.55</td><td class="n">13,000,000</td></tr>
-  <tr><td>옮겨붙기</td><td class="n">24</td><td>불 하나로 타는 나무(평균) 1.3배</td><td>1그루 → 약 500그루</td><td class="n">80</td><td class="n">×1.65</td><td class="n">8,000,000</td></tr>
-  <tr><td>멀리 옮겨붙기</td><td class="n">9</td><td>불이 옮겨붙는 거리 +1m</td><td>3m → 12m</td><td class="n">4,000</td><td class="n">×2</td><td class="n">1,000,000</td></tr>
-  <tr><td>꺼지지 않는 불</td><td class="n">6</td><td>비에 불이 꺼질 확률 -10%p</td><td>60% → 0%</td><td class="n">20,000</td><td class="n">×2.2</td><td class="n">1,000,000</td></tr>
-  <tr><td>언 나무 녹이기</td><td class="n">6</td><td>언 나무에 불 붙이는 시간 -0.5배</td><td>4배 → 그대로</td><td class="n">1,500,000</td><td class="n">×1.5</td><td class="n">11,000,000</td></tr>
-</table></div>
-<p>숲이 요구하는 화력은 작은 숲 1, 큰 숲 5, 비 오는 소나무숲 10, 늙은 소나무숲 15, 습지 20, 겨울 숲 25, 거목 30입니다. 화력을 한 단계 올릴 때마다 불이 조금씩 빨리 붙고, 다섯 단계마다 새 숲의 나무가 타기 시작합니다.</p>
-<h3>한 번만 사는 것</h3>
-<div class="tw"><table>
-  <tr><th>이름</th><th>값</th><th>효과</th></tr>
-  <tr><td>불티</td><td class="n">350,000</td><td>타는 나무에서 불티가 날아가 30m 안의 다른 나무에 새 불을 냄</td></tr>
-  <tr><td>끝없는 불</td><td class="n">7,000,000</td><td>옮겨붙기를 끝까지 올린 뒤에 삼. 불이 끊기지 않는 한 숲을 따라 계속 번짐</td></tr>
-</table></div>
-
-<h2>5. 불 붙이는 도구 (소모품)</h2>
-<p class="lead">도구는 한 번 사면 계속 갖고, 쓸 때 드는 것은 따로 삽니다. 재만 있으면 어떤 도구든 어떤 순서로든 삽니다. 숫자 키로 바꿔 듭니다.</p>
-<div class="tw"><table>
-  <tr><th>이름</th><th>도구 값</th><th>쓸 때 드는 것</th><th>효과</th></tr>
-  <tr><td>성냥</td><td class="n">-</td><td>성냥 1개 = 재 1</td><td>3초 대면 한 그루에 불이 붙음</td></tr>
-  <tr><td>라이터</td><td class="n">250</td><td>가스 한 통 = 재 15. 불꽃 30초</td><td>누르고 있는 동안 불꽃이 나옴. 1.2초 대면 붙음. 한 통으로 20그루쯤</td></tr>
-  <tr><td>가스 토치</td><td class="n">4,000</td><td>가스 한 통 = 재 40. 불꽃 30초</td><td>0.4초 대면 붙음. 한 통으로 50그루쯤</td></tr>
-  <tr><td>화염방사기</td><td class="n">60,000</td><td>연료 한 통 = 재 600. 20초</td><td>불줄기 10m 안의 나무에 한꺼번에 불이 붙음</td></tr>
-  <tr><td>기름통</td><td class="n">3,000</td><td>기름 한 통 = 재 100. 30m</td><td>누른 채 걸으면 기름길을 그음. 불을 대면 길을 따라 곁의 나무가 탐</td></tr>
-  <tr><td>불붙는 드럼</td><td class="n">6,000</td><td>드럼 한 개 = 재 300</td><td>세워 둔 드럼에 불이 닿으면 터져 반경 6m의 나무에 불이 붙음</td></tr>
-  <tr><td>항공 살포</td><td class="n">400,000</td><td>한 번 = 재 30,000</td><td>비행기가 150m 길이로 불붙은 연료를 뿌림</td></tr>
-  <tr><td>조명탄 발사기</td><td class="n">5,000</td><td>조명탄 한 발 = 재 60</td><td>40m까지 쏨. 떨어진 자리 반경 5m의 나무에 불이 붙음</td></tr>
-  <tr><td>소이탄</td><td class="n">50,000</td><td>한 발 = 재 600</td><td>반경 9m</td></tr>
-  <tr><td>집속 소이탄</td><td class="n">1,500,000</td><td>한 발 = 재 8,000</td><td>한 발이 다섯 군데로 흩어져 떨어짐</td></tr>
-  <tr><td>피뢰침 말뚝</td><td class="n">40,000</td><td>말뚝 한 개 = 재 800</td><td>꽂은 자리에 60초 동안 4초마다 번개가 떨어져 반경 7m의 나무에 불이 붙음</td></tr>
-  <tr><td>뇌우 호출</td><td class="n">2,000,000</td><td>한 번 = 재 40,000</td><td>8초 동안 반경 22m에 번개 20번</td></tr>
-  <tr><td>위성 포격</td><td class="n">6,000,000</td><td>한 번 = 재 200,000</td><td>지도에서 찍은 자리 반경 30m를 한꺼번에 태움</td></tr>
-</table></div>
-<h3>도구를 다듬는 줄</h3>
-<div class="tw"><table>
-  <tr><th>줄</th><th>단계</th><th>한 단계의 효과</th><th>처음 → 끝</th><th>첫 값</th><th>단계마다</th><th>마지막 값</th></tr>
-  <tr><td>큰 성냥갑</td><td class="n">6</td><td>성냥갑에 들어가는 성냥 1.5배</td><td>20개 → 약 230개</td><td class="n">30</td><td class="n">×2.2</td><td class="n">1,500</td></tr>
-  <tr><td>잘 마른 성냥</td><td class="n">5</td><td>성냥으로 불 붙이는 시간 -0.3초</td><td>3초 → 1.5초</td><td class="n">40</td><td class="n">×2.5</td><td class="n">1,600</td></tr>
-  <tr><td>큰 가스통</td><td class="n">6</td><td>가스 한 통의 불꽃 +10초</td><td>30초 → 90초</td><td class="n">400</td><td class="n">×2.4</td><td class="n">32,000</td></tr>
-  <tr><td>큰 탄띠</td><td class="n">8</td><td>조명탄·말뚝·드럼을 한 번에 들고 다니는 수 +2</td><td>6 → 22</td><td class="n">8,000</td><td class="n">×2.5</td><td class="n">4,900,000</td></tr>
-</table></div>
-<p>어떤 도구로 붙이든 화력은 4번의 "화력" 줄을 따릅니다. 화력이 모자란 나무에는 조명탄을 쏴도 붙지 않습니다.</p>
-
-<h3>소모품의 불편을 푸는 강화</h3>
-<div class="tw"><table>
-  <tr><th>이름</th><th>값</th><th>효과</th></tr>
-  <tr><td>묶음 할인</td><td class="n">100</td><td>성냥 10개를 재 7에 삼</td></tr>
-  <tr><td>단골 할인 I ~ V</td><td class="n">3,000 · 20,000 · 120,000 · 700,000 · 4,000,000</td><td>모든 소모품 값 -8%씩, 모두 사면 -40%</td></tr>
-  <tr><td>자동 보충</td><td class="n">5,000</td><td>든 도구의 소모품이 떨어지면, 수거함에 재가 있는 한 저절로 채워짐</td></tr>
-  <tr><td>닳지 않는 불씨</td><td class="n">2,000,000</td><td>성냥과 가스가 더는 줄지 않음</td></tr>
-</table></div>
-
-<h2>6. 재 모으기</h2>
-<p class="lead">대신 주워 주는 것은 없습니다. 내가 줍는 범위가 크게 넓어지고, 수거함까지 가는 일이 단계적으로 사라집니다.</p>
-<h3>잘게 나눈 줄</h3>
-<div class="tw"><table>
-  <tr><th>줄</th><th>단계</th><th>한 단계의 효과</th><th>처음 → 끝</th><th>첫 값</th><th>단계마다</th><th>마지막 값</th></tr>
-  <tr><td>자석</td><td class="n">20</td><td>재가 끌려오는 거리 1.18배</td><td>1.5m → 40m</td><td class="n">25</td><td class="n">×1.9</td><td class="n">4,900,000</td></tr>
-  <tr><td>자루</td><td class="n">20</td><td>자루 용량 1.3배</td><td>30 → 약 5,700</td><td class="n">20</td><td class="n">×1.8</td><td class="n">1,400,000</td></tr>
-  <tr><td>빠른 붓기</td><td class="n">6</td><td>자루를 다 붓는 시간 -0.5초</td><td>4초 → 1초</td><td class="n">60</td><td class="n">×3</td><td class="n">15,000</td></tr>
-  <tr><td>수거함 부르기</td><td class="n">5</td><td>G로 수거함을 다시 부르기까지 걸리는 시간이 3분의 2로</td><td>30초 → 3초</td><td class="n">500</td><td class="n">×3.5</td><td class="n">75,000</td></tr>
-  <tr><td>고운 재</td><td class="n">12</td><td>얻는 재 +10%</td><td>+0% → +120%</td><td class="n">300</td><td class="n">×2.3</td><td class="n">2,900,000</td></tr>
-</table></div>
-<h3>한 번만 사는 것</h3>
-<div class="tw"><table>
-  <tr><th>이름</th><th>값</th><th>효과</th></tr>
-  <tr><td>저절로 붓기</td><td class="n">200</td><td>수거함 곁에 서기만 하면 E를 누르지 않아도 부음</td></tr>
-  <tr><td>가득 차면 보내기</td><td class="n">30,000</td><td>자루가 가득 차면 어디에 있든 자루의 재가 저절로 수거함으로 감</td></tr>
-  <tr><td>곧바로 수거함으로</td><td class="n">1,500,000</td><td>주운 재가 자루를 거치지 않고 바로 수거함에 들어감</td></tr>
-</table></div>
-
-<h2>7. 이동</h2>
-<h3>잘게 나눈 줄</h3>
-<div class="tw"><table>
-  <tr><th>줄</th><th>단계</th><th>한 단계의 효과</th><th>처음 → 끝</th><th>첫 값</th><th>단계마다</th><th>마지막 값</th></tr>
-  <tr><td>다리 힘</td><td class="n">12</td><td>이동 속도 +4%</td><td>+0% → +48%</td><td class="n">40</td><td class="n">×2.3</td><td class="n">380,000</td></tr>
-  <tr><td>탈것 손질</td><td class="n">8</td><td>탈것 속도 +5%</td><td>+0% → +40%</td><td class="n">5,000</td><td class="n">×2.6</td><td class="n">4,000,000</td></tr>
-</table></div>
-<h3>한 번만 사는 것</h3>
-<div class="tw"><table>
-  <tr><th>이름</th><th>값</th><th>효과</th></tr>
-  <tr><td>산악자전거</td><td class="n">2,500</td><td>V로 타고 내림. 걷는 속도의 1.8배. 탄 채로 불을 붙일 수 있음</td></tr>
-  <tr><td>사륜 오토바이</td><td class="n">150,000</td><td>걷는 속도의 2.5배</td></tr>
-</table></div>
-
-<h2>8. 강화의 간격</h2>
-<ul>
-  <li><b>1~2분에 한 번은 무언가를 삽니다.</b> 줄을 잘게 나눠 강화가 모두 약 190단계입니다. 4시간에 고르게 사면 80초쯤에 한 번입니다.</li>
-  <li><b>한 단계는 작지만 눈에 보이는 크기로.</b> 자석 1.18배, 자루 1.3배, 옮겨붙기 1.3배처럼 사자마자 차이가 느껴지는 폭 아래로는 내리지 않습니다.</li>
-  <li><b>큰 변화는 따로 있습니다.</b> 새 도구, 화력 다섯 단계마다 열리는 새 숲, "저절로 붓기"나 "자동 보충" 같은 한 번만 사는 것이 사이사이의 큰 계단입니다.</li>
-  <li><b>값은 줄마다 일정한 배수로 오릅니다.</b> 그래서 한 줄을 깊이 팔수록 다음 단계가 비싸지고, 다른 줄의 싼 단계가 눈에 들어옵니다.</li>
-</ul>
-
-<h2>9. 한 줄만 올려서는 쉬워지지 않게 하는 장치</h2>
-<ul>
-  <li><b>벌이는 가장 뒤처진 줄을 따라갑니다.</b> 번짐만 올리면 재가 바닥에 깔린 채 남고, 자석과 자루만 올리면 주울 재가 없습니다. 둘을 다 올려도 화력이 모자라면 값진 숲에서는 아무것도 못 태웁니다.</li>
-  <li><b>같은 줄은 갈수록 가파르게 비싸집니다.</b> 한 단계마다 서너 배에서 열 배씩 오릅니다. 그래서 "지금 가장 싸고 좋은 강화"는 늘 덜 올린 줄에 있습니다.</li>
-  <li><b>화력과 번짐이 따로입니다.</b> 멀리 번지는 불도 화력이 모자란 나무 앞에서는 멈춥니다.</li>
-  <li><b>환경마다 짝이 되는 줄이 있습니다.</b> 비 오는 숲은 "꺼지지 않는 불" 없이는 번짐이 반토막 나고, 겨울 숲은 "언 나무 녹이기" 없이는 붙이는 데만 한참 걸립니다.</li>
-  <li><b>봇으로 확인합니다.</b> 한 줄만 사는 봇과 고르게 사는 봇을 끝까지 돌려, 한 줄만 산 쪽이 더 빨리 끝나면 그 줄의 값을 고칩니다.</li>
-</ul>
-
-<h2>10. 예상하는 흐름</h2>
-<div class="tw"><table>
-  <tr><th>때</th><th>하는 일</th><th>이때 사는 것</th></tr>
-  <tr><td>처음 20분</td><td>작은 숲에서 성냥 한 개로 한 그루씩 태우고 재를 주워 성냥을 다시 삼</td><td>자루, 자석, 옮겨붙기 첫 몇 단계, 잘 마른 성냥, 라이터</td></tr>
-  <tr><td>~1시간</td><td>화력을 5까지 올려 큰 숲으로. 불이 덩어리로 번지기 시작함</td><td>화력, 옮겨붙기, 자석, 자루, 기름통이나 조명탄, 자전거, 저절로 붓기</td></tr>
-  <tr><td>~2시간</td><td>비 오는 소나무숲. 불이 자꾸 꺼져서 꺼지지 않는 불을 삼</td><td>화력 10~15, 꺼지지 않는 불, 화염방사기, 자동 보충, 가득 차면 보내기</td></tr>
-  <tr><td>~3시간</td><td>습지. 큰불 한 번에 수천 그루가 타고 재를 넓게 쓸어 담음</td><td>화력 20, 옮겨붙기와 자석 뒤쪽 단계, 항공 살포</td></tr>
-  <tr><td>~4시간</td><td>겨울 숲을 지나 섬 맨 끝의 거목으로</td><td>화력 25~30, 언 나무 녹이기, 곧바로 수거함으로, 위성 포격</td></tr>
-</table></div>
-
-<h2>11. v0.44에서 없애는 것</h2>
-<ul>
-  <li>스테이지와 "다음 숲 열림", 숲 사이를 막던 덤불 띠</li>
-  <li>강화 포인트, 포인트 게이지, 기둥 모양 강화 판, "스테이지 n에 열림" 조건</li>
-  <li>무기 빌드를 고르는 무전</li>
-  <li>성냥이 시간이 지나면 꺼지는 규칙</li>
-  <li>처음부터 있던 불 번짐, 쓴 포인트에 따라 불이 세지는 숨은 보너스</li>
-  <li>로봇 청소기, 수거 드론, 점화 드론</li>
-  <li>무전 중계탑을 지어 구조받는 끝 (거목을 태우는 것으로 바뀜)</li>
-</ul>
-
-<h2>12. 화면에 필요한 것</h2>
-<ul>
-  <li>지금 든 도구의 남은 양: "성냥 3", "가스 12초", "조명탄 4발". 바닥나면 붉게 표시</li>
-  <li>조준한 나무가 화력이 모자라면: "화력이 모자랍니다 (필요 10, 지금 7)"</li>
-  <li>남은 양이 0일 때: "성냥이 없습니다 · Tab으로 사기"</li>
-  <li>상점: 줄마다 한 칸씩 늘어놓고, 다음 단계의 값과 바뀌기 전·후 값을 함께 보여 줌. 소모품은 1개 / 10개 / 가득 채우기</li>
-  <li>지도: 숲마다 필요한 화력과 환경 표시</li>
-</ul>
+  <div>
+    <div class="help">
+      <b>쓰는 법</b> · 강화 한 종류가 카드 한 장입니다. <b>첫 값</b>과 <b>배수</b>를 바꾸면 모든 단계의 값이 다시 계산됩니다.
+      단계 표의 칸은 비워 두면 계산된 값을 쓰고, <b>직접 적으면 그 단계만 그 값으로 고정</b>됩니다(주황색). 지우면 다시 계산값으로 돌아갑니다.
+      <b>능력 추가</b>로 한 종류에 효과를 더 붙일 수 있습니다. 설명 글의 <b>{1}</b>, <b>{2}</b> 자리에는 첫째·둘째 능력의 "전 → 후" 값이 들어갑니다.
+      고친 내용은 이 브라우저에 저장됩니다. 다 고친 뒤 <b>내보내기</b>로 나온 글을 채팅에 붙여 주면 그대로 게임에 넣습니다.
+    </div>
+    <div id="app"></div>
+  </div>
+  <aside>
+    <h3>값이 싼 순서</h3>
+    <p>모든 단계를 값 순서로 늘어놓은 것입니다. 붉은 줄은 다음 살 것이 2배 넘게 비싼 빈 구간입니다.</p>
+    <label>앞에서 <input class="n2" id="ladn" value="60"> 개</label>
+    <div id="lad" style="margin-top:8px"></div>
+  </aside>
 </main>
+<dialog id="dlg">
+  <div id="dlgt" style="margin-bottom:8px;color:var(--dim)"></div>
+  <textarea id="dlga" spellcheck="false"></textarea>
+  <div class="row"><button data-act="dlg-copy" id="dlgc">복사</button><button data-act="dlg-file" id="dlgf">파일로 저장</button><button class="pri" data-act="dlg-ok" id="dlgo">불러오기</button><button data-act="dlg-close">닫기</button></div>
+</dialog>
+<script>
+const KEY = 'osu_tune_v1';
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII','XXIX','XXX'];
+const F = (label, base, op, by, unit, dec) => ({label, base, op, by, unit: unit || '', dec: dec || 0});
+const T = (b, name, n, c0, r, fx, desc, ov) => ({b, name, n, c0, r, num: 'roman', fx: fx || [], desc: desc || '', note: '', ov: ov || {}, open: false});
+function defaults() {
+  return {v: 1, branches: [
+    {id: 'fire', name: '불', col: '#d9643a'}, {id: 'tool', name: '도구', col: '#d0a24a'},
+    {id: 'ash', name: '재', col: '#9aa3a8'}, {id: 'move', name: '이동', col: '#6fa37a'}],
+  types: [
+    Object.assign(T('fire', '화력', 5, 400, 5, [F('화력', 1, '+', 1)], '', {
+      0: {name: '화력 2', cost: 400, desc: '큰 숲의 나무에도 불을 붙일 수 있습니다.'},
+      1: {name: '화력 3', cost: 12000, desc: '소나무 숲의 나무에도 불을 붙일 수 있습니다.'},
+      2: {name: '화력 4', cost: 120000, desc: '늙은 소나무 숲의 나무에도 불을 붙일 수 있습니다.'},
+      3: {name: '화력 5', cost: 600000, desc: '습지의 나무에도 불을 붙일 수 있습니다.'},
+      4: {name: '화력 6', cost: 3000000, desc: '깊은 습지의 나무에도 불을 붙일 수 있습니다.'}}), {num: 'none'}),
+    T('fire', '옮겨붙기', 16, 30, 2.25, [F('옮겨붙을 확률 (0.5초마다)', 5, '+', 1.5, '%', 1), F('불이 가는 거리', 3.6, '+', 2.2, 'm', 1)],
+      '불이 옆 나무로 더 잘 옮겨붙고, 더 멀리까지 이어집니다. (옮겨붙을 확률 {1}, 불이 가는 거리 {2})',
+      {0: {desc: '타는 나무의 불이 가까운 나무로 옮겨붙기 시작합니다. 성냥 하나로 여러 그루를 태울 수 있습니다.'}}),
+    T('fire', '빨리 타기', 8, 20, 2.6, [F('나무가 타는 시간', 10, 'x', 0.92, '초', 1)], '나무가 더 빨리 타서 재가 빨리 나옵니다. ({1})'),
+    T('fire', '멀리 옮겨붙기', 12, 50, 2.5, [F('옆 나무로 건너가는 거리', 4.5, '+', 0.7, 'm', 1)], '불이 더 멀리 떨어진 나무로도 건너갑니다. ({1})'),
+    T('fire', '같이 붙이기', 4, 80, 5, [F('함께 붙는 나무', 0, '+', 1, '그루')], '불을 붙일 때 바로 옆 나무에도 함께 붙습니다. ({1})'),
+    T('fire', '불똥', 8, 300, 3.2, [F('불똥이 튈 확률', 0, '+', 3, '%')], '타는 나무에서 불똥이 날아가 떨어진 곳의 나무에 새 불을 냅니다. ({1})'),
+    T('tool', '라이터', 1, 250, 1, [], '라이터를 얻습니다. 2번 키로 꺼냅니다. 성냥보다 훨씬 빨리 불이 붙고, 성냥 대신 가스를 씁니다. 가스 한 통은 재 15이고 불꽃을 30초 냅니다.'),
+    T('tool', '가스 토치', 1, 4000, 1, [], '라이터가 가스 토치로 바뀝니다. 나무에 대면 거의 바로 불이 붙습니다. 가스 한 통 값은 재 40으로 오릅니다.'),
+    T('tool', '익숙한 손', 8, 25, 2.5, [F('불 붙이는 시간', 100, 'x', 0.9, '%')], '어떤 도구로든 불을 더 빨리 붙입니다. (걸리는 시간 {1})'),
+    T('tool', '넉넉한 주머니', 8, 20, 2.5, [F('성냥', 20, 'x', 1.45, '개'), F('가스', 30, 'x', 1.45, '초')], '성냥과 가스를 더 많이 들고 다닙니다. (성냥 {1}, 가스 {2})'),
+    T('tool', '긴 팔', 5, 150, 3, [F('불이 닿는 거리', 2.4, '+', 0.6, 'm', 1)], '더 먼 나무에 불을 붙입니다. ({1})'),
+    T('tool', '단골 할인', 6, 100, 3, [F('성냥·가스 값', 100, 'x', 0.9, '%')], '성냥과 가스를 더 싸게 삽니다. (값 {1})'),
+    T('tool', '아껴 쓰기', 8, 300, 3.2, [F('줄지 않을 확률', 0, '+', 10, '%')], '불을 붙여도 성냥과 가스가 줄지 않을 때가 있습니다. ({1})',
+      {7: {name: '닳지 않는 불씨', desc: '성냥과 가스가 더 이상 줄지 않습니다.', v: {0: 100}}}),
+    T('tool', '자동 보충', 1, 1500, 1, [], '성냥이나 가스가 떨어지면 가진 재로 저절로 사서 채웁니다.'),
+    T('ash', '자루', 16, 8, 2.2, [F('자루에 담는 재', 10, 'x', 1.5, '')], '자루에 재를 더 많이 담습니다. ({1})'),
+    T('ash', '자석', 16, 12, 2.4, [F('재가 끌려오는 거리', 1.5, 'x', 1.228, 'm', 1)], '더 먼 곳에 떨어진 재가 저절로 끌려옵니다. ({1})'),
+    T('ash', '고운 재', 10, 200, 2.7, [F('얻는 재', 100, 'x', 1.085, '%')], '재를 더 얻습니다. ({1})'),
+    T('ash', '숯', 6, 1000, 2.8, [F('숯이 나올 확률', 0, '+', 3, '%')], '탄 나무에서 가끔 숯이 나옵니다. 숯 하나는 재 5덩이 값입니다. ({1})'),
+    T('ash', '빠른 붓기', 6, 30, 3, [F('가득 찬 자루를 붓는 시간', 4, 'x', 0.8, '초', 1)], '자루를 수거함에 더 빨리 비웁니다. ({1})'),
+    T('ash', '수거함 부르기', 1, 1000, 1, [], 'G 키로 수거함을 내 곁으로 부릅니다. 10초마다 부를 수 있습니다.'),
+    T('ash', '저절로 붓기', 1, 200, 1, [], '수거함 곁에 서 있기만 해도 자루의 재가 부어집니다.'),
+    T('ash', '가득 차면 보내기', 1, 30000, 1, [], '자루가 가득 차면 어디에 있든 자루의 재가 수거함으로 보내집니다.'),
+    T('ash', '곧바로 수거함으로', 1, 1500000, 1, [], '주운 재가 자루를 거치지 않고 곧바로 수거함에 쌓입니다.'),
+    T('move', '다리 힘', 10, 30, 2.4, [F('걷고 달리는 속도', 100, 'x', 1.05, '%')], '더 빨리 걷고 달립니다. ({1})'),
+    T('move', '산악자전거', 1, 2500, 1, [], '산악자전거를 얻습니다. V 키로 타고 내립니다. 달릴 때보다 1.8배 빠릅니다.'),
+    T('move', '사륜 오토바이', 1, 150000, 1, [], '사륜 오토바이를 얻습니다. V 키로 타고 내립니다. 달릴 때보다 2.5배 빠릅니다.'),
+    T('move', '정비', 5, 5000, 2.8, [F('탈것 속도', 100, 'x', 1.07, '%')], '자전거와 오토바이가 더 빨라집니다. ({1})'),
+  ]};
+}
+
+let S, hist = [];
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!S || !S.types) S = defaults();
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const snap = () => { hist.push(JSON.stringify(S)); if (hist.length > 60) hist.shift(); };
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const fmt = n => Number(n).toLocaleString('ko-KR', {maximumFractionDigits: 2});
+function num(s) {
+  s = String(s).replace(/[,\s]/g, '');
+  let m = 1;
+  if (/억$/.test(s)) { m = 1e8; s = s.slice(0, -1); } else if (/만$/.test(s)) { m = 1e4; s = s.slice(0, -1); }
+  const x = parseFloat(s);
+  return isFinite(x) ? x * m : null;
+}
+function nice(x) {
+  if (x < 100) return Math.max(1, Math.round(x));
+  const p = Math.pow(10, Math.floor(Math.log10(x)) - 1);
+  return Math.round(x / p) * p;
+}
+function cost(t, i) { const o = t.ov[i]; return o && o.cost != null ? o.cost : nice(t.c0 * Math.pow(t.r, i)); }
+function val(t, e, L) {
+  if (L > 0) { const o = t.ov[L - 1]; if (o && o.v && o.v[e] != null) return o.v[e]; }
+  const f = t.fx[e], m = Math.pow(10, f.dec || 0);
+  return Math.round((f.op === 'x' ? f.base * Math.pow(f.by, L) : f.base + f.by * L) * m) / m;
+}
+function autoName(t, i) { return t.n > 1 && t.num !== 'none' ? t.name + ' ' + ROMAN[i] : t.name; }
+function sname(t, i) { const o = t.ov[i]; return o && o.name ? o.name : autoName(t, i); }
+function autoDesc(t, i) {
+  return t.desc.replace(/\{(\d)\}/g, (m, k) => {
+    const e = +k - 1; if (!t.fx[e]) return m;
+    const u = t.fx[e].unit || '';
+    return fmt(val(t, e, i)) + u + ' → ' + fmt(val(t, e, i + 1)) + u;
+  });
+}
+function sdesc(t, i) { const o = t.ov[i]; return o && o.desc ? o.desc : autoDesc(t, i); }
+const total = t => { let s = 0; for (let i = 0; i < t.n; i++) s += cost(t, i); return s; };
+const bcol = id => (S.branches.find(b => b.id === id) || {col: '#888'}).col;
+
+function cardHTML(t, ti) {
+  let fx = '';
+  t.fx.forEach((f, e) => {
+    fx += `<div class="fxr"><b style="color:var(--acc)">{${e + 1}}</b>
+      <input class="lb" data-e="${e}" data-k="label" value="${esc(f.label)}" placeholder="능력 이름">
+      <label>시작 <input class="n" data-e="${e}" data-k="base" value="${f.base}"></label>
+      <label>단계마다 <select data-e="${e}" data-k="op"><option value="+"${f.op === '+' ? ' selected' : ''}>더하기</option><option value="x"${f.op === 'x' ? ' selected' : ''}>곱하기</option></select>
+      <input class="n" data-e="${e}" data-k="by" value="${f.by}"></label>
+      <label>단위 <input class="n2" data-e="${e}" data-k="unit" value="${esc(f.unit)}"></label>
+      <label>소수 자리 <input class="n2" data-e="${e}" data-k="dec" value="${f.dec || 0}"></label>
+      <span style="color:var(--dim)" data-fxend="${e}"></span>
+      <button class="sm" data-act="del-fx" data-e="${e}">지우기</button></div>`;
+  });
+  let rows = '';
+  for (let i = 0; i < t.n; i++) {
+    const o = t.ov[i] || {};
+    let vs = '';
+    t.fx.forEach((f, e) => { vs += `<td class="v"><input data-s="${i}" data-k="v" data-e="${e}" value="${o.v && o.v[e] != null ? o.v[e] : ''}"></td>`; });
+    rows += `<tr><td class="i">${i + 1}</td>
+      <td class="nmc"><input data-s="${i}" data-k="name" value="${esc(o.name || '')}"></td>
+      <td class="c"><input data-s="${i}" data-k="cost" value="${o.cost != null ? o.cost : ''}"></td>
+      <td class="rt" data-rt="${i}"></td>${vs}
+      <td><input data-s="${i}" data-k="desc" value="${esc(o.desc || '')}"></td></tr>`;
+  }
+  const ths = t.fx.map(f => `<th>${esc(f.label)}${f.unit ? ' (' + esc(f.unit) + ')' : ''}</th>`).join('');
+  const bo = S.branches.map(b => `<option value="${b.id}"${b.id === t.b ? ' selected' : ''}>${esc(b.name)}</option>`).join('');
+  return `<section class="card" data-t="${ti}" style="--c:${bcol(t.b)}">
+    <div class="head"><input class="nm" data-f="name" value="${esc(t.name)}"><span class="sum" data-sum></span>
+      <button class="sm" data-act="up">위로</button><button class="sm" data-act="down">아래로</button>
+      <button class="sm" data-act="dup">복제</button><button class="sm" data-act="del">삭제</button></div>
+    <div class="row">
+      <label>단계 수 <input class="n2" data-f="n" value="${t.n}"></label>
+      <label>첫 값 (재) <input class="n" data-f="c0" value="${t.c0}"></label>
+      <label>다음 단계 배수 <input class="n2" data-f="r" value="${t.r}"></label>
+      <label>갈래 <select data-f="b">${bo}</select></label>
+      <label>단계 이름 <select data-f="num"><option value="roman"${t.num !== 'none' ? ' selected' : ''}>이름 + I · II · III</option><option value="none"${t.num === 'none' ? ' selected' : ''}>번호 없음</option></select></label>
+    </div>
+    <div class="row"><label class="wide">설명 글 <input data-f="desc" value="${esc(t.desc)}" placeholder="플레이어가 읽는 설명. {1}, {2} 자리에 능력 값이 들어갑니다."></label></div>
+    <div class="row"><label class="wide">내 메모 <input data-f="note" value="${esc(t.note)}" placeholder="바꾸고 싶은 점, 요청 사항 (게임에는 안 나옵니다)"></label></div>
+    <div class="fxbox"><h4>능력 — 단계가 오를 때마다 바뀌는 값</h4>${fx}<button class="sm" data-act="add-fx">+ 능력 추가</button></div>
+    <details${t.open ? ' open' : ''}><summary>단계 표 (${t.n}단계)</summary>
+      <table><tr><th></th><th>이름</th><th>값 (재)</th><th>앞 단계의</th>${ths}<th>설명</th></tr>${rows}</table></details>
+  </section>`;
+}
+
+function render() {
+  let h = '';
+  for (const b of S.branches) {
+    let cards = '', nt = 0, ns = 0;
+    S.types.forEach((t, ti) => { if (t.b === b.id) { cards += cardHTML(t, ti); nt++; ns += t.n; } });
+    h += `<div class="br"><div class="brh"><span class="dot" style="background:${b.col}"></span>
+      <input data-b="${b.id}" value="${esc(b.name)}"><span class="cnt">${nt}종 ${ns}단계</span><span class="sp"></span>
+      <button data-act="add-type" data-b="${b.id}">+ 종류 추가</button></div>${cards}</div>`;
+  }
+  document.getElementById('app').innerHTML = h;
+  refresh();
+}
+
+// 입력 칸은 그대로 두고 계산된 글자만 다시 채운다(고치는 중인 칸의 초점을 잃지 않게).
+function refresh() {
+  let ns = 0, sum = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    const t = S.types[+card.dataset.t];
+    const tt = total(t); ns += t.n; sum += tt;
+    card.querySelector('[data-sum]').innerHTML = t.n > 1
+      ? `<b>${t.n}</b>단계 · <b>${fmt(cost(t, 0))}</b> → <b>${fmt(cost(t, t.n - 1))}</b> · 다 사면 ${fmt(tt)}`
+      : `한 번만 삽니다 · <b>${fmt(cost(t, 0))}</b>`;
+    card.querySelectorAll('[data-fxend]').forEach(el => {
+      const e = +el.dataset.fxend, u = t.fx[e].unit || '';
+      el.textContent = `${fmt(val(t, e, 0))}${u} → 끝 ${fmt(val(t, e, t.n))}${u}`;
+    });
+    card.querySelectorAll('input[data-s]').forEach(el => {
+      const i = +el.dataset.s, k = el.dataset.k;
+      el.placeholder = k === 'name' ? autoName(t, i) : k === 'cost' ? fmt(nice(t.c0 * Math.pow(t.r, i)))
+        : k === 'desc' ? autoDesc(t, i) : fmt(val({...t, ov: {}}, +el.dataset.e, i + 1));
+      if (k === 'desc') el.title = sdesc(t, i);
+    });
+    card.querySelectorAll('[data-rt]').forEach(el => {
+      const i = +el.dataset.rt;
+      if (!i) { el.textContent = ''; return; }
+      const r = cost(t, i) / cost(t, i - 1);
+      el.textContent = '×' + r.toFixed(r < 10 ? 1 : 0);
+      el.classList.toggle('hi', r > 3.05);
+    });
+  });
+  document.getElementById('tot').innerHTML = `<b>${S.types.length}</b>종 · <b>${ns}</b>단계 · 전부 사면 재 <b>${fmt(sum)}</b>`;
+  ladder();
+}
+
+function ladder() {
+  const all = [];
+  S.types.forEach(t => { for (let i = 0; i < t.n; i++) all.push({c: cost(t, i), n: sname(t, i), b: t.b}); });
+  all.sort((a, b) => a.c - b.c);
+  const lim = Math.max(1, num(document.getElementById('ladn').value) || 60);
+  let h = '';
+  all.slice(0, lim).forEach((x, i) => {
+    if (i && x.c > all[i - 1].c * 2) h += `<div class="gap">▲ ${(x.c / all[i - 1].c).toFixed(1)}배 빈 구간</div>`;
+    h += `<div class="lad" style="--c:${bcol(x.b)}"><span class="p">${fmt(x.c)}</span><span class="q">${esc(x.n)}</span></div>`;
+  });
+  document.getElementById('lad').innerHTML = h;
+}
+
+document.addEventListener('change', ev => {
+  const el = ev.target;
+  if (el.id === 'ladn') { ladder(); return; }
+  if (el.closest('dialog')) return;
+  snap();
+  if (el.dataset.b && !el.dataset.act) {
+    S.branches.find(b => b.id === el.dataset.b).name = el.value.trim() || '갈래';
+    save(); render(); return;
+  }
+  const card = el.closest('.card'); if (!card) return;
+  const t = S.types[+card.dataset.t];
+  const raw = el.value.trim();
+  let full = false;
+  if (el.dataset.s != null) {
+    const i = +el.dataset.s, k = el.dataset.k, o = t.ov[i] || (t.ov[i] = {});
+    if (k === 'name' || k === 'desc') { if (raw) o[k] = raw; else delete o[k]; }
+    else {
+      const x = raw ? num(raw) : null;
+      if (x == null) el.value = '';
+      if (k === 'cost') { if (x == null) delete o.cost; else o.cost = x; }
+      else { o.v = o.v || {}; if (x == null) delete o.v[el.dataset.e]; else o.v[el.dataset.e] = x; if (!Object.keys(o.v).length) delete o.v; }
+    }
+    if (!Object.keys(o).length) delete t.ov[i];
+  } else if (el.dataset.e != null) {
+    const f = t.fx[+el.dataset.e], k = el.dataset.k;
+    if (k === 'label' || k === 'unit') { f[k] = raw; full = true; }
+    else if (k === 'op') f.op = el.value;
+    else { const x = num(raw); if (x != null) f[k] = k === 'dec' ? Math.max(0, Math.min(3, Math.round(x))) : x; el.value = f[k]; }
+  } else {
+    const k = el.dataset.f;
+    if (k === 'n') {
+      t.n = Math.max(1, Math.min(30, Math.round(num(raw) || 1)));
+      for (const i of Object.keys(t.ov)) if (+i >= t.n) delete t.ov[i];
+      t.open = true; full = true;
+    } else if (k === 'c0' || k === 'r') { const x = num(raw); if (x != null && x > 0) t[k] = x; el.value = t[k]; }
+    else if (k === 'b') { t.b = el.value; full = true; }
+    else if (k === 'num') t.num = el.value;
+    else if (k === 'name') t.name = raw || '이름 없음';
+    else t[k] = raw;
+  }
+  save();
+  if (full) render(); else refresh();
+});
+
+document.addEventListener('toggle', ev => {
+  const card = ev.target.closest && ev.target.closest('.card');
+  if (card && ev.target.tagName === 'DETAILS') { S.types[+card.dataset.t].open = ev.target.open; save(); }
+}, true);
+
+const dlg = document.getElementById('dlg'), dlga = document.getElementById('dlga');
+function exportText() {
+  const out = JSON.parse(JSON.stringify(S));
+  out.types.forEach(t => { delete t.open; });
+  return JSON.stringify(out);
+}
+document.addEventListener('click', ev => {
+  const btn = ev.target.closest('[data-act]'); if (!btn) return;
+  const a = btn.dataset.act, card = btn.closest('.card'), ti = card ? +card.dataset.t : -1;
+  if (a === 'export' || a === 'import') {
+    const ex = a === 'export';
+    document.getElementById('dlgt').textContent = ex ? '아래 글을 전부 복사해 채팅에 붙여 주세요. 파일로 저장해 두었다가 나중에 다시 불러올 수도 있습니다.' : '내보내기로 받은 글을 붙여 넣고 불러오기를 누르세요. 지금 내용은 덮어씁니다.';
+    dlga.value = ex ? exportText() : ''; dlga.readOnly = ex;
+    document.getElementById('dlgc').hidden = !ex; document.getElementById('dlgf').hidden = !ex; document.getElementById('dlgo').hidden = ex;
+    dlg.showModal(); if (ex) dlga.select();
+    return;
+  }
+  if (a === 'dlg-close') { dlg.close(); return; }
+  if (a === 'dlg-copy') {
+    dlga.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(dlga.value) : Promise.reject()).catch(() => document.execCommand('copy'));
+    btn.textContent = '복사됨'; setTimeout(() => { btn.textContent = '복사'; }, 1200);
+    return;
+  }
+  if (a === 'dlg-file') {
+    const u = URL.createObjectURL(new Blob([dlga.value], {type: 'application/json'}));
+    const l = document.createElement('a'); l.href = u; l.download = 'onespark_upgrades.json'; l.click(); URL.revokeObjectURL(u);
+    return;
+  }
+  if (a === 'dlg-ok') {
+    try {
+      const d = JSON.parse(dlga.value);
+      if (!Array.isArray(d.types) || !Array.isArray(d.branches)) throw 0;
+      snap(); S = d; save(); render(); dlg.close();
+    } catch (e) { document.getElementById('dlgt').textContent = '읽을 수 없는 글입니다. 내보내기로 받은 글을 처음부터 끝까지 그대로 붙여 넣어 주세요.'; }
+    return;
+  }
+  if (a === 'undo') { if (hist.length) { S = JSON.parse(hist.pop()); save(); render(); } return; }
+  if (a === 'reset') {
+    if (btn.dataset.sure) { snap(); S = defaults(); save(); render(); delete btn.dataset.sure; btn.textContent = '처음 안으로'; }
+    else { btn.dataset.sure = 1; btn.textContent = '한 번 더 누르면 처음 안으로 돌아갑니다'; setTimeout(() => { delete btn.dataset.sure; btn.textContent = '처음 안으로'; }, 3000); }
+    return;
+  }
+  snap();
+  if (a === 'add-type') {
+    const t = T(btn.dataset.b, '새 강화', 5, 100, 2.5, [F('효과', 0, '+', 1, '')], '({1})'); t.open = true;
+    let at = -1; S.types.forEach((x, i) => { if (x.b === t.b) at = i; });
+    S.types.splice(at + 1, 0, t);
+  } else if (a === 'del') {
+    if (!btn.dataset.sure) { hist.pop(); btn.dataset.sure = 1; btn.textContent = '정말 삭제'; setTimeout(() => { delete btn.dataset.sure; btn.textContent = '삭제'; }, 3000); return; }
+    S.types.splice(ti, 1);
+  } else if (a === 'dup') {
+    const c = JSON.parse(JSON.stringify(S.types[ti])); c.name += ' 복사'; S.types.splice(ti + 1, 0, c);
+  } else if (a === 'up' || a === 'down') {
+    const d = a === 'up' ? -1 : 1; let j = ti + d;
+    while (j >= 0 && j < S.types.length && S.types[j].b !== S.types[ti].b) j += d;
+    if (j < 0 || j >= S.types.length) { hist.pop(); return; }
+    [S.types[ti], S.types[j]] = [S.types[j], S.types[ti]];
+  } else if (a === 'add-fx') {
+    S.types[ti].fx.push(F('새 능력', 0, '+', 1, '')); S.types[ti].open = true;
+  } else if (a === 'del-fx') {
+    const t = S.types[ti], e = +btn.dataset.e;
+    t.fx.splice(e, 1);
+    // 지운 능력의 고정값은 버리고, 뒤 능력의 고정값은 한 칸 당긴다.
+    for (const i of Object.keys(t.ov)) {
+      const v = t.ov[i].v; if (!v) continue;
+      const nv = {};
+      for (const k of Object.keys(v)) { if (+k < e) nv[k] = v[k]; else if (+k > e) nv[+k - 1] = v[k]; }
+      if (Object.keys(nv).length) t.ov[i].v = nv; else delete t.ov[i].v;
+      if (!Object.keys(t.ov[i]).length) delete t.ov[i];
+    }
+  } else { hist.pop(); return; }
+  save(); render();
+});
+
+render();
+</script>
 </body>
 </html>
