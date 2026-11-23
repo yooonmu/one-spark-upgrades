@@ -94,12 +94,23 @@ dialog .row{justify-content:flex-end}
   <div class="row"><button data-act="dlg-copy" id="dlgc">복사</button><button data-act="dlg-file" id="dlgf">파일로 저장</button><button class="pri" data-act="dlg-ok" id="dlgo">불러오기</button><button data-act="dlg-close">닫기</button></div>
 </dialog>
 <script>
-const KEY = 'osu_tune_v1';
+const KEY = 'osu_tune_v2', OLD_KEY = 'osu_tune_v1';
 const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII','XXIX','XXX'];
 const F = (label, base, op, by, unit, dec) => ({label, base, op, by, unit: unit || '', dec: dec || 0});
 const T = (b, name, n, c0, r, fx, desc, ov) => ({b, name, n, c0, r, num: 'roman', fx: fx || [], desc: desc || '', note: '', ov: ov || {}, open: false});
+function defaultRules() {
+  return [
+    {k: '시작할 때 가진 성냥', v: '5개'},
+    {k: '성냥 값', v: '재 1에 성냥 3개 (R 키)'},
+    {k: '성냥 1개로 태우는 나무', v: '1그루'},
+    {k: '나무 한 그루에서 나오는 재', v: '1개 (수북한 재로 늘림)'},
+    {k: '황금 재', v: '재가 10개 나올 때마다 덩이 10개 대신 황금 재 1덩이로 떨어짐. 주우면 자루에 재 10으로 들어감. 자루에 남은 칸이 모자라면 들어갈 만큼만 담고 나머지는 보통 재로 남음'},
+    {k: '불이 번지는 한계', v: '처음 붙인 자리에서 80m (강화로 안 바뀜)'},
+    {k: '수거함', v: '처음 자리에 고정. 수거함 부르기를 사야 G 키로 부름'},
+  ];
+}
 function defaults() {
-  return {v: 1, branches: [
+  return {v: 2, rules: defaultRules(), branches: [
     {id: 'fire', name: '불', col: '#d9643a'}, {id: 'tool', name: '도구', col: '#d0a24a'},
     {id: 'ash', name: '재', col: '#9aa3a8'}, {id: 'move', name: '이동', col: '#6fa37a'}],
   types: [
@@ -109,32 +120,32 @@ function defaults() {
       2: {name: '화력 4', cost: 120000, desc: '늙은 소나무 숲의 나무에도 불을 붙일 수 있습니다.'},
       3: {name: '화력 5', cost: 600000, desc: '습지의 나무에도 불을 붙일 수 있습니다.'},
       4: {name: '화력 6', cost: 3000000, desc: '깊은 습지의 나무에도 불을 붙일 수 있습니다.'}}), {num: 'none'}),
-    T('fire', '옮겨붙기', 16, 30, 2.25, [F('옮겨붙을 확률 (0.5초마다)', 5, '+', 1.5, '%', 1), F('불이 가는 거리', 3.6, '+', 2.2, 'm', 1)],
-      '불이 옆 나무로 더 잘 옮겨붙고, 더 멀리까지 이어집니다. (옮겨붙을 확률 {1}, 불이 가는 거리 {2})',
-      {0: {desc: '타는 나무의 불이 가까운 나무로 옮겨붙기 시작합니다. 성냥 하나로 여러 그루를 태울 수 있습니다.'}}),
-    T('fire', '빨리 타기', 8, 20, 2.6, [F('나무가 타는 시간', 10, 'x', 0.92, '초', 1)], '나무가 더 빨리 타서 재가 빨리 나옵니다. ({1})'),
-    T('fire', '멀리 옮겨붙기', 12, 50, 2.5, [F('옆 나무로 건너가는 거리', 4.5, '+', 0.7, 'm', 1)], '불이 더 멀리 떨어진 나무로도 건너갑니다. ({1})'),
-    T('fire', '같이 붙이기', 4, 80, 5, [F('함께 붙는 나무', 0, '+', 1, '그루')], '불을 붙일 때 바로 옆 나무에도 함께 붙습니다. ({1})'),
-    T('fire', '불똥', 8, 300, 3.2, [F('불똥이 튈 확률', 0, '+', 3, '%')], '타는 나무에서 불똥이 날아가 떨어진 곳의 나무에 새 불을 냅니다. ({1})'),
+    T('fire', '옮겨붙기', 16, 15, 2.35, [F('직접 붙인 나무의 옮겨붙을 확률 (0.5초마다)', 5, '+', 1.5, '%', 1), F('옮겨붙을 때마다 남는 확률', 58, '+', 2, '%'), F('불 한 번에 평균 타는 나무 (어림값, 나중에 계산으로 채움)', 1.6, 'x', 1.2, '그루', 1)],
+      '불이 근처 나무로 더 잘 옮겨붙고, 옮겨붙어도 덜 약해집니다. 불 한 번에 평균 {3}',
+      {0: {desc: '타는 나무의 불이 근처 나무로 옮겨붙기 시작합니다. 불은 옮겨붙을 때마다 약해져서 얼마 못 가 꺼집니다. 불 한 번에 평균 2그루쯤 탑니다.'}}),
+    T('fire', '빨리 타기', 8, 10, 2.8, [F('나무가 타는 시간', 10, 'x', 0.92, '초', 1)], '나무가 더 빨리 타서 재가 빨리 나옵니다. ({1})'),
+    T('fire', '멀리 옮겨붙기', 12, 25, 2.6, [F('옆 나무로 건너가는 거리', 4.5, '+', 0.7, 'm', 1)], '불이 더 멀리 떨어진 나무로도 건너갑니다. ({1})'),
+    T('fire', '같이 붙이기', 4, 40, 5, [F('함께 붙는 나무', 0, '+', 1, '그루')], '불을 붙일 때 바로 옆 나무에도 함께 붙습니다. ({1})'),
+    T('fire', '불똥', 8, 150, 3.4, [F('불똥이 튈 확률', 0, '+', 3, '%')], '타는 나무에서 불똥이 날아가 떨어진 곳의 나무에 새 불을 냅니다. 불똥으로 난 불은 절반 세기로 시작합니다. ({1})'),
     T('tool', '라이터', 1, 250, 1, [], '라이터를 얻습니다. 2번 키로 꺼냅니다. 성냥보다 훨씬 빨리 불이 붙고, 성냥 대신 가스를 씁니다. 가스 한 통은 재 15이고 불꽃을 30초 냅니다.'),
     T('tool', '가스 토치', 1, 4000, 1, [], '라이터가 가스 토치로 바뀝니다. 나무에 대면 거의 바로 불이 붙습니다. 가스 한 통 값은 재 40으로 오릅니다.'),
-    T('tool', '익숙한 손', 8, 25, 2.5, [F('불 붙이는 시간', 100, 'x', 0.9, '%')], '어떤 도구로든 불을 더 빨리 붙입니다. (걸리는 시간 {1})'),
-    T('tool', '넉넉한 주머니', 8, 20, 2.5, [F('성냥', 20, 'x', 1.45, '개'), F('가스', 30, 'x', 1.45, '초')], '성냥과 가스를 더 많이 들고 다닙니다. (성냥 {1}, 가스 {2})'),
+    T('tool', '익숙한 손', 8, 12, 2.7, [F('불 붙이는 시간', 100, 'x', 0.9, '%')], '어떤 도구로든 불을 더 빨리 붙입니다. (걸리는 시간 {1})'),
+    T('tool', '넉넉한 주머니', 8, 10, 2.7, [F('성냥', 20, 'x', 1.45, '개'), F('가스', 30, 'x', 1.45, '초')], '성냥과 가스를 더 많이 들고 다닙니다. (성냥 {1}, 가스 {2})'),
     T('tool', '긴 팔', 5, 150, 3, [F('불이 닿는 거리', 2.4, '+', 0.6, 'm', 1)], '더 먼 나무에 불을 붙입니다. ({1})'),
-    T('tool', '단골 할인', 6, 100, 3, [F('성냥·가스 값', 100, 'x', 0.9, '%')], '성냥과 가스를 더 싸게 삽니다. (값 {1})'),
+    T('tool', '단골 할인', 6, 50, 3.2, [F('성냥·가스 값', 100, 'x', 0.9, '%')], '성냥과 가스를 더 싸게 삽니다. (값 {1})'),
     T('tool', '아껴 쓰기', 8, 300, 3.2, [F('줄지 않을 확률', 0, '+', 10, '%')], '불을 붙여도 성냥과 가스가 줄지 않을 때가 있습니다. ({1})',
       {7: {name: '닳지 않는 불씨', desc: '성냥과 가스가 더 이상 줄지 않습니다.', v: {0: 100}}}),
     T('tool', '자동 보충', 1, 1500, 1, [], '성냥이나 가스가 떨어지면 가진 재로 저절로 사서 채웁니다.'),
-    T('ash', '자루', 16, 8, 2.2, [F('자루에 담는 재', 10, 'x', 1.5, '')], '자루에 재를 더 많이 담습니다. ({1})'),
-    T('ash', '자석', 16, 12, 2.4, [F('재가 끌려오는 거리', 1.5, 'x', 1.228, 'm', 1)], '더 먼 곳에 떨어진 재가 저절로 끌려옵니다. ({1})'),
-    T('ash', '고운 재', 10, 200, 2.7, [F('얻는 재', 100, 'x', 1.085, '%')], '재를 더 얻습니다. ({1})'),
-    T('ash', '숯', 6, 1000, 2.8, [F('숯이 나올 확률', 0, '+', 3, '%')], '탄 나무에서 가끔 숯이 나옵니다. 숯 하나는 재 5덩이 값입니다. ({1})'),
-    T('ash', '빠른 붓기', 6, 30, 3, [F('가득 찬 자루를 붓는 시간', 4, 'x', 0.8, '초', 1)], '자루를 수거함에 더 빨리 비웁니다. ({1})'),
+    T('ash', '자루', 16, 4, 2.3, [F('자루에 담는 재', 10, 'x', 1.5, '')], '자루에 재를 더 많이 담습니다. ({1})'),
+    T('ash', '자석', 16, 6, 2.5, [F('재가 끌려오는 거리', 1.5, 'x', 1.228, 'm', 1)], '더 먼 곳에 떨어진 재가 저절로 끌려옵니다. ({1})'),
+    T('ash', '수북한 재', 12, 40, 2.6, [F('나무 한 그루에서 나오는 재', 1, '+', 1, '개')], '나무 한 그루에서 재가 더 나옵니다. ({1})',
+      {8: {desc: '나무 한 그루에서 재가 10개 나옵니다. 재 10개는 황금 재 한 덩이로 떨어집니다. (9개 → 10개)'}, 9: {v: {0: 12}}, 10: {v: {0: 15}}, 11: {v: {0: 20}}}),
+    T('ash', '빠른 붓기', 6, 15, 3, [F('가득 찬 자루를 붓는 시간', 4, 'x', 0.8, '초', 1)], '자루를 수거함에 더 빨리 비웁니다. ({1})'),
     T('ash', '수거함 부르기', 1, 1000, 1, [], 'G 키로 수거함을 내 곁으로 부릅니다. 10초마다 부를 수 있습니다.'),
-    T('ash', '저절로 붓기', 1, 200, 1, [], '수거함 곁에 서 있기만 해도 자루의 재가 부어집니다.'),
+    T('ash', '저절로 붓기', 1, 100, 1, [], '수거함 곁에 서 있기만 해도 자루의 재가 부어집니다.'),
     T('ash', '가득 차면 보내기', 1, 30000, 1, [], '자루가 가득 차면 어디에 있든 자루의 재가 수거함으로 보내집니다.'),
     T('ash', '곧바로 수거함으로', 1, 1500000, 1, [], '주운 재가 자루를 거치지 않고 곧바로 수거함에 쌓입니다.'),
-    T('move', '다리 힘', 10, 30, 2.4, [F('걷고 달리는 속도', 100, 'x', 1.05, '%')], '더 빨리 걷고 달립니다. ({1})'),
+    T('move', '다리 힘', 10, 15, 2.6, [F('걷고 달리는 속도', 100, 'x', 1.05, '%')], '더 빨리 걷고 달립니다. ({1})'),
     T('move', '산악자전거', 1, 2500, 1, [], '산악자전거를 얻습니다. V 키로 타고 내립니다. 달릴 때보다 1.8배 빠릅니다.'),
     T('move', '사륜 오토바이', 1, 150000, 1, [], '사륜 오토바이를 얻습니다. V 키로 타고 내립니다. 달릴 때보다 2.5배 빠릅니다.'),
     T('move', '정비', 5, 5000, 2.8, [F('탈것 속도', 100, 'x', 1.07, '%')], '자전거와 오토바이가 더 빨라집니다. ({1})'),
@@ -144,6 +155,7 @@ function defaults() {
 let S, hist = [];
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
 if (!S || !S.types) S = defaults();
+if (!S.rules) S.rules = defaultRules();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 const snap = () => { hist.push(JSON.stringify(S)); if (hist.length > 60) hist.shift(); };
 
@@ -226,7 +238,12 @@ function cardHTML(t, ti) {
 }
 
 function render() {
-  let h = '';
+  let h = '<div class="card" style="--c:#555"><div class="head"><b style="font-size:16px">기본 규칙</b><span class="sum">강화와 상관없이 처음부터 적용되는 값입니다.</span><button class="sm" data-act="add-rule">+ 줄 추가</button></div>';
+  S.rules.forEach((r, i) => {
+    h += `<div class="row"><input style="width:230px" data-rule="${i}" data-k="k" value="${esc(r.k)}"><label class="wide"><input data-rule="${i}" data-k="v" value="${esc(r.v)}"></label><button class="sm" data-act="del-rule" data-i="${i}">지우기</button></div>`;
+  });
+  h += '</div>';
+  if (localStorage.getItem(OLD_KEY)) h += '<div class="help">이전 판 페이지에서 고친 내용이 이 브라우저에 남아 있습니다. <button class="sm" data-act="load-old">이전 내용 불러오기</button></div>';
   for (const b of S.branches) {
     let cards = '', nt = 0, ns = 0;
     S.types.forEach((t, ti) => { if (t.b === b.id) { cards += cardHTML(t, ti); nt++; ns += t.n; } });
@@ -241,7 +258,7 @@ function render() {
 // 입력 칸은 그대로 두고 계산된 글자만 다시 채운다(고치는 중인 칸의 초점을 잃지 않게).
 function refresh() {
   let ns = 0, sum = 0;
-  document.querySelectorAll('.card').forEach(card => {
+  document.querySelectorAll('.card[data-t]').forEach(card => {
     const t = S.types[+card.dataset.t];
     const tt = total(t); ns += t.n; sum += tt;
     card.querySelector('[data-sum]').innerHTML = t.n > 1
@@ -291,6 +308,7 @@ document.addEventListener('change', ev => {
     S.branches.find(b => b.id === el.dataset.b).name = el.value.trim() || '갈래';
     save(); render(); return;
   }
+  if (el.dataset.rule != null) { S.rules[+el.dataset.rule][el.dataset.k] = el.value.trim(); save(); return; }
   const card = el.closest('.card'); if (!card) return;
   const t = S.types[+card.dataset.t];
   const raw = el.value.trim();
@@ -375,7 +393,11 @@ document.addEventListener('click', ev => {
     return;
   }
   snap();
-  if (a === 'add-type') {
+  if (a === 'add-rule') S.rules.push({k: '', v: ''});
+  else if (a === 'del-rule') S.rules.splice(+btn.dataset.i, 1);
+  else if (a === 'load-old') {
+    try { const d = JSON.parse(localStorage.getItem(OLD_KEY)); if (d && d.types) { S = d; if (!S.rules) S.rules = defaultRules(); } } catch (e) {}
+  } else if (a === 'add-type') {
     const t = T(btn.dataset.b, '새 강화', 5, 100, 2.5, [F('효과', 0, '+', 1, '')], '({1})'); t.open = true;
     let at = -1; S.types.forEach((x, i) => { if (x.b === t.b) at = i; });
     S.types.splice(at + 1, 0, t);
