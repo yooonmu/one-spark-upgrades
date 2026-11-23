@@ -96,6 +96,7 @@ aside{border-left:1px solid var(--line);background:#141617;padding:14px;display:
   </aside>
 </div>
 <div class="toast" id="toast"></div>
+<script src="balance.js"></script>
 <script>
 const COLS = {fire: ['불', '#d9643a'], tool: ['도구', '#d0a24a'], ash: ['재', '#a9b1b5'], move: ['나르기', '#7fae88']};
 // 갈래가 뻗는 방향 d와 옆으로 벌어지는 방향 p. 가장 긴 재 갈래를 오른쪽으로 둔다.
@@ -135,7 +136,7 @@ const ITEMS = [
     desc: '드론이 한 번에 재를 더 많이 실어 갑니다.', req: ['dcount', 1], reqText: '드론 I'},
   {id: 'dspeed', col: 'move', kind: 'line', at: [1, 1], name: '드론 속도', vals: [100, 130, 160, 200, 250], cost: [300, 3000, 30000, 300000], unit: '%', label: '드론의 빠르기',
     desc: '드론이 더 빨리 오갑니다.', req: ['dcount', 1], reqText: '드론 I'},
-  {id: 'dbag', col: 'move', kind: 'big', at: [1, 5.4], name: '자루 비우는 드론', cost: 150000, req: ['dcount', 4], reqText: '드론 IV',
+  {id: 'dbag', col: 'move', kind: 'big', at: [1, 9.4], name: '자루 비우는 드론', cost: 150000, req: ['dcount', 7], reqText: '드론 VII',
     desc: '드론이 내 자루에 든 재도 덜어 가서 수거함에 넣습니다.', chg: '수거함까지 돌아갈 일이 없어집니다. 달리며 불만 붙이면 됩니다.'},
 ];
 // 상점: 손에 쥐거나 타는 물건과 소모품. 강화 나무와 따로 산다.
@@ -147,15 +148,18 @@ const SHOP = [
   {g: '도구', id: 'flare', name: '신호탄 총', cost: 20000, desc: '신호탄을 멀리 쏩니다. 떨어진 자리의 나무에 불이 붙습니다.', chg: '가지 않고도 멀리 있는 숲에 불을 냅니다.'},
   {g: '탈것', id: 'bike', name: '산악자전거', cost: 2500, desc: '달릴 때보다 1.8배 빠릅니다. V 키로 타고 내립니다.', chg: '숲 사이를 훨씬 빨리 오갑니다.'},
   {g: '탈것', id: 'atv', name: '사륜 오토바이', cost: 150000, desc: '달릴 때보다 2.6배 빠릅니다. 비탈과 덤불을 그대로 넘습니다.', chg: '섬 끝까지 금방 갑니다.'},
-  {g: '소모품', id: 'buy_match', name: '성냥 10개', cost: 3, use: 'match', n: 10, have: '성냥', u: '개', desc: '성냥 10개를 삽니다.'},
+  {g: '소모품', id: 'buy_match', name: '성냥 15개', cost: 5, use: 'match', n: 15, have: '성냥', u: '개', desc: '성냥 15개를 삽니다.'},
   {g: '소모품', id: 'buy_gas', name: '가스 한 통', cost: 15, use: 'gas', n: 30, have: '가스', u: '초', need: 'lighter', desc: '불꽃을 30초 낼 가스를 삽니다. 라이터와 가스 토치가 함께 씁니다.'},
   {g: '소모품', id: 'buy_oil', name: '기름 한 통', cost: 40, use: 'oil', n: 100, have: '기름', u: 'm', need: 'drip', desc: '100m를 흘릴 기름을 삽니다.'},
   {g: '소모품', id: 'buy_flare', name: '신호탄 5발', cost: 100, use: 'flare', n: 5, have: '신호탄', u: '발', need: 'flare', desc: '신호탄 5발을 삽니다.'},
 ];
+// 값과 단계 수는 계산 모델(balance.js)에서 가져온다.
+for (const it of ITEMS) { const b = BAL[it.id]; if (it.kind === 'big') it.cost = b.cost[0]; else Object.assign(it, b); }
+for (const x of SHOP) if (BAL.shop[x.id]) x.cost = BAL.shop[x.id];
 const SBY = Object.fromEntries(SHOP.map(x => [x.id, x]));
 const fresh = () => ({ash: 20, lv: {}, pick: {}, gate: 0, log: [], shop: {match: true}, match: 5, gas: 0, oil: 0, flare: 0});
 const GATES = [];
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI'];
 const BY = Object.fromEntries(ITEMS.map(x => [x.id, x]));
 let S = fresh();
 let hover = null, tab = 'tree';
@@ -233,7 +237,7 @@ function render() {
   // 줄 이름은 줄 끝에 적는다.
   for (const it of ITEMS) if (it.kind === 'line') {
     const [x, y] = P(it.col, it.at[0], it.at[1] + it.cost.length - 1 + 0.75), d = DIR[it.col][0];
-    h += `<text class="lb tip" style="--c:${COLS[it.col][1]}" x="${x}" y="${y + 4}" text-anchor="${d[0] > 0 ? 'start' : d[0] < 0 ? 'end' : 'middle'}" ${d[0] ? `dx="${-d[0] * 30}"` : ''}>${it.name} ${lv(it.id)}/${it.cost.length}</text>`;
+    h += `<text class="lb tip" style="--c:${COLS[it.col][1]}" x="${x}" y="${y + 4 + (!d[0] && Math.abs(it.at[0]) % 2 ? 18 * d[1] : 0)}" text-anchor="${d[0] > 0 ? 'start' : d[0] < 0 ? 'end' : 'middle'}" ${d[0] ? `dx="${-d[0] * 30}"` : ''}>${it.name} ${lv(it.id)}/${it.cost.length}</text>`;
   }
   document.getElementById('g').innerHTML = h;
 
@@ -305,7 +309,7 @@ function pay(c) { if (S.ash < c) { toast('재가 모자랍니다', '재 ' + fmt(
 
 // 화면 이동·확대
 const svg = document.getElementById('svg');
-let vb = {x: -900, y: -740, w: 1900, h: 1444}, drag = null, moved = false;
+let vb = {x: -1330, y: -1260, w: 2800, h: 2130}, drag = null, moved = false;
 const setVB = () => svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
 svg.addEventListener('pointerdown', ev => { drag = {x: ev.clientX, y: ev.clientY, vx: vb.x, vy: vb.y}; moved = false; });
 window.addEventListener('pointermove', ev => {
