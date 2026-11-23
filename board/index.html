@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 · 강화 판 미리보기</title>
+<style>
+:root{--bg:#0f1011;--panel:#191b1d;--panel2:#202326;--line:#30343a;--text:#e9e5dc;--dim:#8f918f;--ember:#e8833a;--gold:#d9b25a;--ok:#9dbb7c;--bad:#c9604e}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#231a14,#0f1011 60%);color:var(--text);font:14px/1.45 "Pretendard","Malgun Gothic",system-ui,sans-serif;min-height:100vh}
+.note{background:#2a2114;border-bottom:1px solid #4a3a1e;color:#d8c9a8;padding:7px 20px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.note button{background:#3a2e1a;border:1px solid #5a4724;color:#f0e2bf;border-radius:4px;padding:3px 9px;font:inherit;cursor:pointer}
+.note button:hover{background:#4a3a20}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;padding:16px 20px 30px;max-width:1900px;margin:0 auto}
+.top{display:flex;align-items:baseline;gap:16px;margin-bottom:12px}
+.top h1{margin:0;font-size:20px;font-weight:600;letter-spacing:.04em}
+.ash{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.ash small{font-size:13px;color:var(--dim);font-weight:400;margin-right:6px}
+.legend{margin-left:auto;display:flex;gap:14px;color:var(--dim);font-size:12px;align-items:center}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
+.cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.col h2{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.2em;color:var(--c);border-bottom:1px solid var(--line);padding-bottom:6px}
+.it{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin-bottom:8px;padding:9px 11px;cursor:pointer;position:relative;transition:border-color .12s,background .12s}
+.it:hover{border-color:#5b6068;background:var(--panel2)}
+.it.can{border-color:#7a5a2c} .it.can:hover{border-color:var(--ember)}
+.it.done{opacity:.62;cursor:default} .it.lock{opacity:.4;cursor:default}
+.tag{font-size:10.5px;letter-spacing:.14em;color:var(--dim);margin-bottom:2px}
+.nm{font-weight:600;font-size:15px}
+.r{display:flex;align-items:baseline;gap:8px}
+.r .cost{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.can .cost{color:var(--gold)} .poor .cost{color:var(--bad)} .done .cost,.lock .cost{color:var(--dim);font-weight:400}
+.sub{color:var(--dim);font-size:12.5px;margin-top:2px}
+.sub b{color:var(--text);font-weight:600}
+.pips{display:flex;gap:3px;margin-top:7px}
+.pips span{flex:1;height:5px;background:#33373c;border-radius:1px}
+.pips span.on{background:var(--c)} .pips span.next{background:#5a4a2c}
+.pips span.bigp{height:9px;margin-top:-2px}
+/* 큰 구매 */
+.big{border-left:3px solid var(--c);padding:12px 12px 12px 13px;background:linear-gradient(90deg,#221c17,var(--panel) 55%)}
+.big .tag{color:var(--ember)} .big .nm{font-size:17px}
+.big.done{background:var(--panel)}
+/* 갈림길 */
+.fork{padding:0;cursor:default;border-style:dashed}
+.fork .fh{padding:7px 11px 5px;display:flex;gap:8px;align-items:baseline}
+.fork .fh .tag{color:var(--gold);margin:0}
+.fork .fh .cost{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums}
+.fork .two{display:grid;grid-template-columns:1fr 22px 1fr;align-items:stretch;border-top:1px dashed var(--line)}
+.fork .or{display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;border-left:1px dashed var(--line);border-right:1px dashed var(--line)}
+.opt{padding:8px 10px;cursor:pointer}
+.opt:hover{background:var(--panel2)}
+.opt .nm{font-size:14px}
+.opt.sel{background:#2a2317;box-shadow:inset 0 0 0 1px var(--gold)}
+.opt.off{opacity:.42}
+.fork.lock .opt{cursor:default}
+.gates{margin-top:6px;border-top:1px solid var(--line);padding-top:10px}
+.gates h2{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.2em;color:var(--dim)}
+.gl{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0}
+.g{padding:9px 11px;border:1px solid var(--line);border-left:none;background:var(--panel);cursor:pointer;position:relative}
+.g:first-child{border-left:1px solid var(--line);border-radius:6px 0 0 6px;cursor:default} .g:last-child{border-radius:0 6px 6px 0}
+.g.open{background:#232018} .g.open .gn{color:var(--gold)}
+.g.can{border-color:#7a5a2c;border-left:1px solid #7a5a2c}
+.g.lock{opacity:.45;cursor:default}
+.gn{font-size:11px;letter-spacing:.14em;color:var(--dim)} .gf{font-weight:600}
+.gc{font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+aside{position:sticky;top:12px;align-self:start;display:flex;flex-direction:column;gap:12px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.box h3{margin:0 0 6px;font-size:11.5px;letter-spacing:.18em;color:var(--dim);font-weight:600}
+#detail{min-height:190px}
+#detail .nm{font-size:19px} #detail p{margin:6px 0;color:#cfcbc2}
+#detail .chg{border-left:2px solid var(--ember);padding-left:9px;color:var(--text)}
+#detail .buy{margin-top:8px;font-weight:600}
+#build .line{display:flex;gap:8px;padding:2px 0} #build .line span:first-child{color:var(--dim);width:82px;flex:none}
+#build .style{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--gold)}
+#log div{padding:3px 0;border-bottom:1px solid #24272b;font-size:13px} #log div:last-child{border:none}
+#log b{color:var(--ember);font-weight:600}
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:#1c1a17;border:1px solid var(--ember);border-radius:6px;padding:12px 22px;font-size:16px;box-shadow:0 8px 30px #000a;opacity:0;transition:opacity .25s;pointer-events:none;max-width:80vw;text-align:center}
+.toast.show{opacity:1} .toast small{display:block;color:var(--ember);letter-spacing:.16em;font-size:11px;margin-bottom:3px}
+@media(max-width:1250px){.wrap{grid-template-columns:1fr} aside{position:static} .cols{grid-template-columns:repeat(2,minmax(0,1fr))} .gl{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div class="note">
+  <span><b>미리보기입니다.</b> 실제 게임이 아니라 강화 판의 느낌을 보는 화면입니다. 재를 넣어 가며 직접 사 보세요.</span>
+  <button data-ash="100">재 +100</button><button data-ash="10000">재 +1만</button><button data-ash="1000000">재 +100만</button><button data-reset>처음으로</button>
+</div>
+<div class="wrap">
+  <div>
+    <div class="top">
+      <h1>강화</h1>
+      <div class="ash"><small>가진 재</small><span id="ash">0</span></div>
+      <div class="legend">
+        <span><i style="background:var(--ember)"></i>큰 구매 · 하는 방식이 바뀝니다</span>
+        <span><i style="border:1px dashed var(--gold)"></i>갈림길 · 둘 중 하나</span>
+        <span><i style="background:#33373c"></i>단계 강화</span>
+      </div>
+    </div>
+    <div class="cols" id="cols"></div>
+    <div class="gates"><h2>화력 · 갈 수 있는 숲</h2><div class="gl" id="gates"></div></div>
+  </div>
+  <aside>
+    <div class="box" id="detail"></div>
+    <div class="box" id="build"></div>
+    <div class="box"><h3>방금 산 것</h3><div id="log"></div></div>
+  </aside>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const COLS = [['fire', '불', '#d9643a'], ['tool', '도구', '#d0a24a'], ['ash', '재', '#a9b1b5'], ['move', '이동', '#7fae88']];
+// kind: line(단계 강화) / big(큰 구매) / fork(갈림길). line의 names·bigAt은 단계마다 이름이 다르거나 큰 변화인 경우.
+const ITEMS = [
+  {id: 'spread', col: 'fire', kind: 'line', name: '옮겨붙기', vals: [1, 2, 4, 7, 12, 20, 30], cost: [15, 60, 300, 2000, 15000, 120000], unit: '그루', label: '불 한 번에 평균',
+    desc: '불이 근처 나무로 더 잘 옮겨붙고, 옮겨붙어도 덜 약해집니다.', bigAt: {0: '이제 불이 스스로 옆 나무로 옮겨붙습니다. 성냥 하나로 여러 그루가 탑니다.'}},
+  {id: 'fall', col: 'fire', kind: 'big', name: '쓰러지는 나무', cost: 500, req: ['spread', 1], reqText: '옮겨붙기 I',
+    desc: '타는 나무가 쓰러지면서 닿는 나무에 불을 옮깁니다.', chg: '나무가 쓰러지는 쪽으로 불이 건너갑니다. 불이 어디로 갈지 눈에 보입니다.'},
+  {id: 'fstyle', col: 'fire', kind: 'fork', name: '불의 성격', cost: 1500, req: ['spread', 3], reqText: '옮겨붙기 III',
+    a: {name: '큰불', desc: '여러 그루가 함께 탈수록 더 잘 옮겨붙습니다. 빽빽한 숲에서 셉니다.'},
+    b: {name: '끈질긴 불', desc: '옮겨붙어도 거의 약해지지 않아 길게 갑니다. 듬성한 숲에서 셉니다.'}},
+  {id: 'reach', col: 'fire', kind: 'line', name: '멀리 옮겨붙기', vals: [4.5, 7, 10, 14], cost: [80, 1200, 20000], unit: 'm', label: '건너가는 거리', desc: '불이 더 멀리 떨어진 나무로도 건너갑니다.'},
+  {id: 'multi', col: 'fire', kind: 'line', name: '같이 붙이기', vals: [0, 1, 2, 3, 4], cost: [40, 400, 4000, 40000], unit: '그루', label: '함께 붙는 나무', desc: '불을 붙일 때 바로 옆 나무에도 함께 붙습니다.'},
+  {id: 'ember', col: 'fire', kind: 'line', name: '불똥', vals: [0, 5, 10, 20, 30], cost: [3000, 12000, 60000, 300000], unit: '%', label: '불똥이 튈 확률',
+    desc: '타는 나무에서 불똥이 날아가 떨어진 곳의 나무에 새 불을 냅니다.', bigAt: {0: '불똥이 날아가 빈터 건너편에서 새 불이 납니다.'}},
+
+  {id: 'lighter', col: 'tool', kind: 'big', name: '라이터', cost: 150, desc: '성냥보다 훨씬 빨리 불이 붙습니다. 성냥 대신 가스를 씁니다.', chg: '긋고 기다리지 않습니다. 나무에 대고 있으면 불이 붙습니다.'},
+  {id: 'oil', col: 'tool', kind: 'big', name: '기름통', cost: 1200, req: ['lighter', 1], reqText: '라이터',
+    desc: '땅에 기름을 뿌립니다. 불이 기름을 따라갑니다.', chg: '불이 갈 길을 직접 그립니다. 떨어져 있는 나무 무리를 이을 수 있습니다.'},
+  {id: 'torch', col: 'tool', kind: 'big', name: '가스 토치', cost: 4000, req: ['lighter', 1], reqText: '라이터', desc: '라이터가 가스 토치로 바뀝니다.', chg: '나무에 대는 순간 불이 붙습니다. 뛰면서 붙일 수 있습니다.'},
+  {id: 'thrower', col: 'tool', kind: 'fork', name: '붙이는 방식', cost: 20000, req: ['torch', 1], reqText: '가스 토치',
+    a: {name: '화염병', desc: '멀리 던져 떨어진 자리의 나무 여러 그루에 한꺼번에 붙입니다. 불똥·옮겨붙기와 잘 맞습니다.'},
+    b: {name: '화염방사기', desc: '걸어가며 쓸듯이 붙입니다. 이동 속도·같이 붙이기와 잘 맞습니다.'}},
+  {id: 'hand', col: 'tool', kind: 'line', name: '익숙한 손', vals: [100, 80, 60, 45, 30], cost: [12, 120, 1200, 12000], unit: '%', label: '불 붙이는 시간', desc: '어떤 도구로든 불을 더 빨리 붙입니다.'},
+  {id: 'pocket', col: 'tool', kind: 'line', name: '넉넉한 주머니', vals: [20, 40, 80, 160, 320, 640], cost: [10, 60, 400, 2500, 15000], unit: '개', label: '들고 다니는 성냥', desc: '성냥과 가스를 더 많이 들고 다닙니다.'},
+  {id: 'consum', col: 'tool', kind: 'fork', name: '성냥과 가스', cost: 400,
+    a: {name: '아껴 쓰기', desc: '불을 붙여도 성냥·가스가 줄지 않을 때가 있습니다. 직접 많이 붙일수록 이득입니다.'},
+    b: {name: '헐값', desc: '성냥·가스를 훨씬 싸게 삽니다. 가끔만 붙이는 사람에게 이득입니다.'}},
+  {id: 'auto', col: 'tool', kind: 'big', name: '자동 보충', cost: 1500, desc: '성냥이나 가스가 떨어지면 가진 재로 저절로 사서 채웁니다.', chg: 'R 키를 누를 일이 없어집니다.'},
+
+  {id: 'bag', col: 'ash', kind: 'line', name: '자루', vals: [10, 20, 40, 80, 150, 300, 600, 1200, 2500, 5000, 10000], cost: [4, 10, 25, 60, 150, 380, 950, 2400, 6000, 15000], unit: '', label: '자루에 담는 재', desc: '자루에 재를 더 많이 담습니다.'},
+  {id: 'magnet', col: 'ash', kind: 'line', name: '자석', vals: [1.5, 2, 3, 4, 6, 8, 12, 17, 25, 32, 40], cost: [6, 15, 40, 100, 250, 600, 1500, 4000, 10000, 25000], unit: 'm', label: '재가 끌려오는 거리', desc: '더 먼 곳에 떨어진 재가 저절로 끌려옵니다.'},
+  {id: 'yield', col: 'ash', kind: 'line', name: '수북한 재', vals: [1, 2, 5, 10, 20, 50], cost: [30, 250, 2500, 25000, 300000], unit: '개', label: '나무 한 그루의 재',
+    desc: '나무 한 그루에서 재가 더 나옵니다.', bigAt: {2: '재 10개는 황금 재 한 덩이로 떨어집니다. 주우면 재 10이 들어옵니다.'}},
+  {id: 'gather', col: 'ash', kind: 'fork', name: '재 모으기', cost: 800, req: ['bag', 3], reqText: '자루 III',
+    a: {name: '넓은 자석', desc: '자석 거리가 2배가 됩니다. 계속 움직이며 줍는 방식에 맞습니다.'},
+    b: {name: '수레', desc: '자루 대신 수레를 끕니다. 5배를 담지만 걸음이 느리고 탈것에 못 싣습니다. 한자리에서 크게 태우는 방식에 맞습니다.'}},
+  {id: 'pour', col: 'ash', kind: 'line', name: '빠른 붓기', vals: ['4초', '2초', '1초', '바로'], cost: [15, 300, 6000], unit: '', label: '자루를 비우는 시간', desc: '자루를 수거함에 더 빨리 비웁니다.'},
+  {id: 'call', col: 'ash', kind: 'big', name: '수거함 부르기', cost: 1000, desc: 'G 키로 수거함을 내 곁으로 부릅니다.', chg: '수거함까지 걸어서 돌아가지 않습니다.'},
+  {id: 'direct', col: 'ash', kind: 'big', name: '곧바로 수거함으로', cost: 1500000, req: ['call', 1], reqText: '수거함 부르기', desc: '주운 재가 자루를 거치지 않고 곧바로 수거함에 쌓입니다.', chg: '자루를 비우러 갈 일이 없어집니다.'},
+
+  {id: 'move', col: 'move', kind: 'line', name: '이동', vals: [1, 1.2, 1.4, 1.8, 2.1, 2.6, 3], cost: [15, 150, 2500, 12000, 150000, 600000], unit: '배', label: '빠르기',
+    names: ['다리 힘 I', '다리 힘 II', '산악자전거', '자전거 손보기', '사륜 오토바이', '오토바이 손보기'], desc: '더 빨리 움직입니다.',
+    bigAt: {2: '자전거를 탑니다. V 키로 타고 내립니다.', 4: '사륜 오토바이를 탑니다. 비탈과 덤불을 그대로 넘습니다.'}},
+];
+const GATES = [['시작 숲', 0], ['큰 숲', 400], ['소나무 숲', 12000], ['늙은 소나무 숲', 120000], ['습지', 600000], ['깊은 습지', 3000000]];
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const BY = Object.fromEntries(ITEMS.map(x => [x.id, x]));
+let S = {ash: 20, lv: {}, pick: {}, gate: 0, log: []};
+let hover = null;
+const fmt = n => typeof n === 'number' ? n.toLocaleString('ko-KR') : n;
+const lv = id => S.lv[id] || 0;
+const reqOk = it => !it.req || lv(it.req[0]) >= it.req[1];
+const stepName = (it, i) => it.names ? it.names[i] : it.name + ' ' + ROMAN[i];
+const swapCost = it => Math.round(it.cost * 0.2);
+
+function itemHTML(it) {
+  const c = COLS.find(x => x[0] === it.col)[2];
+  const locked = !reqOk(it);
+  if (it.kind === 'fork') {
+    const p = S.pick[it.id];
+    const head = p ? `<span class="cost" style="color:var(--dim);font-weight:400">바꾸기 ${fmt(swapCost(it))}</span>` : `<span class="cost" style="color:${S.ash >= it.cost && !locked ? 'var(--gold)' : 'var(--bad)'}">${fmt(it.cost)}</span>`;
+    const opt = k => `<div class="opt ${p === k ? 'sel' : p ? 'off' : ''}" data-id="${it.id}" data-opt="${k}"><div class="nm">${it[k].name}</div><div class="sub">${it[k].desc.split('. ')[0]}.</div></div>`;
+    return `<div class="it fork ${locked ? 'lock' : ''}" style="--c:${c}"><div class="fh"><span class="tag">갈림길 · ${it.name}</span>${locked ? `<span class="cost" style="color:var(--dim);font-weight:400">${it.reqText} 뒤</span>` : head}</div>
+      <div class="two">${opt('a')}<div class="or">또는</div>${opt('b')}</div></div>`;
+  }
+  if (it.kind === 'big') {
+    const done = lv(it.id) > 0, can = !done && !locked && S.ash >= it.cost;
+    return `<div class="it big ${done ? 'done' : locked ? 'lock' : can ? 'can' : 'poor'}" style="--c:${c}" data-id="${it.id}">
+      <div class="tag">큰 구매</div><div class="r"><span class="nm">${it.name}</span><span class="cost">${done ? '가짐' : locked ? it.reqText + ' 뒤' : fmt(it.cost)}</span></div>
+      <div class="sub">${it.chg}</div></div>`;
+  }
+  const l = lv(it.id), n = it.cost.length, done = l >= n, can = !done && !locked && S.ash >= it.cost[l];
+  const pips = it.cost.map((_, i) => `<span class="${i < l ? 'on' : i === l ? 'next' : ''} ${it.bigAt && it.bigAt[i] ? 'bigp' : ''}"></span>`).join('');
+  const isBig = !done && it.bigAt && it.bigAt[l];
+  return `<div class="it ${isBig ? 'big' : ''} ${done ? 'done' : locked ? 'lock' : can ? 'can' : 'poor'}" style="--c:${c}" data-id="${it.id}">
+    ${isBig ? '<div class="tag">큰 구매</div>' : ''}
+    <div class="r"><span class="nm">${done ? it.name : stepName(it, l)}</span><span class="cost">${done ? '다 배움' : fmt(it.cost[l])}</span></div>
+    <div class="sub">${isBig ? it.bigAt[l] : it.label + ' ' + (done ? `<b>${fmt(it.vals[l])}${it.unit}</b>` : `${fmt(it.vals[l])}${it.unit} → <b>${fmt(it.vals[l + 1])}${it.unit}</b>`)}</div>
+    <div class="pips">${pips}</div></div>`;
+}
+
+function render() {
+  document.getElementById('ash').textContent = fmt(Math.floor(S.ash));
+  document.getElementById('cols').innerHTML = COLS.map(([id, nm, c]) =>
+    `<div class="col" style="--c:${c}"><h2>${nm}</h2>${ITEMS.filter(x => x.col === id).map(itemHTML).join('')}</div>`).join('');
+  document.getElementById('gates').innerHTML = GATES.map(([nm, cost], i) => {
+    const open = i <= S.gate, next = i === S.gate + 1;
+    return `<div class="g ${open ? 'open' : next ? (S.ash >= cost ? 'can' : '') : 'lock'}" data-gate="${i}"><div class="gn">화력 ${i + 1}</div><div class="gf">${nm}</div><div class="gc">${open ? '갈 수 있음' : fmt(cost)}</div></div>`;
+  }).join('');
+  // 내 빌드
+  const forks = ITEMS.filter(x => x.kind === 'fork');
+  let b = '<h3>내 방식</h3>' + forks.map(f => `<div class="line"><span>${f.name}</span><span>${S.pick[f.id] ? '<b>' + f[S.pick[f.id]].name + '</b>' : '<span style="color:var(--dim)">아직 안 고름</span>'}</span></div>`).join('');
+  const tool = lv('torch') ? '가스 토치' : lv('lighter') ? '라이터' : '성냥';
+  const ride = lv('move') >= 5 ? '사륜 오토바이' : lv('move') >= 3 ? '산악자전거' : '걸어서';
+  b += `<div class="line"><span>도구 · 이동</span><span><b>${S.pick.thrower ? BY.thrower[S.pick.thrower].name : tool}</b> · <b>${ride}</b></span></div>`;
+  const far = (S.pick.fstyle === 'b') + (S.pick.thrower === 'a') + (S.pick.gather === 'b') + (S.pick.consum === 'b');
+  const near = (S.pick.fstyle === 'a') + (S.pick.thrower === 'b') + (S.pick.gather === 'a') + (S.pick.consum === 'a');
+  if (far + near >= 2) b += `<div class="style">${far > near ? '한 번 붙이고 불이 번지길 기다리는 방식' : near > far ? '뛰어다니며 직접 붙이고 바로 줍는 방식' : '두 방식을 섞은 방식'}</div>`;
+  document.getElementById('build').innerHTML = b;
+  document.getElementById('log').innerHTML = S.log.length ? S.log.slice(0, 6).map(x => `<div>${x}</div>`).join('') : '<div style="color:var(--dim)">아직 없습니다.</div>';
+  detail();
+}
+
+function detail() {
+  const el = document.getElementById('detail');
+  if (!hover) { el.innerHTML = '<h3>설명</h3><p style="color:var(--dim)">강화에 마우스를 올리면 설명이 나옵니다. 누르면 삽니다.</p>'; return; }
+  const [id, opt] = hover, it = BY[id];
+  let h = '';
+  if (it.kind === 'fork') {
+    const p = S.pick[id], o = it[opt || 'a'];
+    h = `<h3>갈림길 · ${it.name}</h3><div class="nm">${o.name}</div><p>${o.desc}</p><p style="color:var(--dim)">둘 중 하나만 고릅니다. 고른 뒤에도 재를 내고 다른 쪽으로 바꿀 수 있습니다.</p>`;
+    h += `<div class="buy">${!reqOk(it) ? it.reqText + '을(를) 산 뒤에 고를 수 있습니다' : p === opt ? '지금 고른 쪽입니다' : p ? '이쪽으로 바꾸기 · 재 ' + fmt(swapCost(it)) : '고르기 · 재 ' + fmt(it.cost)}</div>`;
+  } else if (it.kind === 'big') {
+    h = `<h3>큰 구매</h3><div class="nm">${it.name}</div><p>${it.desc}</p><p class="chg">${it.chg}</p><div class="buy">${lv(id) ? '이미 가지고 있습니다' : !reqOk(it) ? it.reqText + '을(를) 먼저 사야 합니다' : '사기 · 재 ' + fmt(it.cost)}</div>`;
+  } else {
+    const l = lv(id), n = it.cost.length;
+    h = `<h3>${it.bigAt && it.bigAt[l] ? '큰 구매' : '단계 강화 · ' + l + ' / ' + n}</h3><div class="nm">${l >= n ? it.name : stepName(it, l)}</div><p>${it.desc}</p>`;
+    if (l < n) {
+      if (it.bigAt && it.bigAt[l]) h += `<p class="chg">${it.bigAt[l]}</p>`;
+      h += `<p>${it.label} ${fmt(it.vals[l])}${it.unit} → <b>${fmt(it.vals[l + 1])}${it.unit}</b></p><div class="buy">사기 · 재 ${fmt(it.cost[l])}</div>`;
+    } else h += `<p>${it.label} <b>${fmt(it.vals[l])}${it.unit}</b></p><div class="buy">다 배웠습니다</div>`;
+  }
+  el.innerHTML = h;
+}
+
+let tt;
+function toast(small, text) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<small>${small}</small>${text}`; t.classList.add('show');
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function pay(c) { if (S.ash < c) { toast('재가 모자랍니다', '재 ' + fmt(c - Math.floor(S.ash)) + ' 더 필요합니다'); return false; } S.ash -= c; return true; }
+
+document.addEventListener('click', ev => {
+  const a = ev.target.closest('[data-ash]'); if (a) { S.ash += +a.dataset.ash; render(); return; }
+  if (ev.target.closest('[data-reset]')) { S = {ash: 20, lv: {}, pick: {}, gate: 0, log: []}; render(); return; }
+  const g = ev.target.closest('[data-gate]');
+  if (g) {
+    const i = +g.dataset.gate;
+    if (i === S.gate + 1 && pay(GATES[i][1])) { S.gate = i; S.log.unshift(`<b>화력 ${i + 1}</b> · ${GATES[i][0]}에 들어갈 수 있습니다`); toast('새 숲', GATES[i][0] + '의 나무에 불을 붙일 수 있습니다'); render(); }
+    return;
+  }
+  const el = ev.target.closest('[data-id]'); if (!el) return;
+  const it = BY[el.dataset.id];
+  if (!reqOk(it)) return;
+  if (it.kind === 'fork') {
+    const k = el.dataset.opt, p = S.pick[it.id];
+    if (p === k) return;
+    if (!pay(p ? swapCost(it) : it.cost)) return;
+    S.pick[it.id] = k;
+    S.log.unshift(`<b>${it[k].name}</b> · ${it.name}${p ? ' (바꿈)' : ''}`);
+    toast(p ? '방식을 바꿨습니다' : '방식을 골랐습니다', it[k].name + ' — ' + it[k].desc.split('. ')[0] + '.');
+  } else if (it.kind === 'big') {
+    if (lv(it.id) || !pay(it.cost)) return;
+    S.lv[it.id] = 1; S.log.unshift(`<b>${it.name}</b> · ${it.chg}`); toast('이제 달라집니다', it.chg);
+  } else {
+    const l = lv(it.id); if (l >= it.cost.length || !pay(it.cost[l])) return;
+    S.lv[it.id] = l + 1;
+    if (it.bigAt && it.bigAt[l]) { S.log.unshift(`<b>${stepName(it, l)}</b> · ${it.bigAt[l]}`); toast('이제 달라집니다', it.bigAt[l]); }
+    else S.log.unshift(`${stepName(it, l)} · ${it.label} ${fmt(it.vals[l + 1])}${it.unit}`);
+  }
+  render();
+});
+document.addEventListener('mouseover', ev => {
+  const el = ev.target.closest('[data-id]');
+  const h = el ? [el.dataset.id, el.dataset.opt] : null;
+  if (!h) return;
+  if (!hover || hover[0] !== h[0] || hover[1] !== h[1]) { hover = h; detail(); }
+});
+render();
+</script>
+</body>
+</html>
