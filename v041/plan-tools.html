@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 · 도구와 강화 다시 짜기</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c;--old:#7d8794;--hand:#ffc46b;--oil:#d98b5f;--shot:#e86a6a;--ride:#8fd694;--sky:#7fb6d9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:940px;margin:0 auto;padding:32px 16px 80px}
+a{color:var(--acc)}
+h1{font-size:27px;line-height:1.3;margin:0 0 8px}
+h2{font-size:20px;margin:52px 0 10px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:0 0 2px}
+p{margin:0 0 12px;max-width:70ch}
+.dim{color:var(--dim)}
+.scroll{overflow-x:auto;margin:6px 0 10px}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:400;font-size:13.5px;white-space:nowrap}
+td.t{white-space:nowrap}
+svg{display:block;width:100%;height:auto}
+.legend{font-size:13.5px;color:var(--dim);display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.fam{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;margin:12px 0}
+.fam .sub{color:var(--dim);font-size:14.5px;margin-bottom:8px}
+.tag{font-size:12.5px;border:1px solid var(--line);border-radius:99px;padding:0 7px;color:var(--dim);margin-left:6px;white-space:nowrap}
+.tag.n{color:var(--acc);border-color:#6b4526}
+.opt{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:10px 0}
+.opt b{font-size:16.5px}
+.opt.rec{border-color:var(--acc)}
+.opt .r{color:var(--acc);font-size:13px;margin-left:6px}
+ul{margin:0 0 12px;padding-left:20px;max-width:70ch}
+li{margin-bottom:4px}
+</style>
+</head>
+<body>
+<main>
+<p><a href="./">← 화면 모음</a></p>
+<h1>도구와 강화 다시 짜기</h1>
+<p class="dim">"드립 토치를 사고 나면 다음 도구까지 기름 굵기만 굵어진다"를 고치는 계획입니다. 승인 전까지 만들지 않습니다. 아래 시각과 수치는 재지 않은 초안입니다.</p>
+
+<h2>1. 지금 무엇이 아쉬운가</h2>
+<p>v0.41에서 새 도구가 생기는 시각을 늘어놓으면 빈 구간이 보입니다. 드립 토치(45분)를 산 뒤 신호탄 총(88분)까지 <b>43분 동안 새 도구가 없습니다.</b> 그동안 사는 것은 "굵은 기름줄", "큰 기름통"처럼 숫자만 오르는 강화입니다.</p>
+<div id="tl"></div>
+<div class="legend"><span><i class="sw" style="background:var(--hand)"></i>손에 드는 불</span><span><i class="sw" style="background:var(--oil)"></i>기름</span><span><i class="sw" style="background:var(--shot)"></i>쏘는 것</span><span><i class="sw" style="background:var(--sky)"></i>하늘</span><span><i class="sw" style="background:var(--ride)"></i>탈것</span></div>
+
+<h2>2. 추천: 도구를 7개에서 12개로, 계열마다 진화</h2>
+<p>도구를 네 계열로 묶고 계열마다 단계가 오릅니다. 새 도구가 <b>길어도 13분마다</b> 하나씩 생깁니다. 숫자만 오르던 긴 강화 줄은 줄이고, 그 자리를 새 도구와 그 도구의 강화로 채웁니다. 강화 개수는 지금(165개) 수준을 유지합니다.</p>
+<p>새로 넣는 다섯 개는 대부분 예전에 만들어 두고 꺼 놓은 것이라, 처음부터 만드는 것보다 훨씬 빠릅니다.</p>
+
+<div class="fam">
+<h3 style="color:var(--hand)">손에 드는 불</h3>
+<div class="sub">한 그루를 골라 붙이다가, 끝에는 불줄기로 숲을 쓸어 버립니다.</div>
+<div class="scroll"><table>
+<tr><th>도구</th><th>무렵</th><th>쓰는 법</th><th>이 도구의 강화</th></tr>
+<tr><td class="t">성냥</td><td class="t">시작</td><td>그어서 한 그루</td><td>익숙한 손, 같이 붙이기</td></tr>
+<tr><td class="t">라이터</td><td class="t">3분</td><td>대고 있으면 붙음</td><td>센 불씨</td></tr>
+<tr><td class="t">가스 토치</td><td class="t">12분</td><td>대는 순간 붙음, 탈것을 타고도 씀</td><td>(위와 함께)</td></tr>
+<tr><td class="t">화염방사기<span class="tag n">새로</span></td><td class="t">38분</td><td>13m 불줄기 안의 나무를 차례로 붙임</td><td>긴 불줄기(13m → 22m), 넓은 불줄기</td></tr>
+</table></div>
+</div>
+
+<div class="fam">
+<h3 style="color:var(--oil)">기름</h3>
+<div class="sub">길을 긋다가, 덫을 놓고, 끝에는 비행기가 대신 뿌립니다.</div>
+<div class="scroll"><table>
+<tr><th>도구</th><th>무렵</th><th>쓰는 법</th><th>이 도구의 강화</th></tr>
+<tr><td class="t">드립 토치</td><td class="t">25분</td><td>달린 자국이 불길이 됨</td><td>굵은 기름줄, 큰 기름통</td></tr>
+<tr><td class="t">연료 드럼<span class="tag n">새로</span></td><td class="t">50분</td><td>세워 두면 불이 닿을 때 터져 둘레 7m를 붙임. 여러 개를 놓아 연쇄 폭발</td><td>드럼 개수(3 → 8), 큰 폭발(7m → 14m)</td></tr>
+<tr><td class="t">항공 살포<span class="tag n">새로</span></td><td class="t">90분</td><td>두 점을 찍으면 비행기가 그 선을 따라 연료를 뿌림(150m 밖까지)</td><td>긴 살포, 넓은 살포</td></tr>
+</table></div>
+</div>
+
+<div class="fam">
+<h3 style="color:var(--shot)">쏘는 것</h3>
+<div class="sub">가지 않고 멀리 불을 냅니다. 뒤로 갈수록 한 발이 커집니다.</div>
+<div class="scroll"><table>
+<tr><th>도구</th><th>무렵</th><th>쓰는 법</th><th>이 도구의 강화</th></tr>
+<tr><td class="t">신호탄 총</td><td class="t">62분</td><td>70m 밖에 반경 3m 불</td><td>큰 신호탄, 긴 총열</td></tr>
+<tr><td class="t">소이 폭탄<span class="tag n">새로</span></td><td class="t">78분</td><td>한 발이 반경 9m를 한꺼번에</td><td>탄창(한 번에 여러 발)</td></tr>
+<tr><td class="t">집속 소이탄<span class="tag n">새로</span></td><td class="t">100분</td><td>떨어진 자리 둘레에 네 발이 더 터짐</td><td>자탄 수(4 → 8)</td></tr>
+</table></div>
+</div>
+
+<div class="fam">
+<h3 style="color:var(--sky)">하늘</h3>
+<div class="sub">마지막 도구입니다. 행성 목표로 이어지는 다리입니다.</div>
+<div class="scroll"><table>
+<tr><th>도구</th><th>무렵</th><th>쓰는 법</th><th>이 도구의 강화</th></tr>
+<tr><td class="t">위성 포격</td><td class="t">108분</td><td>지도에서 찍은 자리에 지름 56m 불기둥</td><td>포격 횟수, 넓은 포격<span class="tag n">새로</span></td></tr>
+</table></div>
+</div>
+
+<h2>3. 강화 줄을 어떻게 바꾸나</h2>
+<div class="scroll"><table>
+<tr><th>지금</th><th>바뀐 뒤</th></tr>
+<tr><td>한 줄이 8~16단계, 전부 "몇 % 더"</td><td>한 줄은 3~4단계, 마지막 칸은 <b>하는 방식이 바뀌는 칸</b></td></tr>
+<tr><td>도구를 사면 그 줄만 따로 오름</td><td>앞 계열 강화가 뒤 도구에 이어짐(굵은 기름줄 → 항공 살포의 폭)</td></tr>
+<tr><td>쓰는 방식 6가지(F 키)</td><td>그대로 두고, 새 도구에도 둘씩 추가</td></tr>
+</table></div>
+<p>"하는 방식이 바뀌는 칸"의 예:</p>
+<ul>
+<li>굵은 기름줄 끝 칸 → <b>새는 기름통</b>: 드립 토치를 들고만 있어도 탈것 뒤로 기름이 흐릅니다.</li>
+<li>센 불씨 끝 칸 → <b>옮겨붙는 손</b>: 내가 직접 붙인 나무는 한 번 더 옮겨붙기를 굴립니다.</li>
+<li>큰 신호탄 끝 칸 → <b>불똥 신호탄</b>: 떨어진 자리에서 불똥이 사방으로 튑니다.</li>
+<li>드럼 개수 끝 칸 → <b>도화선</b>: 드럼 하나가 터지면 가까운 드럼이 차례로 터집니다.</li>
+</ul>
+
+<h2>4. 다른 방법과 비교</h2>
+<div class="opt rec"><b>가. 도구 늘리기 + 끝 칸 바꾸기</b><span class="r">추천</span><p class="dim" style="margin:6px 0 0">위 2·3번 그대로입니다. 지적한 문제(새 도구 사이가 길다)를 직접 고칩니다. 예전에 만든 도구를 되살리므로 품이 가장 적게 듭니다. 단점: 도구가 12개라 단축키와 도구 칸을 계열 단위로 정리해야 합니다(계열 4개, 같은 키를 다시 누르면 계열 안에서 바뀜).</p></div>
+<div class="opt"><b>나. 도구는 그대로, 강화 줄만 갈림길로</b><p class="dim" style="margin:6px 0 0">줄마다 중간에 둘로 갈라져 하나를 고릅니다. 만들 것이 적지만, "다음 도구까지 숫자만 오른다"는 느낌은 그대로 남습니다.</p></div>
+<div class="opt"><b>다. 도구를 조합하는 판</b><p class="dim" style="margin:6px 0 0">몸통·연료·탄 같은 부품을 사서 끼워 도구를 만듭니다. 빌드 재미는 가장 크지만 새로 만들 것이 많고, 값을 맞추기가 가장 어렵습니다. 지금 단계에는 과합니다.</p></div>
+
+<h2>5. 아직 모르는 것</h2>
+<ul>
+<li>되살리는 도구 다섯 개는 예전 규칙(화력·나무 강도)에 맞춰 만든 것이라, 지금의 번짐 규칙에 맞게 손봐야 합니다. 얼마나 손이 갈지는 열어 봐야 압니다.</li>
+<li>도구가 늘면 태우는 속도가 달라져 값을 다시 재야 합니다(측정 한 번, 약 40분).</li>
+<li>자동 플레이 봇이 새 도구를 쓰게 가르쳐야 값이 맞습니다. 안 가르치면 사람이 봇보다 훨씬 빨라집니다.</li>
+</ul>
+
+<h2>6. 정해 줄 것</h2>
+<ul>
+<li><b>방법</b>: 가(추천) / 나 / 다</li>
+<li><b>번개 계열</b>: 예전에 만든 피뢰침·유도 로켓·뇌우 호출도 있습니다. 현실적인 게임이라는 방향과 안 맞아 뺐는데, 넣기를 원하면 알려 주세요.</li>
+<li><b>단축키</b>: 계열 4개에 1~4번, 같은 번호를 다시 누르면 계열 안에서 바뀌는 방식으로 해도 되는지.</li>
+</ul>
+</main>
+<script>
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const E=(t,a,txt)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+const NOW=[['라이터',4,'hand'],['자전거',18,'ride'],['가스 토치',28,'hand'],['드립 토치',45,'oil'],['사륜 오토바이',70,'ride'],['신호탄 총',88,'shot'],['위성 포격',106,'sky']];
+const NEW=[['라이터',3,'hand'],['가스 토치',12,'hand'],['자전거',18,'ride'],['드립 토치',25,'oil'],['화염방사기',38,'hand'],['연료 드럼',50,'oil'],['신호탄 총',62,'shot'],['사륜 오토바이',70,'ride'],['소이 폭탄',78,'shot'],['항공 살포',90,'oil'],['집속 소이탄',100,'shot'],['위성 포격',108,'sky']];
+(function(){
+  const W=900,L=70,R=20,x=t=>L+(W-L-R)*t/120;
+  const s=E('svg',{viewBox:`0 0 ${W} 250`,role:'img','aria-label':'새 도구가 생기는 시각 비교'});
+  for(let t=0;t<=120;t+=20){s.append(E('line',{x1:x(t),x2:x(t),y1:18,y2:232,stroke:css('--line')}));s.append(E('text',{x:x(t),y:246,'text-anchor':'middle',fill:css('--dim'),'font-size':12},t+'분'));}
+  const row=(list,y,label)=>{
+    s.append(E('text',{x:4,y:y+4,fill:css('--text'),'font-size':13},label));
+    s.append(E('line',{x1:x(0),x2:x(120),y1:y,y2:y,stroke:'#5a5146','stroke-width':2}));
+    list.forEach(([n,t,c],i)=>{
+      s.append(E('circle',{cx:x(t),cy:y,r:6,fill:css('--'+c)}));
+      const up=i%2===0;
+      s.append(E('text',{x:x(t),y:up?y-14:y+24,'text-anchor':'middle',fill:css('--text'),'font-size':11.5},n));
+    });
+  };
+  row(NOW,62,'지금');
+  // 가장 긴 빈 구간(탈것 빼고 도구만)
+  s.append(E('rect',{x:x(45),y:50,width:x(88)-x(45),height:24,fill:css('--old'),opacity:.22,rx:4}));
+  s.append(E('text',{x:(x(45)+x(88))/2,y:104,'text-anchor':'middle',fill:css('--dim'),'font-size':12},'새 도구 없이 43분'));
+  row(NEW,176,'바뀐 뒤');
+  document.getElementById('tl').append(s);
+})();
+</script>
+</body>
+</html>
