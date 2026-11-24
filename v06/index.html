@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 v0.6 · 트인 숲, 새 강화 판, 보이는 드론</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:1500px;margin:0 auto;padding:32px 16px 80px}
+a{color:var(--acc)}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:20px;margin:48px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
+p,li{color:var(--dim);max-width:72ch}
+p{margin:0 0 10px}
+ul{margin:0 0 10px;padding-left:20px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+nav a{padding:8px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);min-height:44px;display:flex;align-items:center}
+.row{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));margin-top:10px}
+.pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+figure{margin:0}
+img{display:block;width:100%;height:auto;border-radius:4px;background:#000}
+figcaption{font-size:13.5px;color:var(--dim);margin-top:3px}
+figcaption b{color:var(--text);font-weight:400}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;max-width:900px;font-size:15px;font-variant-numeric:tabular-nums;margin:8px 0}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--dim);font-weight:400;font-size:13.5px}
+@media (max-width:700px){.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 v0.6</h1>
+<p>직접 해 보고 알려 주신 다섯 가지와 드론이 안 보이던 문제를 고친 판입니다. 아래 화면은 게임을 실제로 돌려 찍은 것입니다.</p>
+<nav><a href="#trees">숲</a><a href="#board">강화 판</a><a href="#drone">드론과 잎</a><a href="#fire">큰불과 후반</a><a href="#num">측정 결과</a><a href="#known">알려진 문제</a><a href="upgrades.html">강화 전체 표</a><a href="../v05/">v0.5 화면</a></nav>
+
+<h2 id="trees">숲: 잎은 머리 위로, 줄기는 굵게, 종류별로 모여서</h2>
+<p>가장 낮은 잎이 땅에서 3.6m 위에 있어 눈높이가 트입니다. 가장 가는 줄기도 반지름 0.16m이고, 60m 단위로 같은 종류끼리 모여 자랍니다(6m 안의 이웃이 같은 종류인 비율 87~94%). 왼쪽이 고치기 전, 오른쪽이 고친 뒤입니다.</p>
+<div class="row pair" id="g-trees"></div>
+<p style="margin-top:14px">걸어 다니며 본 세 군락입니다.</p>
+<div class="row" id="g-walk"></div>
+
+<h2 id="board">강화 판: 탭 여섯 개, 한 줄에 하나</h2>
+<p>살 수 있음 · 불 · 재 · 도구 · 나르기 · 상점 탭으로 나뉩니다. "살 수 있음" 탭은 갈래와 상관없이 지금 살 수 있는 것만 싼 순서로 보여 줍니다. 한 줄에 이름, 단계, 이전 → 이후 값, 값이 나오고, 설명은 오른쪽 칸에만 나옵니다. 가장 싼 강화는 재 1개에서 3개로 올렸습니다.</p>
+<div class="row pair" id="g-board"></div>
+
+<h2 id="drone">드론과 잎</h2>
+<p>드론을 가리는 잎과 카메라 바로 앞의 잎은 점무늬로 흩어져 비쳐 보입니다. 드론에는 주황 불빛이 달려 멀리서도 위치가 보입니다.</p>
+<div class="row pair" id="g-drone"></div>
+
+<h2 id="fire">큰불과 후반</h2>
+<p>후반에 오래 하면 오류가 쏟아지며 느려지던 문제를 고쳤습니다(175분 실행 동안 오류 0줄). 자루는 10만까지 커집니다.</p>
+<div class="row" id="g-fire"></div>
+
+<h2 id="num">측정 결과</h2>
+<p>자동 플레이가 실제 값으로 164분 동안 진행한 기록입니다. 봇은 드립 토치까지만 쓰므로 새 도구와 패러글라이더의 세기는 들어 있지 않고, 사람보다 20%쯤 빠릅니다.</p>
+<div class="scroll"><table>
+<tr><th>시점</th><th>가진 강화 (전체 187개)</th><th>행성 진행</th></tr>
+<tr><td>10분</td><td>21개</td><td></td></tr>
+<tr><td>30분</td><td>61개</td><td>0.7%</td></tr>
+<tr><td>60분</td><td>110개</td><td>7.6%</td></tr>
+<tr><td>90분</td><td>150개</td><td>45.5%</td></tr>
+<tr><td>120분</td><td>184개</td><td>79.7%</td></tr>
+<tr><td>127분</td><td>187개(전부)</td><td></td></tr>
+<tr><td>164분</td><td>전부</td><td>98.4%</td></tr>
+</table></div>
+<p>손으로 한 첫 10분: 첫 구매 0.5분, 10분 동안 21개 구매, 막히는 곳 없음.</p>
+
+<h2 id="known">알려진 문제</h2>
+<ul>
+<li>20~45분 구간에 불이 없는 시간이 38%로, 지금 가장 한가한 구간입니다.</li>
+<li>강화를 다 산 뒤(127분쯤) 살 것이 없는 채로 이어집니다. 엔딩을 넣을 자리입니다.</li>
+<li>나무가 촘촘한 곳에서 겨눈 나무 대신 다른 나무가 잡히는 일이 1.8% 남아 있습니다(고치기 전 3.4%). 키 작은 나무 숲과 늪 숲에서 주로 생깁니다.</li>
+<li>로봇 청소기는 후반에 수거함이 멀면 곁에 머물지 못하고 60~150m 밖을 오갑니다. 재는 정확히 들어옵니다.</li>
+</ul>
+</main>
+<script>
+const G={
+ 'g-trees':[['trees_before_ground_a0_small','전: 시작 숲, 잎이 눈높이를 가림'],['trees_after_ground_a0_small','후: 시작 숲'],['trees_before_ground_a2_pine_low','전: 소나무 숲'],['trees_after_ground_a2_pine_low','후: 소나무 숲'],['trees_before_ground_a4_marsh_low','전: 늪 숲'],['trees_after_ground_a4_marsh_low','후: 늪 숲'],['trees_before_air30_a1_great','전: 30m 위에서, 종류가 섞여 있음'],['trees_after_air30_a1_great','후: 30m 위에서, 종류별 군락']],
+ 'g-walk':[['pass4_owner_forest_on_foot_beech_3440x1440','너도밤나무 군락'],['pass4_owner_forest_on_foot_old_oak_3440x1440','오래된 참나무 군락'],['pass4_owner_forest_on_foot_oak_3440x1440','참나무 군락']],
+ 'g-board':[['board_before_mid_1600_ko','전: 예전 강화 판'],['board_after_mid_ready_1600_ko','후: 살 수 있음 탭'],['board_after_mid_tool_1600_ko','도구 탭: 16줄이 스크롤 없이 들어감'],['board_after_mid_hover_1600_ko','줄에 마우스를 올리면 오른쪽에 설명'],['board_after_mid_shop_1600_ko','상점 탭'],['pass4_owner_board_ko_3440x1440','3440x1440에서는 두 열'],['pass4_n5_board_mid_1600x900_en_tab_tool','영어 모드: 판 전체가 영어']],
+ 'g-drone':[['pass4_owner_drones_through_foliage_see_off_3440x1440','전: 잎에 가린 드론'],['pass4_owner_drones_through_foliage_see_game_3440x1440','후: 잎 사이로 보이는 드론'],['trees_after_crown_push_seeoff','전: 패러글라이더로 잎 속을 지날 때'],['trees_after_crown_push_seeon','후: 앞의 잎이 흩어짐'],['trees_after_drone_ground_seeon','땅에서 올려다본 드론']],
+ 'g-fire':[['pass4_owner_big_fire_ground_3440x1440','땅에서 본 큰불'],['pass4_owner_big_fire_paraglider_day_3440x1440','패러글라이더에서 본 큰불(낮)'],['pass4_owner_big_fire_paraglider_night_3440x1440','패러글라이더에서 본 큰불(밤)'],['pass4_owner_late_burned_land_ash_hud_3440x1440','후반: 타 버린 땅과 재 더미']],
+};
+for(const id in G){const b=document.getElementById(id);G[id].forEach(([f,c])=>{const fg=document.createElement('figure'),a=document.createElement('a'),i=document.createElement('img');a.href='img/'+f+'.jpg';a.target='_blank';i.src=a.href;i.alt=c;i.loading='lazy';a.append(i);const fc=document.createElement('figcaption');fc.textContent=c;fg.append(a,fc);b.append(fg);});}
+</script>
+</body>
+</html>
