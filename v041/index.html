@@ -34,6 +34,7 @@ figcaption{font-size:13px;color:var(--dim);margin-top:3px}
 <div id="tree-box"></div>
 
 <h2 id="snow">눈 덮인 땅</h2>
+<p>눈은 땅만 희게 덮습니다. 나무 줄기와 잎, 바위, 풀에는 쌓이지 않습니다.</p>
 <div id="snow-box"></div>
 
 <h2 id="board">강화 판 화면</h2>
@@ -52,11 +53,12 @@ const RINGS=[
 ];
 const VIEWS=[['stand','서 있는 숲'],['stand_b','반대 방향'],['burn','타는 중'],['char','다 탄 뒤']];
 // 나중에 찍은 화면: [파일, 설명]. 비어 있으면 "준비 중"이라고 적는다.
-const SNOW=[];
-const BOARD=[];
+const SNOW=[['clear_forest.jpg','맑은 날 (비교용, 같은 자리)'],['snow_forest.jpg','눈 · 숲 안'],['snow_ground.jpg','눈 · 바닥을 내려다본 모습'],['snow_wide.jpg','눈 · 숲 사이 빈 띠']];
+const BOARD=[['board_start_1.jpg','시작 상태 · 위'],['board_start_2.jpg','시작 상태 · 가운데'],['board_start_3.jpg','시작 상태 · 아래'],['board_tip.jpg','설명 창 (센 불씨 I)'],
+  ['board_all_1.jpg','전부 산 상태 · 위'],['board_all_2.jpg','전부 산 상태 · 가운데'],['board_all_3.jpg','전부 산 상태 · 아래'],['board_shop.jpg','상점 열 · 시작 상태'],['board_shop_all.jpg','상점 열 · 전부 산 상태']];
 function fig(src,cap){
   const f=document.createElement('figure'),a=document.createElement('a'),img=document.createElement('img');
-  a.href=src;a.target='_blank';img.src=src;img.alt=cap;img.loading='lazy';img.width=1600;img.height=900;a.append(img);
+  a.href=src;a.target='_blank';img.src=src;img.alt=cap;img.loading='lazy';if(/^img\/r\d/.test(src)){img.width=1600;img.height=900;}a.append(img);
   const c=document.createElement('figcaption');c.textContent=cap;f.append(a,c);return f;
 }
 const box=document.getElementById('tree-box');
