@@ -34,7 +34,66 @@ li{margin-bottom:4px}
 <body>
 <main>
 <p><a href="./">← 화면 모음</a></p>
-<h1>행성 하나를 다 태우는 목표</h1>
+<h1>작은 행성: 한쪽으로 계속 가면 제자리</h1>
+<p class="dim">바꾼 계획입니다. 지구 같은 큰 행성을 지도로 태우는 것이 아니라, <b>나무가 빽빽한 작은 행성</b>을 지금처럼 1인칭으로 돌아다니며 태웁니다. 승인 전까지 만들지 않습니다.</p>
+
+<h2>1. 어떤 모습인가</h2>
+<ul>
+<li>바다와 해안이 없습니다. 어느 쪽을 봐도 숲이고, 지평선이 가까워서 멀리 있는 나무가 둥글게 넘어가 보입니다.</li>
+<li>한 방향으로 계속 가면 출발한 자리로 돌아옵니다. 수거함을 등지고 달리면 반대편에서 수거함이 다시 나타납니다.</li>
+<li>하늘로 떠오르면(날아다니는 탈것) 둥근 행성과 그 위를 번지는 불길이 한눈에 보입니다. 다 태우면 잿빛 공이 남습니다.</li>
+</ul>
+<div id="planet"></div>
+
+<h2>2. 크기</h2>
+<div class="scroll"><table>
+<tr><th>항목</th><th>지금(섬)</th><th>작은 행성(초안)</th></tr>
+<tr><td>모양</td><td>둥근 섬, 둘레는 바다</td><td>끝이 없는 숲</td></tr>
+<tr><td>크기</td><td>지름 2.4km</td><td>한 바퀴 2.4km</td></tr>
+<tr><td>나무</td><td class="n">25만 그루</td><td class="n">약 26만 그루(같은 빽빽함)</td></tr>
+<tr><td>한 바퀴 도는 시간</td><td>–</td><td>걸어서 약 8분, 사륜 오토바이로 약 1분</td></tr>
+<tr><td>수거함까지 가장 먼 거리</td><td>1.2km</td><td>약 1.7km(정반대편)</td></tr>
+<tr><td>숲의 나뉨</td><td>고리 8개</td><td>지역 8곳(자작나무 숲, 늙은 소나무 숲 등이 땅덩이처럼 흩어짐)</td></tr>
+</table></div>
+<p>나무 수를 더 늘리려면 한 바퀴를 3.6km로 키우면 약 58만 그루가 됩니다. 불러오는 시간이 지금의 두 배쯤(약 20초)으로 늘어납니다.</p>
+
+<h2>3. 만드는 방법: 추천은 "이어 붙인 땅 + 둥글게 보이는 화면"</h2>
+<div class="opt rec"><b>가. 평평한 땅의 끝과 끝을 잇고, 화면만 둥글게 휜다</b><span class="r">추천</span>
+<p class="dim" style="margin:6px 0 0">땅은 지금처럼 평평하게 계산하고, 동쪽 끝이 서쪽 끝과, 북쪽 끝이 남쪽 끝과 이어집니다. 그리는 단계에서 멀리 있는 것을 아래로 휘어 둥근 행성처럼 보이게 합니다. 불 번짐·드론·재 줍기 같은 지금 규칙을 거의 그대로 씁니다. 엄밀히는 공이 아니라 도넛처럼 이어진 모양이지만, 걸어 다니는 사람은 차이를 느끼기 어렵습니다.</p></div>
+<div class="opt"><b>나. 진짜 공 모양 행성</b>
+<p class="dim" style="margin:6px 0 0">땅이 실제로 둥글고 중력이 중심을 향합니다. 가장 그럴듯하지만 이동·불 번짐·지형·드론·지도를 전부 다시 만들어야 해서, 지금 게임을 새로 짓는 것과 같습니다.</p></div>
+
+<h2>4. 바뀌어야 하는 것 (가 방법 기준)</h2>
+<ul>
+<li>지형과 나무 심기: 바다·해안·고리를 없애고, 끝이 이어지는 땅으로 다시 만듭니다.</li>
+<li>이어지는 경계: 불, 재, 드론, 신호탄이 경계를 넘어가도 끊기지 않아야 합니다.</li>
+<li>둥글게 보이기: 바닥·나무·불·재·연기 등 그리는 것마다 같은 휨을 넣어야 합니다. 하나라도 빠지면 멀리서 땅과 어긋나 보입니다.</li>
+<li>지도: 가장자리가 없으니, 내가 늘 가운데에 있고 사방으로 이어지는 지도로 바꿉니다.</li>
+<li>시작 장면: 지금은 숲 위로 솟아올라 섬을 보여 줍니다. 행성을 보여 주는 장면으로 바꿉니다.</li>
+</ul>
+
+<h2>5. 걸리는 점</h2>
+<ul>
+<li>휘어 보이게 하는 것은 해 본 적이 없어서, 모든 그림에 고르게 들어가는지와 성능은 만들어 봐야 압니다.</li>
+<li>높이 날아오르면 "이어 붙인 땅"이라는 것이 드러날 수 있습니다. 행성 전체를 보는 장면은 따로 만든 작은 모형으로 보여 주는 편이 안전합니다.</li>
+<li>섬 전체를 갈아엎는 일이라, 도구 다시 짜기와 한꺼번에 하면 무엇이 문제인지 가리기 어렵습니다.</li>
+</ul>
+
+<h2>6. 추천 순서</h2>
+<ul>
+<li>① 도구 다시 짜기와 날아다니는 탈것(진행 중) → ② "둥글게 보이는 화면"만 지금 섬에 얹어 30분 시험 → ③ 괜찮으면 바다를 없애고 끝을 잇기 → ④ 행성을 보여 주는 시작·끝 장면.</li>
+</ul>
+
+<h2>7. 정해 줄 것</h2>
+<ul>
+<li><b>방법</b>: 가(추천) / 나</li>
+<li><b>크기</b>: 한 바퀴 2.4km·26만 그루 / 3.6km·58만 그루</li>
+<li><b>순서</b>: 위 추천대로 도구 다음에 할지, 행성을 먼저 할지</li>
+</ul>
+
+<h2 style="margin-top:80px">예전 계획(섬 → 대륙 → 행성, 지도에서 태우기)</h2>
+<p class="dim">아래는 방향이 바뀌기 전의 계획입니다. 참고용으로 남겨 둡니다.</p>
+<h2>행성 하나를 다 태우는 목표</h2>
 <p class="dim">"나무는 훨씬 많아도 된다, 위성 포격 같은 것으로 태우려면 넓어야 한다, 목표는 행성 하나"를 구조로 옮긴 계획입니다. 승인 전까지 만들지 않습니다. 시간과 수치는 재지 않은 초안입니다.</p>
 
 <h2>1. 왜 이 목표가 맞는가</h2>
@@ -98,6 +157,28 @@ li{margin-bottom:4px}
 <script>
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const E=(t,a,txt)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;};
+(function(){
+  const s=E('svg',{viewBox:'0 0 900 300',role:'img','aria-label':'작은 행성: 1인칭으로 본 모습과 하늘에서 본 모습'});
+  // 왼쪽: 1인칭. 가까운 지평선이 둥글게 넘어간다.
+  s.append(E('rect',{x:10,y:10,width:520,height:250,fill:'#7fa8c9',rx:6}));
+  s.append(E('path',{d:'M10 190 Q270 110 530 190 L530 260 L10 260 Z',fill:'#3b352a'}));
+  for(let i=0;i<46;i++){
+    const u=i/45, x=20+u*500, base=190-80*(1-Math.pow(2*u-1,2))*0.98, far=1-Math.abs(2*u-1);
+    const h=22+far*18+((i*37)%11), w=5+far*3, lean=(2*u-1)*14;
+    s.append(E('path',{d:`M${x} ${base} L${x+lean*0.6} ${base-h}`,stroke:'#4a3b2c','stroke-width':w*0.5}));
+    s.append(E('circle',{cx:x+lean*0.6,cy:base-h,r:w+4,fill:i%5===0?'#55803f':css('--green')}));
+  }
+  for(let i=0;i<7;i++){const x=40+i*78+((i*53)%30),h=120+((i*29)%40);s.append(E('rect',{x:x-9,y:250-h,width:18,height:h+10,fill:'#3d2f22'}));s.append(E('ellipse',{cx:x,cy:245-h,rx:46,ry:34,fill:i%2?'#3f6a3a':'#4d7a42'}));}
+  s.append(E('text',{x:270,y:284,'text-anchor':'middle',fill:css('--text'),'font-size':14},'걸어 다닐 때: 지평선이 가깝고 숲이 둥글게 넘어감'));
+  // 오른쪽: 하늘에서 본 행성. 불길이 번지는 중.
+  s.append(E('rect',{x:560,y:10,width:330,height:250,fill:'#0b0d14',rx:6}));
+  s.append(E('circle',{cx:725,cy:135,r:100,fill:css('--green')}));
+  s.append(E('path',{d:'M660 80 Q700 60 740 78 Q770 110 742 140 Q700 150 668 128 Z',fill:'#2b2723'}));
+  s.append(E('path',{d:'M660 80 Q700 60 740 78 Q770 110 742 140 Q700 150 668 128 Z',fill:'none',stroke:css('--acc'),'stroke-width':4}));
+  s.append(E('circle',{cx:790,cy:180,r:5,fill:css('--acc')}));
+  s.append(E('text',{x:725,y:284,'text-anchor':'middle',fill:css('--text'),'font-size':14},'하늘에서: 불길이 번지는 작은 행성'));
+  document.getElementById('planet').append(s);
+})();
 (function(){
   const s=E('svg',{viewBox:'0 0 900 250',role:'img','aria-label':'섬, 대륙, 행성의 크기 비교'});
   // 섬
