@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 v0.5 · 작은 행성, 새 도구, 패러글라이더</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:1500px;margin:0 auto;padding:32px 16px 80px}
+a{color:var(--acc)}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:20px;margin:48px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
+p{color:var(--dim);margin:0 0 10px;max-width:72ch}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+nav a{padding:8px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);min-height:44px;display:flex;align-items:center}
+.row{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));margin-top:10px}
+figure{margin:0}
+img{display:block;width:100%;height:auto;border-radius:4px;background:#000}
+figcaption{font-size:13.5px;color:var(--dim);margin-top:3px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;max-width:900px;font-size:15px;font-variant-numeric:tabular-nums;margin:8px 0}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--dim);font-weight:400;font-size:13.5px}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 v0.5</h1>
+<p>작은 행성, 도구 12개, 동력 패러글라이더가 들어간 판입니다. 아래 화면은 게임을 실제로 돌려 찍은 것입니다. 가운데의 "클릭해서 계속" 글자는 화면을 숨긴 채 찍느라 생긴 것이고 게임에는 나오지 않습니다.</p>
+<nav><a href="upgrades.html">강화 전체 표</a><a href="#planet">작은 행성</a><a href="#tools">새 도구</a><a href="#para">패러글라이더</a><a href="#num">측정 결과</a><a href="../v041/">v0.41 화면</a></nav>
+
+<h2 id="planet">작은 행성</h2>
+<p>바다가 없고 사방이 숲입니다. 땅의 가장자리를 넘으면 반대편으로 이어져, 한쪽으로 계속 가면 수거함으로 돌아옵니다. 나무는 33만 그루입니다.</p>
+<div class="row" id="g-planet"></div>
+
+<h2 id="tools">새 도구</h2>
+<p>번호 키는 계열을 고르고, 같은 번호를 다시 누르면 계열 안의 앞 도구로 돌아갑니다. 2번 가스 토치·화염방사기, 3번 드립 토치·연료 드럼·항공 살포, 4번 신호탄 총·소이 폭탄·집속 소이탄, 5번 위성 포격.</p>
+<div class="row" id="g-tools"></div>
+
+<h2 id="para">동력 패러글라이더</h2>
+<p>B 키로 뜨고 내립니다. 스페이스로 오르고 Ctrl로 내려갑니다. 땅 위 35m까지 오릅니다(가장 큰 나무가 24m). 날면서 기름을 흘리거나 폭탄을 쏠 수 있고, 나는 동안에는 재를 줍지 못합니다.</p>
+<div class="row" id="g-para"></div>
+
+<h2 id="num">측정 결과</h2>
+<p>자동 플레이가 강화를 설계한 시각대로 받으며 진행한 값입니다. 봇은 드립 토치까지만 쓰므로 새 도구와 패러글라이더의 세기는 들어 있지 않습니다.</p>
+<div class="scroll"><table>
+<tr><th>시점</th><th>탄 나무</th><th>행성 진행</th><th>가진 강화</th></tr>
+<tr><td>30분</td><td>2,075</td><td>0.6%</td><td>57개</td></tr>
+<tr><td>60분</td><td>20,113</td><td>6%</td><td>103개</td></tr>
+<tr><td>90분</td><td>109,395</td><td>33%</td><td>140개</td></tr>
+<tr><td>115분</td><td>231,916</td><td>70%</td><td>168개(전부)</td></tr>
+<tr><td>145분</td><td>305,592</td><td>93%</td><td>전부</td></tr>
+</table></div>
+</main>
+<script>
+const G={
+ 'g-planet':[['a01_centre','한가운데 수거함 곁'],['a02_edge_east_look_across','가장자리에서 건너편을 본 모습: 숲이 그대로 이어짐'],['a03_edge_east_along_seam','가장자리의 나무 없는 띠'],['a06_inside_looking_east_edge','숲 안에서 가장자리 쪽'],['a07_far_side_fire_seen_across_edge','건너편에서 타는 불이 이쪽에서 보임'],['a12_cross_just_before','가장자리를 넘기 직전'],['a13_cross_after','넘은 직후'],['a14_loop_back_at_depot','한쪽으로 2.4km를 가서 수거함으로 돌아옴'],['a20_corner_forest','귀퉁이의 새 숲'],['a21_corner_burning','귀퉁이 숲이 타는 모습'],['a23_bigmap_corners','큰 지도: 네모난 땅 전체'],['a43_intro_17s','시작 장면: 숲 위로 솟아오름']],
+ 'g-tools':[['b01_flamer_equipped','화염방사기'],['b03_flamer_using','화염방사기로 불줄기를 뿜는 중'],['b05_drums_placed','연료 드럼 세 개를 세움'],['b06_drums_boom','드럼이 터짐'],['b08_air_plane','항공 살포: 비행기가 지나감'],['b09_air_fire','항공 살포가 지나간 자리'],['b12_bomb_hit','소이 폭탄'],['b12_cluster_hit','집속 소이탄'],['b14_orbital_map','위성 포격: 지도에서 자리 찍기'],['b15_orbital_hit','위성 포격'],['b17_shop','상점'],['b20_leaky_drip_bike','새는 기름통: 자전거 뒤로 기름이 저절로 흐름']],
+ 'g-para':[['c01_para_takeoff_view','떠오른 직후'],['c10_para_view_tool2','나는 중에 라이터를 든 모습'],['c20_para_drip_from_air','날면서 드립 토치로 기름 흘리기'],['c22_para_bomb_drop','날면서 소이 폭탄 쏘기'],['c23_para_bomb_hit','폭탄이 떨어진 자리'],['c50_high35_centre_E','가장 높이(35m) 올라 본 숲'],['c50_high35_east_edge_N','35m에서 본 가장자리 띠'],['c50_high35_highest_down','35m에서 내려다본 숲']],
+};
+for(const id in G){const b=document.getElementById(id);G[id].forEach(([f,c])=>{const fg=document.createElement('figure'),a=document.createElement('a'),i=document.createElement('img');a.href='img/'+f+'.jpg';a.target='_blank';i.src=a.href;i.alt=c;i.loading='lazy';i.width=1600;i.height=900;a.append(i);const fc=document.createElement('figcaption');fc.textContent=c;fg.append(a,fc);b.append(fg);});}
+</script>
+</body>
+</html>
