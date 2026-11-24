@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 v0.41 · 화면 모음</title>
+<style>
+:root{--bg:#15130f;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:1500px;margin:0 auto;padding:32px 16px 80px}
+a{color:var(--acc)}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:20px;margin:48px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:16px;margin:26px 0 8px}
+h3 span{color:var(--dim);font-weight:400;margin-left:8px}
+p{color:var(--dim);margin:0 0 10px;max-width:70ch}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+nav a{padding:8px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);min-height:44px;display:flex;align-items:center}
+.row{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+figure{margin:0}
+img{display:block;width:100%;height:auto;border-radius:4px;background:#000}
+figcaption{font-size:13px;color:var(--dim);margin-top:3px}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 v0.41 화면 모음</h1>
+<p>게임에서 그대로 찍은 화면입니다. 그림을 누르면 크게 열립니다.</p>
+<nav><a href="upgrades.html">강화 전체 표</a><a href="#trees">나무 모양</a><a href="#snow">눈 덮인 땅</a><a href="#board">강화 판 화면</a></nav>
+
+<h2 id="trees">나무 모양: 숲 고리 여덟 개</h2>
+<p>고리마다 서 있는 숲, 반대 방향, 타는 중, 다 탄 뒤입니다. 섬 가운데(1번)에서 바깥(8번) 순서입니다.</p>
+<div id="tree-box"></div>
+
+<h2 id="snow">눈 덮인 땅</h2>
+<div id="snow-box"></div>
+
+<h2 id="board">강화 판 화면</h2>
+<div id="board-box"></div>
+</main>
+<script>
+const RINGS=[
+  ['작은 숲','참나무, 흰 자작나무 무리, 어린나무'],
+  ['큰 숲','굵은 늙은 참나무, 키 큰 너도밤나무, 죽은 나무'],
+  ['소나무 숲','빽빽한 어린 소나무, 가문비, 자작나무'],
+  ['늙은 소나무 숲','아래가 높이 빈 늙은 소나무, 죽은 소나무 기둥'],
+  ['습지 숲','여러 줄기 오리나무, 늘어진 버드나무'],
+  ['깊은 습지','죽은 나무가 많고 구부러진 누런 나무'],
+  ['바깥 소나무 숲','바람에 기운 성긴 소나무'],
+  ['해안 숲','바람에 낮게 눌린 참나무'],
+];
+const VIEWS=[['stand','서 있는 숲'],['stand_b','반대 방향'],['burn','타는 중'],['char','다 탄 뒤']];
+// 나중에 찍은 화면: [파일, 설명]. 비어 있으면 "준비 중"이라고 적는다.
+const SNOW=[];
+const BOARD=[];
+function fig(src,cap){
+  const f=document.createElement('figure'),a=document.createElement('a'),img=document.createElement('img');
+  a.href=src;a.target='_blank';img.src=src;img.alt=cap;img.loading='lazy';img.width=1600;img.height=900;a.append(img);
+  const c=document.createElement('figcaption');c.textContent=cap;f.append(a,c);return f;
+}
+const box=document.getElementById('tree-box');
+RINGS.forEach(([name,desc],i)=>{
+  const h=document.createElement('h3');h.textContent=`${i+1}. ${name}`;
+  const s=document.createElement('span');s.textContent=desc;h.append(s);box.append(h);
+  const row=document.createElement('div');row.className='row';
+  VIEWS.forEach(([v,cap])=>row.append(fig(`img/r${i}_${v}.jpg`,`${name} · ${cap}`)));
+  box.append(row);
+});
+[['snow-box',SNOW],['board-box',BOARD]].forEach(([id,list])=>{
+  const b=document.getElementById(id);
+  if(!list.length){const p=document.createElement('p');p.textContent='찍는 중입니다. 곧 올라옵니다.';b.append(p);return;}
+  const row=document.createElement('div');row.className='row';list.forEach(([f,c])=>row.append(fig('img/'+f,c)));b.append(row);
+});
+</script>
+</body>
+</html>

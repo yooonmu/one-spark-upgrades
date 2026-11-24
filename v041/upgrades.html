@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 v0.41 · 강화 전체</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:1000px;margin:0 auto;padding:32px 16px 80px}
+a{color:var(--acc)}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:21px;margin:52px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 2px}
+h3 small{color:var(--dim);font-weight:400;font-size:14px;margin-left:8px}
+p{margin:0 0 10px;max-width:72ch}
+.dim{color:var(--dim)}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+nav a{padding:8px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);min-height:44px;display:flex;align-items:center}
+.scroll{overflow-x:auto;margin:6px 0 4px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:15px}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:top}
+th{color:var(--dim);font-weight:400;font-size:13.5px}
+td.l,th.l{text-align:left}
+td.w{white-space:normal;text-align:left;min-width:240px;color:var(--dim)}
+td.c{color:var(--acc);font-weight:700}
+.big td{background:#241d15}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}
+.sum div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.sum b{display:block;font-size:20px}
+.sum span{color:var(--dim);font-size:13.5px}
+</style>
+</head>
+<body>
+<main>
+<h1>강화 전체 (v0.41)</h1>
+<p class="dim">게임에 들어 있는 값 그대로입니다. "살 무렵"은 자동 플레이가 그 강화를 받은 시각이고, 값은 그때까지 모이는 재의 90%입니다. <a href="./">화면 모음으로</a></p>
+<div class="sum" id="sum"></div>
+<nav id="nav"></nav>
+
+<h2 id="s-shop">상점</h2>
+<p class="dim">한 번 사면 끝나는 도구와 탈것입니다.</p>
+<div class="scroll"><table id="shop"></table></div>
+
+<h2 id="s-mode">쓰는 방식 (F 키, 재가 들지 않음)</h2>
+<p class="dim">도구를 든 채 F를 누르면 기본 → 첫째 → 둘째로 바뀝니다.</p>
+<div class="scroll"><table>
+<tr><th class="l">도구</th><th class="l">방식</th><th class="l">달라지는 점</th></tr>
+<tr><td class="l">성냥·라이터·가스 토치</td><td class="l">깊은 불씨</td><td class="w">붙이는 데 2배 걸리고, 불의 세기가 2배라 훨씬 멀리 번집니다.</td></tr>
+<tr><td class="l"></td><td class="l">스치는 불</td><td class="w">누르고 지나가면 2.6m 안의 나무마다 바로 붙습니다. 불의 세기는 절반입니다. 성냥은 그루마다 한 개 씁니다.</td></tr>
+<tr><td class="l">드립 토치</td><td class="l">불벽</td><td class="w">기름 자국이 9초 동안 타며 3초마다 둘레 나무에 다시 옮겨붙습니다. 기름이 2배 듭니다.</td></tr>
+<tr><td class="l"></td><td class="l">점선</td><td class="w">자국을 3배 띄엄띄엄 떨어뜨려 같은 기름으로 3배 멀리 갑니다.</td></tr>
+<tr><td class="l">신호탄 총</td><td class="l">산탄</td><td class="w">한 발이 다섯 갈래로 흩어집니다. 갈래 하나의 범위는 60%입니다.</td></tr>
+<tr><td class="l"></td><td class="l">낙하산탄</td><td class="w">쏜 방향으로 여섯 군데에 줄지어 떨어집니다. 한 군데의 범위는 70%입니다.</td></tr>
+</table></div>
+
+<div id="tree"></div>
+</main>
+<script src="upgrades.js"></script>
+<script>
+const {shop,branches,tree}=window.UP;
+const n=x=>Number(x).toLocaleString('ko-KR');
+const el=(t,c,txt)=>{const e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;};
+const mm=s=>s==null?'–':Math.round(s/60)+'분';
+const total=tree.concat(shop).reduce((a,x)=>a+x.cost,0);
+[[tree.length+'개','강화'],[shop.length+'개','상점 물건'],[n(total),'전부 사는 데 드는 재'],['115분','자동 플레이가 전부 받은 시각']].forEach(([b,s])=>{const d=el('div');d.append(el('b','',b),el('span','',s));document.getElementById('sum').append(d);});
+
+const st=document.getElementById('shop');
+const hr=el('tr');['이름','값','살 무렵','설명','달라지는 점'].forEach((h,i)=>hr.append(el('th',i===1||i===2?'':'l',h)));st.append(hr);
+shop.slice().sort((a,b)=>a.at-b.at).forEach(s=>{const tr=el('tr');tr.append(el('td','l',s.name),el('td','c',n(s.cost)),el('td','',mm(s.at)),el('td','w',s.desc),el('td','w',s.chg));st.append(tr);});
+
+const nav=document.getElementById('nav');
+const link=(id,txt)=>{const a=el('a','',txt);a.href='#'+id;nav.append(a);};
+link('s-shop','상점');link('s-mode','쓰는 방식');
+const box=document.getElementById('tree');
+branches.forEach(b=>{
+  const nodes=tree.filter(x=>x.b===b.id);
+  const h=el('h2','',`${b.name} 갈래`);h.id='b-'+b.id;box.append(h);link(h.id,b.name+' 갈래');
+  box.append(el('p','dim',`${b.desc} 강화 ${nodes.length}개, 재 ${n(nodes.reduce((a,x)=>a+x.cost,0))}.`));
+  const lines=[...new Set(nodes.sort((x,y)=>x.l-y.l||x.step-y.step).map(x=>x.line))];
+  lines.forEach(ln=>{
+    const ns=nodes.filter(x=>x.line===ln);
+    const h3=el('h3','',ln);h3.append(el('small','',`${ns.length}단계 · 재 ${n(ns.reduce((a,x)=>a+x.cost,0))}${ns[0].shop?' · '+shop.find(s=>s.id===ns[0].shop).name+'을(를) 사야 열림':''}${ns[0].req&&ns[0].req.length?' · 먼저 '+ns[0].req.map(r=>(tree.find(t=>t.id===r)||{name:r}).name).join(', '):''}`));box.append(h3);
+    box.append(el('p','dim',ns[0].desc));
+    const w=el('div','scroll'),t=el('table');w.append(t);box.append(w);
+    const r=el('tr');[['단계','l'],[ns[0].label||'효과','l'],['값',''],['살 무렵',''],['달라지는 점','l']].forEach(([x,c])=>r.append(el('th',c,x)));t.append(r);
+    ns.forEach(x=>{const tr=el('tr',x.kind?'big':'');
+      const eff=x.label?`${x.from}${x.unit} → ${x.to}${/[^\d.,]/.test(x.to)?'':x.unit}`:'';
+      tr.append(el('td','l',x.name),el('td','l',eff),el('td','c',n(x.cost)),el('td','',mm(x.at)),el('td','w',x.chg||''));t.append(tr);});
+  });
+});
+</script>
+</body>
+</html>
