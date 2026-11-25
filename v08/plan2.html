@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 v0.8 계획 2 · 강화 판, 무기 숙련, 설정</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c;--ok:#8fd694;--gold:#ffc46b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:1280px;margin:0 auto;padding:32px 16px 80px}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:20px;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:16px;margin:22px 0 4px}
+p,li{color:var(--dim);max-width:76ch}
+p{margin:0 0 10px}
+b{color:var(--text);font-weight:600}
+ul{margin:0 0 10px;padding-left:20px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+nav a{padding:8px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);min-height:44px;display:flex;align-items:center}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:400;font-size:13.5px}
+td:first-child{color:var(--text);white-space:nowrap}
+.pick{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:8px 0;background:var(--panel)}
+.pick.rec{border-color:var(--acc)}
+.pick h3{margin:0 0 4px}
+.q{border-left:3px solid var(--acc);padding:8px 12px;background:var(--panel);margin:10px 0}
+.cap{font-size:13.5px;color:var(--dim);margin-top:4px}
+/* 가. 그림 판 */
+.scene{position:relative;min-width:1100px;aspect-ratio:1672/941;background:#000 url(img/camp_board.jpg) center/cover;border-radius:8px;overflow:hidden;font-size:14px}
+.scene::after{content:"";position:absolute;inset:0;background:linear-gradient(#0008,#0000 22%,#0000 70%,#000b)}
+.scene>*{position:absolute;z-index:1}
+.grp{font-size:13px;letter-spacing:.08em;color:#d8d2c4;text-shadow:0 1px 3px #000}
+.pin{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:5px;background:#0d0e0ecc;border:1px solid #3a3c3a;white-space:nowrap;color:#b9b6ac}
+.pin i{font-style:normal;display:flex;gap:2px}
+.pin i u{width:5px;height:9px;background:#3a3c3a;border-radius:1px;text-decoration:none}
+.pin i u.f{background:#b9b6ac}
+.pin.can{border-color:var(--gold);color:#fff;box-shadow:0 0 14px #ffc46b66}
+.pin.can i u.f{background:var(--gold)}
+.pin.sel{background:#2a2110;border-color:var(--gold);color:#fff}
+.pin.max{opacity:.5}
+.call{left:22%;top:8%;width:27%;background:#12110dee;border:1px solid var(--gold);border-radius:8px;padding:14px 16px}
+.call .n{font-size:21px;font-weight:700}
+.call .n small{font-size:13px;font-weight:400;color:#9a968a;margin-left:8px}
+.call .w{color:#9a968a;font-size:13.5px;margin-top:4px}
+.call .v{font-size:30px;font-weight:700;line-height:1.3}
+.call .v s{text-decoration:none;color:#8a877c;font-weight:400}
+.call .v em{font-style:normal;color:var(--gold)}
+.call .o{font-size:13px;color:#9a968a;margin:4px 0 10px}
+.call .buy{background:var(--gold);color:#1a1408;font-weight:700;font-size:17px;text-align:center;border-radius:6px;padding:7px}
+.top{left:2%;top:3%;font-size:22px;font-weight:700;text-shadow:0 1px 4px #000}
+.ash{right:2%;top:3%;border:1px solid var(--acc);border-radius:6px;padding:4px 16px;font-size:22px;font-weight:700;background:#0d0e0ecc}
+.ash small{display:block;font-size:12px;color:var(--acc);font-weight:400;line-height:1}
+/* 나. 권유 */
+.play{position:relative;min-width:1100px;aspect-ratio:21/9;border-radius:8px;overflow:hidden;background:#000 url(../v06/img/pass4_owner_big_fire_ground_3440x1440.jpg) center/cover}
+.offers{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);display:flex;gap:12px}
+.of{width:230px;background:#101110e8;border:1px solid #3a3c3a;border-radius:8px;padding:12px 14px}
+.of.can{border-color:var(--gold)}
+.of .k{display:inline-block;background:#e9e5d8;color:#111;font-weight:700;border-radius:4px;padding:0 8px;font-size:14px}
+.of .b{float:right;font-size:12.5px;color:#9a968a}
+.of .n{font-size:19px;font-weight:700;margin-top:6px}
+.of .v{font-size:22px;font-weight:700}
+.of .v s{text-decoration:none;color:#8a877c;font-weight:400}
+.of .v em{font-style:normal;color:var(--gold)}
+.of .c{margin-top:6px;font-size:15px;color:#9a968a}
+.of.can .c{color:var(--gold);font-weight:700}
+.offhint{position:absolute;left:50%;bottom:1.5%;transform:translateX(-50%);font-size:13px;color:#cfcabd;text-shadow:0 1px 3px #000;white-space:nowrap}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 v0.8 계획 2</h1>
+<p>답해 주신 것 가운데 신호탄 총 삭제, 붓기, 공용 무기 강화, 위성 포격 강화는 이미 개발에 들어갔습니다. 이 페이지는 아직 정해지지 않은 세 가지입니다: 강화 판의 새 방식, 재로 사지 않는 무기별 특별 강화, 그리고 게임의 설정.</p>
+<nav><a href="#board">강화 판</a><a href="#skill">무기 숙련</a><a href="#world">설정</a><a href="#ask">정해 주실 것</a></nav>
+
+<h2 id="board">1. 강화 판: 표가 아닌 방식 두 가지</h2>
+<p>지금까지의 판은 카드든 줄이든 모두 "글자가 가득한 표"였습니다. 항목 180개가 같은 크기, 같은 모양으로 놓여 있어서 눈이 머물 곳이 없었다고 봅니다. 그래서 표를 버린 방식 두 가지를 만들었습니다. 둘은 함께 쓸 수 있습니다.</p>
+
+<h3>가. 그림 판: 물건에 직접 붙은 강화</h3>
+<p>판을 열면 표 대신 야영지가 보입니다. 불에 관한 강화는 타는 나무에, 무기는 작업대에, 재는 수거함과 자루에, 나르기는 드론과 헬기에 붙어 있습니다. 무엇을 올리는 강화인지 글을 읽지 않고 <b>자리로</b> 압니다. 지금 살 수 있는 것만 금색으로 빛나고, 하나를 고르면 그것만 크게 보여 줍니다. 게임에서는 실제 게임 모델로 이 장면을 그립니다(아래 배경은 방향을 보여 주려고 만든 그림입니다).</p>
+<div class="scroll"><div class="scene">
+<div class="top">강화 판</div><div class="ash"><small>재</small>8,420</div>
+<div class="grp" style="left:2%;top:14%">불</div>
+<div class="pin can" style="left:2%;top:18%">옮겨붙기 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:2%;top:23.5%">빨리 타기 <i><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:2%;top:29%">멀리 옮겨붙기 <i><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin max" style="left:2%;top:34.5%">같이 붙이기 <i><u class="f"></u><u class="f"></u><u class="f"></u></i></div>
+<div class="pin" style="left:2%;top:40%">불똥 <i><u class="f"></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="grp" style="left:15%;top:67%">무기 (어느 무기에나 통함)</div>
+<div class="pin sel" style="left:15%;top:71%">넓게 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin can" style="left:15%;top:76.5%">빠르게 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:15%;top:82%">멀리 <i><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:29%;top:71%">넉넉하게 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:29%;top:76.5%">여러 발 <i><u class="f"></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="grp" style="left:43%;top:67%">재</div>
+<div class="pin can" style="left:43%;top:71%">자루 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:43%;top:76.5%">빠른 붓기 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:43%;top:82%">자석 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:43%;top:87.5%">수북한 재 <i><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u></i></div>
+<div class="grp" style="left:59%;top:22%">드론</div>
+<div class="pin" style="left:59%;top:26%">드론 수 <i><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u></i></div>
+<div class="pin can" style="left:59%;top:53%">드론 짐칸 <i><u class="f"></u><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:59%;top:58.5%">드론 속도 <i><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u><u></u><u></u></i></div>
+<div class="grp" style="left:78%;top:22%">헬기</div>
+<div class="pin" style="left:78%;top:26%">수거 헬기 <i><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:78%;top:68%">헬리콥터 흡입기 <i><u></u><u></u><u></u><u></u></i></div>
+<div class="pin" style="left:78%;top:73.5%">탈것 손보기 <i><u class="f"></u><u class="f"></u><u></u><u></u><u></u><u></u></i></div>
+<div class="call"><div class="n">넓게 <small>5 / 12 · 지금 든 무기: 소이 폭탄</small></div><div class="w">폭발 반경</div><div class="v"><s>14m →</s> <em>15m</em></div><div class="o">위성 포격 반경 58 → 64m · 기름줄 3.4 → 3.8m · 손으로 붙인 불 125 → 130%</div><div class="buy">재 6,200 · 클릭해서 사기</div></div>
+</div></div>
+<p class="cap">한 화면에 줄 23개가 모두 들어갑니다. 꼬리표의 작은 막대가 단계이고, 금색 테두리가 지금 살 수 있는 것입니다. 새 무기와 탈것은 작업대와 착륙장에 놓인 물건을 눌러 삽니다.</p>
+
+<h3>나. 권유: 판을 열지 않고 사기</h3>
+<p>강화를 살 수 있게 되면 화면 아래에 <b>지금 살 수 있는 것이 갈래마다 하나씩, 최대 네 장</b> 뜹니다. 숫자 키를 길게 눌러 그 자리에서 삽니다. 판을 열어 180개 중에서 찾는 일이 없어지고, 불을 보면서 계속 움직일 수 있습니다. 전체를 보고 싶을 때만 TAB으로 그림 판을 엽니다.</p>
+<div class="scroll"><div class="play">
+<div class="offers">
+<div class="of can"><span class="k">F1</span><span class="b">불</span><div class="n">옮겨붙기 VII</div><div class="v"><s>5 →</s> <em>8그루</em></div><div class="c">재 2,600</div></div>
+<div class="of can"><span class="k">F2</span><span class="b">무기</span><div class="n">넓게 VI</div><div class="v"><s>14 →</s> <em>15m</em></div><div class="c">재 6,200</div></div>
+<div class="of can"><span class="k">F3</span><span class="b">재</span><div class="n">자루 VIII</div><div class="v"><s>480 →</s> <em>900</em></div><div class="c">재 3,200</div></div>
+<div class="of"><span class="k">F4</span><span class="b">나르기</span><div class="n">드론 짐칸 IV</div><div class="v"><s>61 →</s> <em>140</em></div><div class="c">재 9,600 · 1,180 모자람</div></div>
+</div>
+<div class="offhint">길게 눌러 사기 · TAB 전체 보기</div>
+</div></div>
+<p class="cap">배경은 v0.6 실제 화면입니다. 카드는 재가 모자랄 때는 흐리게, 살 수 있게 되는 순간 금색으로 바뀝니다. 평소에는 접혀 있다가 살 것이 생겼을 때만 올라오게 할 수도 있습니다.</p>
+
+<div class="pick rec"><h3>추천: 둘 다</h3><p>평소에는 "나"로 사고, 전체를 볼 때만 "가"를 엽니다. 대부분의 구매가 판을 열지 않고 끝나므로 판이 눈에 안 들어오는 문제 자체가 줄어듭니다.</p></div>
+
+<h2 id="skill">2. 무기별 특별 강화: 손에 익기</h2>
+<p>재로 사는 공용 강화와 따로, <b>그 무기를 쓴 만큼 그 무기만의 기술이 열립니다.</b> 재를 쓰지 않으므로 다음 무기로 넘어가도 아까운 것이 없고, 다음 무기를 살 재를 모으는 동안에도 지금 무기에서 새로운 일이 계속 생깁니다.</p>
+<ul>
+<li><b>채우는 법</b>: 그 무기로 직접 불붙인 나무 수. 무기마다 세 칸이고, 화면의 무기 이름 옆에 얇은 막대로 보입니다.</li>
+<li><b>열리는 것</b>: 숫자가 아니라 <b>쓰는 방법</b>이 하나씩 늘어납니다. 칸이 열리는 순간 그 기술을 바로 써 보게 됩니다.</li>
+<li><b>앞 무기가 뒷 무기를 넘지 않게</b>: 기술 세 개를 다 열어도 그 무기의 태우는 속도는 1.4배를 넘지 않게 묶습니다. 다음 무기는 처음부터 2배 이상입니다.</li>
+<li><b>환기와의 연결</b>: 숲에서 찾은 발견물(아래 3번)은 지금 든 무기의 칸 하나를 바로 채워 줍니다. 돌아다닐 이유와 무기 성장이 이어집니다.</li>
+</ul>
+<div class="scroll"><table>
+<tr><th>무기</th><th>첫째 칸</th><th>둘째 칸</th><th>셋째 칸</th></tr>
+<tr><td>성냥</td><td>한 개비로 두 그루까지</td><td>그은 성냥 던지기 (5m)</td><td>성냥갑째 던지기: 떨어진 자리 3그루</td></tr>
+<tr><td>라이터</td><td>멈추지 않고 걸으면서 붙이기</td><td>발밑 덤불에 붙이면 불이 앞으로 달림</td><td>불붙인 라이터 던지기 (돌아오면 다시)</td></tr>
+<tr><td>가스 토치</td><td>스치는 폭이 넓어짐</td><td>탈것에서 양옆 동시에</td><td>지나간 자리의 잔열이 3초 뒤 옆 나무로</td></tr>
+<tr><td>화염방사기</td><td>불줄기가 지나간 땅에 불길이 남음</td><td>불줄기가 나무를 뚫고 지나감</td><td>끈적한 연료: 맞은 나무가 오래 타며 더 번짐</td></tr>
+<tr><td>드립 토치</td><td>기름줄이 내리막으로 스스로 흐름</td><td>양옆 두 줄</td><td>기름줄을 따라 불이 2배 빨리 달림</td></tr>
+<tr><td>연료 드럼</td><td>굴리기: 앞으로 굴러가다 터짐</td><td>터질 때 불붙은 파편 여섯 조각</td><td>30m 떨어진 드럼까지 연쇄</td></tr>
+<tr><td>항공 살포</td><td>두 대 편대로 폭 2배</td><td>한 번 불러 왕복</td><td>뿌려 두고 원할 때 불붙이기</td></tr>
+<tr><td>소이 폭탄</td><td>나무 위에서 터져 더 넓게</td><td>한 번 튕겨 두 번 터짐</td><td>떨어진 자리에서 10초 동안 불똥</td></tr>
+<tr><td>집속 소이탄</td><td>자탄이 쏜 방향으로 한 줄</td><td>자탄이 한 번 더 갈라짐</td><td>3초 뒤 한꺼번에 터지는 지연 신관</td></tr>
+<tr><td>위성 포격</td><td>불기둥이 5초 머무름</td><td>줄 포격이 동시에 떨어짐</td><td>잇달아 쏠수록 반경이 커짐</td></tr>
+</table></div>
+<p>기술 30개는 초안입니다. 빼거나 바꾸고 싶은 것을 알려 주세요. 지금 게임에 숨어 있는 "쓰는 방식 바꾸기(F 키)"는 이 체계로 합칩니다.</p>
+
+<h2 id="world">3. 설정: 먼저 정해야 하는 것</h2>
+<p>태울 거리, 동물, 말 거는 상대, 발견물은 모두 "여기가 어디고 나는 왜 태우는가"에 답이 있어야 납득이 됩니다. 말씀하신 네 가지가 한 이야기로 묶이는 후보를 세 개 적었습니다. 정해지기 전에는 아무것도 만들지 않습니다.</p>
+<div class="scroll"><table>
+<tr><th></th><th>A. 개간 하청</th><th>B. 너무 자란 숲</th><th>C. 재 장수</th></tr>
+<tr><td>여기는</td><td>어느 회사가 통째로 산 작은 행성. 나무가 너무 빨리 자라 아무것도 지을 수 없다.</td><td>사람이 심은 속성수가 행성을 뒤덮어 다른 것이 살 수 없게 된 곳.</td><td>재가 돈이 되는 세상의 변두리 행성.</td></tr>
+<tr><td>나는</td><td>재 값만 받고 혼자 파견된 하청 기사. 성냥 다섯 개가 지급품의 전부.</td><td>숲을 걷어 내러 온 산불 관리인.</td><td>혼자 온 뜨내기 재 장수.</td></tr>
+<tr><td>수거함은</td><td>회사 화물함. 재는 비료 원료로 팔린다.</td><td>복원 사업단의 수거함. 재는 흙을 살리는 데 쓰인다.</td><td>중개상 "재 상회"의 무인 매입기.</td></tr>
+<tr><td>말 거는 상대</td><td>본사 담당자. 수거함 화면에 뜨는 짧고 건조한 업무 연락.</td><td>궤도 관측소의 동료 한 명.</td><td>재 상회 주인. 시세와 잔소리.</td></tr>
+<tr><td>태울 거리</td><td>먼저 왔다가 포기한 개간팀이 버리고 간 것: 연료 저장소, 벌목 장비, 숙소, 통신탑.</td><td>숲에 묻힌 옛 마을과 조림 사업 시설.</td><td>앞서 다녀간 재 장수들의 야영지와 창고.</td></tr>
+<tr><td>동물</td><td>살 곳을 잃은 다람쥐들이 팻말을 들고 항의하러 온다. 본사는 "무시하세요"라고 한다.</td><td>처음에는 항의하지만, 탄 자리에 풀이 나면 돌아와 산다.</td><td>숲 주민들. 항의하다가 나중에는 손해 배상 청구서를 들고 온다.</td></tr>
+<tr><td>발견물</td><td>전임자들의 일지. 왜 다들 그만뒀는지 조금씩 드러난다.</td><td>나무에 덮이기 전의 흔적.</td><td>선배 재 장수의 비법 쪽지.</td></tr>
+<tr><td>끝</td><td>다 태우면 회사가 여기에 무엇을 지으려 했는지 보인다. 중앙 거목이 마지막.</td><td>다 태운 행성에 새싹이 난다.</td><td>행성을 통째로 판 재 장수가 된다.</td></tr>
+<tr><td>분위기</td><td>건조한 블랙 코미디</td><td>잔잔하고 죄책감 없음</td><td>가장 가볍고 우스움</td></tr>
+</table></div>
+<div class="pick rec"><h3>추천: A. 개간 하청</h3><p>항의하러 오는 다람쥐, 말 거는 상대, 태울 거리, 발견물이 가장 자연스럽게 한 줄로 이어집니다. "현실적이되 판타지는 아닌" 지금 분위기와도 맞고, 성냥 다섯 개로 시작하는 이유까지 설명됩니다. 끝은 B의 새싹을 빌려 와도 됩니다.</p></div>
+<h3>동물은 만들 수 있는가</h3>
+<p>다람쥐처럼 작은 동물은 뼈대 애니메이션 없이 몸통, 꼬리, 팻말을 따로 움직이는 방식으로 만들 수 있습니다. 깡충깡충 뛰어와 팻말을 흔들고, 꼬리에 불이 붙으면 연기를 끌며 지그재그로 달아나는 정도는 충분히 됩니다. 사슴 같은 큰 동물의 자연스러운 걸음은 어렵습니다.</p>
+
+<h2 id="ask">정해 주실 것</h2>
+<div class="q">1. 강화 판: 가(그림 판) / 나(권유) / 둘 다 / 여전히 아님 (어디가 걸리는지 한마디만 주시면 다시 잡겠습니다)</div>
+<div class="q">2. 무기 숙련: 쓴 만큼 기술이 열리는 방식이 괜찮은지, 기술 표에서 빼거나 바꿀 것</div>
+<div class="q">3. 설정: A / B / C, 또는 섞거나 다른 방향</div>
+</main>
+</body>
+</html>
