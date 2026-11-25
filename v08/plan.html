@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불씨 하나 v0.8 계획 · 승인 전</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#f08a3c;--ok:#8fd694}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+main{max-width:1200px;margin:0 auto;padding:32px 16px 80px}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:20px;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:16px;margin:22px 0 4px;color:var(--text)}
+p,li{color:var(--dim);max-width:76ch}
+p{margin:0 0 10px}
+b{color:var(--text);font-weight:600}
+ul,ol{margin:0 0 10px;padding-left:20px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+nav a{padding:8px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);min-height:44px;display:flex;align-items:center}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums;margin:8px 0}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:400;font-size:13.5px}
+td:first-child{color:var(--text);white-space:nowrap}
+.tag{display:inline-block;font-size:12.5px;padding:1px 8px;border-radius:10px;border:1px solid var(--line);color:var(--dim);margin-left:6px}
+.tag.go{border-color:#4d6b4f;color:var(--ok)}
+.tag.ask{border-color:#7a5a2e;color:var(--acc)}
+.pick{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:8px 0;background:var(--panel)}
+.pick.rec{border-color:var(--acc)}
+.pick h3{margin:0 0 4px}
+.q{border-left:3px solid var(--acc);padding:8px 12px;background:var(--panel);margin:10px 0;color:var(--text)}
+/* 강화 판 시안 */
+.bd{background:#0d0e0e;border:1px solid #2a2c2c;border-radius:8px;padding:18px;margin-top:10px;min-width:900px}
+.bd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.bd-top .t{font-size:24px;font-weight:700}
+.bd-ash{border:1px solid var(--acc);border-radius:6px;padding:6px 16px;font-size:22px;font-weight:700}
+.bd-ash small{display:block;font-size:12px;color:var(--acc);font-weight:400;line-height:1}
+.bd-tabs{display:flex;gap:8px;margin-bottom:14px}
+.bd-tabs div{flex:1;padding:10px 14px;border:1px solid #2a2c2c;border-radius:6px;font-size:17px;font-weight:600;color:#9a9c9c}
+.bd-tabs div.on{border-color:#ffc46b;color:#fff;background:#1b1a16}
+.bd-tabs small{float:right;font-weight:400;font-size:13px;color:#8a8c8c;margin-top:3px}
+.bd-held{font-size:15px;color:#c9c9c4;margin:0 0 12px}
+.bd-held b{color:#ffc46b}
+.bd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{border:1px solid #2f3131;border-radius:8px;padding:14px 16px;background:#151716;display:flex;flex-direction:column;gap:6px}
+.card.can{border-color:#ffc46b;background:#1d1b15}
+.card.max{opacity:.55}
+.card .n{font-size:20px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+.card .n small{font-size:13px;font-weight:400;color:#8a8c8c}
+.card .w{font-size:13.5px;color:#9a9c9c}
+.card .v{font-size:26px;font-weight:700;letter-spacing:-.3px}
+.card .v i{font-style:normal;color:#8a8c8c;font-weight:400}
+.card .v em{font-style:normal;color:#ffc46b}
+.pips{display:flex;gap:3px}
+.pips span{flex:1;height:6px;border-radius:2px;background:#2c2e2e}
+.pips span.f{background:#ffc46b}
+.card .o{font-size:13px;color:#8a8c8c;border-top:1px solid #262828;padding-top:6px}
+.card .buy{margin-top:auto;border-radius:6px;padding:8px 12px;font-size:17px;font-weight:700;text-align:center;background:#242626;color:#8a8c8c}
+.card.can .buy{background:#ffc46b;color:#1a1408}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 v0.8 계획</h1>
+<p>v0.7을 해 보고 알려 주신 14가지를 정리했습니다. <span class="tag go">진행 중</span>은 정할 것이 없어 바로 고치고 있는 것이고, <span class="tag ask">승인 필요</span>는 이 페이지를 보고 정해 주시면 개발합니다. 숫자는 모두 초안이고, 값(재 가격)은 지금까지처럼 개발 뒤 자동 플레이 실측의 90%로 한 번에 맞춥니다.</p>
+<nav><a href="#now">바로 고치는 것</a><a href="#weapon">무기 강화</a><a href="#flare">신호탄 총</a><a href="#pour">붓기</a><a href="#late">후반 화력·수거·날것</a><a href="#board">강화 판</a><a href="#fresh">환기</a><a href="#ask">정해 주실 것</a></nav>
+
+<h2 id="now">바로 고치는 것 <span class="tag go">진행 중</span></h2>
+<div class="scroll"><table>
+<tr><th>번호</th><th>말씀하신 것</th><th>고치는 방향</th></tr>
+<tr><td>1</td><td>옆 나무에 불이 붙은 것을 알아채기 어려움</td><td>어떤 경로로 붙었든 붙는 즉시 줄기에서 타는 것이 보이게 합니다. "같이 붙이기"는 붙인 나무에서 불똥이 날아가 옆 나무에 떨어지며 붙습니다.</td></tr>
+<tr><td>2</td><td>성냥·라이터로 붙일 때 나무에 따로 생기는 불이 어색함</td><td>나무에는 그을음 자국만 남기고, 불은 성냥 머리와 라이터 노즐에만 둡니다.</td></tr>
+<tr><td>5</td><td>갑자기 눈이 덮인 것처럼 느껴짐</td><td>눈이 내리는 것이 잘 보이게 하고, 땅이 서서히 하얘지고 서서히 녹게 합니다.</td></tr>
+<tr><td>6</td><td>드립 토치 기름이 뒤로 나와 잘 뿌리는지 모름</td><td>기름과 불이 오른쪽 앞에 떨어지게 해서 걸으면서 보이게 합니다.</td></tr>
+<tr><td>10</td><td>배경 음악이 잔잔하고 잘 안 들림</td><td>다섯 곡을 다시 만들고 불 소리와의 크기 균형도 다시 맞춥니다. 들어 보실 수 있게 예전 곡과 새 곡을 나란히 올립니다.</td></tr>
+<tr><td>11</td><td>위성 포격이 원하는 곳에 안 찍힘</td><td>원인을 찾아 고쳤습니다. 지도를 누르는 순간 게임이 그 클릭을 "조작으로 돌아가기"로 먼저 받아 마우스를 가운데에 묶고 있었습니다. 다음 빌드에서 확인합니다.</td></tr>
+</table></div>
+
+<h2 id="weapon">3 · 12 · 13. 무기 강화를 "어느 무기에나 통하는 강화"로 <span class="tag ask">승인 필요</span></h2>
+<p>지금 "도구" 갈래의 강화 68개(전체 재 지출의 60%)는 무기 하나에 묶여 있어서, 다음 무기로 넘어가면 쓴 재가 사라진 것처럼 됩니다. 말씀하신 대로 <b>68개를 모두 지우고</b> 아래 방식으로 바꾸려 합니다. 지우는 것과 새로 넣는 것은 한 번에 적용합니다(지우기만 하면 성냥 20개, 포격 3회로 묶인 채가 됩니다).</p>
+
+<div class="pick rec">
+<h3>추천 · 공용 강화 5줄</h3>
+<p>강화는 무기가 아니라 "내 솜씨"에 붙습니다. 같은 단계를 무기마다 자기 방식으로 읽기 때문에, 무기를 바꿔도 지금까지 산 것이 전부 그대로 통합니다. 새 무기를 사는 순간 이미 강해져 있습니다.</p>
+</div>
+<div class="scroll"><table>
+<tr><th>줄 (단계)</th><th>손 도구<br>성냥·라이터·토치</th><th>화염방사기</th><th>드립 토치·드럼·항공 살포</th><th>소이 폭탄·집속</th><th>위성 포격</th></tr>
+<tr><td>넓게 (12)</td><td>붙인 불의 세기 100 → 160%</td><td>불줄기 폭 16 → 30%</td><td>기름줄 너비 1.5 → 6m<br>드럼 폭발 4 → 10m</td><td>폭발 반경 9 → 21m</td><td>포격 반경 28 → 70m</td></tr>
+<tr><td>빠르게 (10)</td><td>붙이는 시간 100 → 50%</td><td>가스 소모 100 → 50%</td><td>항공 살포 다시 부르기 5 → 1.5초</td><td>장전 2.0 → 0.5초</td><td>장전 6 → 1.5초</td></tr>
+<tr><td>멀리 (8)</td><td>손이 닿는 거리 2.4 → 4m</td><td>불줄기 길이 13 → 22m</td><td>항공 살포 거리 150 → 300m</td><td>날아가는 거리 55 → 125m</td><td>350m → 지도 어디든</td></tr>
+<tr><td>넉넉하게 (10)</td><td>성냥 20 → 2,000개<br>가스 1 → 6배</td><td>가스 1 → 6배</td><td>기름 1 → 6배<br>드럼 3 → 12개</td><td>탄 1 → 6배</td><td>쌓아 두는 포격 3 → 20회</td></tr>
+<tr><td>여러 발 (6)</td><td>—</td><td>—</td><td>드럼 연쇄 폭발</td><td>잇달아 쏘기 1 → 4발<br>자탄 4 → 12발</td><td>한 번 찍으면 1 → 3발</td></tr>
+</table></div>
+<p>모두 46단계입니다. "넉넉하게"의 마지막 단계는 지금처럼 "닳지 않음"입니다. 장전 시간(12번, 13번)은 "빠르게" 줄이 맡고, 소이 폭탄과 위성 포격은 다섯 줄을 모두 받으므로 지금보다 강화할 것이 늘어납니다.</p>
+
+<div class="pick">
+<h3>다른 방법 1 · 무기별 강화를 두되 전액 돌려받기</h3>
+<p>지금처럼 무기마다 강화를 두고, 다음 무기를 사면 앞 무기에 쓴 재를 전부 돌려줍니다. 무기마다 개성은 살지만, 돌려받은 재로 같은 종류의 강화를 다시 사는 일이 반복됩니다.</p>
+</div>
+<div class="pick">
+<h3>다른 방법 2 · 끼우는 부품</h3>
+<p>강화 대신 부품(넓은 노즐, 긴 총열, 빠른 장전기)을 사서 어느 무기에나 끼웁니다. 칸이 3개라 무엇을 끼울지 고르는 재미가 있지만, 강화 판 말고 화면이 하나 더 생기고 개발이 가장 큽니다.</p>
+</div>
+
+<h2 id="flare">7. 신호탄 총 <span class="tag ask">승인 필요</span></h2>
+<p>신호탄 총은 반경 3m에 한 발씩이라 바로 앞의 연료 드럼(값 1,700)보다 약한데 값은 2,500입니다. 그래서 <b>신호탄 총을 없애고 4번 무기가 소이 폭탄(반경 9m)에서 시작</b>하게 하려 합니다. 가장 재미있다고 하신 무기를 더 일찍 쥐게 되고, 그 다음이 집속 소이탄입니다.</p>
+
+<h2 id="pour">8. 붓기는 "초당 몇 개" <span class="tag ask">승인 필요</span></h2>
+<p>지금은 자루에 몇 개가 있든 4초에 다 붓습니다. 이것을 <b>초당 붓는 개수</b>로 바꿉니다. 자루를 키우면 붓는 시간이 길어지고, 붓기를 올리면 다시 짧아집니다. "바로 붓기"는 없앱니다.</p>
+<div class="scroll"><table>
+<tr><th>단계</th><td>처음</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
+<tr><th>초당 붓는 재</th><td>5</td><td>12</td><td>30</td><td>80</td><td>200</td><td>500</td><td>1,300</td><td>3,500</td><td>9,000</td><td>22,000</td><td>50,000</td></tr>
+</table></div>
+<p>처음 자루(10개)는 2초, 끝 자루(100,000개)는 끝 단계에서 2초입니다. 4단계에서 10단계로 늘어납니다.</p>
+
+<h2 id="late">13 · 14. 후반 화력, 수거, 날것 <span class="tag ask">승인 필요</span></h2>
+<h3>끝 무기까지 올려도 다 태우기 힘든 문제</h3>
+<p>자동 플레이 기록으로도 강화를 다 산 뒤 37분 동안 남은 나무를 찾아다닙니다. 화력이 모자라기보다 <b>띄엄띄엄 남은 나무를 찾아 붙이는 일</b>이 느린 것입니다.</p>
+<ul>
+<li><b>남은 숲 지도</b>: 지도에 아직 서 있는 숲을 진하게 표시해서 위성 포격과 폭탄을 어디에 쓸지 바로 보이게 합니다.</li>
+<li><b>멀리 튀는 불똥 (3단계)</b>: 불똥이 최대 150m까지 날아가 떨어져 있는 숲에 새 불을 냅니다. 행성 절반을 넘긴 뒤에 열립니다.</li>
+<li><b>포격 줄 긋기</b>: "여러 발"을 다 올리면 위성 포격을 지도에서 끌어 그은 선을 따라 연달아 떨어뜨립니다.</li>
+</ul>
+<h3>드론보다 좋은 수거: 수거 헬기 (6단계)</h3>
+<p>드론은 재 더미 하나씩 나릅니다. 수거 헬기는 재가 가장 많이 쌓인 곳으로 가서 떠 있는 채로 <b>반경 30m 안의 재를 한꺼번에 빨아들여</b> 수거함에 쏟습니다. 1대에서 4대, 반경 30m에서 60m까지 올립니다. 드론은 그대로 두고 60분쯤부터 헬기가 더해집니다.</p>
+<h3>글라이더보다 좋은 날것: 헬리콥터</h3>
+<div class="scroll"><table>
+<tr><th></th><th>동력 패러글라이더</th><th>헬리콥터</th></tr>
+<tr><td>빠르기</td><td>지금 그대로</td><td>2배</td></tr>
+<tr><td>높이</td><td>35m까지</td><td>80m까지</td></tr>
+<tr><td>제자리 비행</td><td>못 함</td><td>할 수 있음</td></tr>
+<tr><td>무기</td><td>기름, 폭탄</td><td>기름, 폭탄, 위성 포격 지도</td></tr>
+<tr><td>재 줍기</td><td>나는 동안 못 주움</td><td>낮게(15m 아래) 날면 아래 10m 안의 재를 빨아들임</td></tr>
+</table></div>
+<p>글라이더로 날며 폭탄을 쏘는 재미는 그대로 두고, 헬리콥터는 그 위 단계로 90분쯤에 살 수 있게 놓습니다.</p>
+
+<h2 id="board">4. 강화 판 <span class="tag ask">승인 필요</span></h2>
+<p>지금 판은 3440 화면에 가는 줄 다섯 개와 작은 글씨뿐이라 어디를 봐야 할지 눈이 가지 않습니다. 줄 목록을 버리고 <b>큰 카드</b>로 바꿉니다. 카드에서 가장 큰 글씨는 "지금 → 다음" 숫자이고, 살 수 있는 카드만 밝게 테두리가 켜집니다. 무기 탭의 카드는 지금 들고 있는 무기 기준으로 숫자를 보여 주고, 다른 무기에서는 어떻게 통하는지 아래 한 줄로 적습니다. 오른쪽 설명 칸은 없앱니다.</p>
+<div class="scroll"><div class="bd">
+<div class="bd-top"><div class="t">강화 판</div><div class="bd-ash"><small>재</small>8,420</div></div>
+<div class="bd-tabs"><div>살 수 있음 <small>4</small></div><div>불 <small>22/43</small></div><div>재 <small>20/40</small></div><div class="on">무기 <small>17/46</small></div><div>나르기 <small>19/51</small></div><div>상점 <small>7/14</small></div></div>
+<p class="bd-held">지금 든 무기: <b>소이 폭탄</b> · 숫자는 이 무기 기준입니다</p>
+<div class="bd-grid">
+<div class="card can"><div class="n">넓게 <small>5 / 12</small></div><div class="w">폭발 반경</div><div class="v"><i>14m →</i> <em>15m</em></div><div class="pips"><span class="f"></span><span class="f"></span><span class="f"></span><span class="f"></span><span class="f"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="o">위성 포격 반경 46 → 49m · 기름줄 3.4 → 3.8m</div><div class="buy">재 6,200</div></div>
+<div class="card can"><div class="n">빠르게 <small>4 / 10</small></div><div class="w">장전 시간</div><div class="v"><i>1.4초 →</i> <em>1.25초</em></div><div class="pips"><span class="f"></span><span class="f"></span><span class="f"></span><span class="f"></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="o">위성 포격 장전 4.2 → 3.8초 · 손 도구 80 → 75%</div><div class="buy">재 7,900</div></div>
+<div class="card"><div class="n">멀리 <small>3 / 8</small></div><div class="w">날아가는 거리</div><div class="v"><i>81m →</i> <em>90m</em></div><div class="pips"><span class="f"></span><span class="f"></span><span class="f"></span><span></span><span></span><span></span><span></span><span></span></div><div class="o">위성 포격 거리 350 → 420m · 불줄기 16 → 17m</div><div class="buy">재 11,000 · 2,580 모자람</div></div>
+<div class="card"><div class="n">넉넉하게 <small>4 / 10</small></div><div class="w">들고 다니는 탄</div><div class="v"><i>24발 →</i> <em>32발</em></div><div class="pips"><span class="f"></span><span class="f"></span><span class="f"></span><span class="f"></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="o">쌓아 두는 포격 8 → 10회 · 기름 2.5 → 3배</div><div class="buy">재 9,400 · 980 모자람</div></div>
+<div class="card"><div class="n">여러 발 <small>1 / 6</small></div><div class="w">잇달아 쏘기</div><div class="v"><i>2발 →</i> <em>3발</em></div><div class="pips"><span class="f"></span><span></span><span></span><span></span><span></span><span></span></div><div class="o">위성 포격은 5단계부터 한 번에 2발</div><div class="buy">재 15,000 · 6,580 모자람</div></div>
+</div>
+</div></div>
+<p style="margin-top:10px">위 그림은 배치를 보여 주는 시안이고 숫자는 예시입니다. 다른 탭(불, 재, 나르기)도 같은 카드로 바뀝니다.</p>
+
+<h2 id="fresh">9. 환기: 같이 정할 것 (개발하지 않고 의견만 받습니다)</h2>
+<p>지금 게임은 처음부터 끝까지 "붙이고, 줍고, 붓고, 산다"만 반복되고, 숲은 어디를 가도 같은 숲입니다. 이야기를 넣지 않더라도 환기하는 방법은 여러 갈래가 있어 후보를 적었습니다. 섞을 수 있습니다.</p>
+<div class="pick"><h3>가. 숲 속의 태울 거리</h3><p>숲에 사람이 남긴 것들이 있습니다. 버려진 주유소, 벌목장의 통나무 더미, 송전탑, 폐가, 탄약고. 불이 닿으면 각각 다르게 터지고 무너지며, 한 번뿐인 큰 장면이 됩니다. 지도에서 보고 "저기까지 불을 끌고 가자"는 목표가 생깁니다. 글이 필요 없습니다.</p></div>
+<div class="pick"><h3>나. 불을 끄러 오는 쪽</h3><p>불이 커지면 소방 헬기와 비행기가 물을 뿌리러 옵니다. 지금 게임에는 나를 막는 것이 하나도 없습니다. 끄기 전에 더 크게 번지게 하거나, 뒤쪽에 다른 불을 내서 따돌리는 식의 긴장이 생깁니다. 현실에 있는 일이라 분위기에도 맞습니다.</p></div>
+<div class="pick"><h3>다. 눈에 보이게 변하는 행성</h3><p>10%, 25%, 50%를 넘길 때마다 세상이 눈에 띄게 달라집니다. 하늘이 연기로 누렇게 흐려지고, 재가 눈처럼 내리고, 해가 붉어집니다. 넘기는 순간에는 행성을 멀리서 보여 주는 짧은 장면이 나옵니다. "내가 여기까지 바꿨다"가 보입니다.</p></div>
+<div class="pick"><h3>라. 숲마다 다른 규칙</h3><p>구역마다 태우는 법이 달라집니다. 대나무 숲은 터지며 한꺼번에 번지고, 늪 숲은 젖어 있어 기름 없이는 안 붙고, 마른 풀밭은 순식간에 지나가지만 재가 적습니다. 새 구역에 들어설 때마다 쓰는 무기가 바뀝니다.</p></div>
+<div class="pick"><h3>마. 짧은 의뢰</h3><p>"비가 오기 전에 이 숲을 태워라", "불 한 번으로 500그루" 같은 5분짜리 목표가 가끔 뜨고 보상을 줍니다. 가장 빨리 넣을 수 있지만, 숙제처럼 느껴질 위험이 있습니다.</p></div>
+<div class="pick"><h3>바. 말 없는 이야기</h3><p>글이나 무전 없이 발견물로만 전합니다. 숲 한가운데 나 말고 다른 사람이 태운 자리, 오래된 야영지, 중앙의 거목. 왜 태우는지에 대한 답을 끝에 하나만 둡니다. 전에 무전은 빼자고 하셨기 때문에 말이 없는 쪽으로 적었습니다.</p></div>
+<p>제 생각으로는 <b>가 + 다</b>가 지금 게임에 가장 잘 붙습니다. 둘 다 글이 필요 없고, "보기만 해도 재미"와 맞고, 20~45분의 한가한 구간을 메울 수 있습니다. <b>나</b>는 게임의 성격을 가장 크게 바꾸는 선택이라 승준 의견이 가장 필요한 항목입니다.</p>
+
+<h2 id="ask">정해 주실 것</h2>
+<div class="q">1. 무기 강화 방식: 추천(공용 강화 5줄) / 전액 돌려받기 / 끼우는 부품</div>
+<div class="q">2. 신호탄 총을 없애고 소이 폭탄에서 시작해도 되는지</div>
+<div class="q">3. 수거 헬기와 헬리콥터를 넣어도 되는지</div>
+<div class="q">4. 강화 판을 카드 방식으로 바꿔도 되는지</div>
+<div class="q">5. 환기: 가~바 중 끌리는 것, 또는 생각하고 계신 다른 방향</div>
+</main>
+</body>
+</html>
