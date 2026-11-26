@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>불씨 하나 계획 3 · 개간 하청, 손에 익기, 그림 판</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#e2672a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.7;font-size:16px}
+main{max-width:860px;margin:0 auto;padding:36px 20px 80px}
+h1{font-size:26px;margin:0 0 8px}
+h2{font-size:21px;margin:52px 0 10px;padding-top:22px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 6px}
+p{margin:8px 0}
+.lead{color:var(--dim)}
+a{color:var(--text)}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px 9px 0;border-top:1px solid var(--line)}
+th{color:var(--dim);font-weight:500;white-space:nowrap}
+td.n{white-space:nowrap;font-variant-numeric:tabular-nums}
+ul,ol{padding-left:22px;margin:8px 0}
+li{margin:4px 0}
+.msg{margin:14px 0;border-left:1px solid var(--line);padding-left:16px}
+.msg div{margin:10px 0}
+.msg small{display:block;color:var(--dim);font-size:13px}
+.q{background:var(--panel);padding:18px 22px;margin-top:14px}
+.q li{margin:10px 0}
+b{font-weight:700}
+.draft{color:var(--dim);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 계획 3</h1>
+<p class="lead">정해 주신 세 가지(그림 느낌의 강화 판, 무기별 손에 익기, 설정 A 개간 하청)를 실제로 만들 내용으로 풀었습니다. 이 페이지를 보고 고칠 곳을 알려 주시면 그때 개발을 시작합니다. 대사와 이름은 모두 초안입니다.</p>
+
+<h2>1. 강화 판: 그림 판</h2>
+<p>시안은 따로 있습니다: <a href="board3/">강화 판 시안 3</a>. 야영지 장면 위에 강화를 글자와 가는 줄로만 적고, 고른 줄 하나를 오른쪽에 크게 보여 줍니다. 시안이 괜찮으면 야영지 장면을 게임 모델로 만들어 넣습니다.</p>
+<p>설정 A가 정해졌으므로 장면도 그에 맞춥니다. 야영지가 아니라 <b>회사가 떨어뜨려 준 작업장</b>입니다. 화물함(수거함), 지급품 상자가 놓인 작업대, 드론 충전대, 임시 착륙장이 있고, 무기를 사면 작업대에 그 물건이 실제로 놓입니다.</p>
+
+<h2>2. 설정 A: 개간 하청</h2>
+<h3>여기는 어디고 나는 누구인가</h3>
+<p>어느 회사가 통째로 산 작은 행성입니다. 나무가 너무 빨리 자라 아무것도 지을 수 없어서, 회사는 숲을 태워 없애는 일을 하청으로 돌렸습니다. 나는 재 값만 받고 혼자 파견된 하청 기사이고, 지급품은 성냥 다섯 개가 전부입니다. 수거함은 회사 화물함이고, 재는 비료 원료로 팔립니다. 그래서 재가 곧 돈이고, 무기는 회사 물품 목록에서 재를 주고 사는 것입니다.</p>
+<p>지금 게임의 규칙은 하나도 바꾸지 않습니다. 이미 있는 규칙에 이유가 붙을 뿐입니다.</p>
+
+<h3>말 거는 상대: 본사 담당자</h3>
+<p>수거함 화면과 화면 구석에 짧은 업무 연락이 뜹니다. 목소리는 없고 글만 있습니다. 담당자는 얼굴도 이름도 나오지 않고 사번으로만 표시됩니다. 말투는 건조하고, 내가 하는 일이 점점 커질수록 연락이 조금씩 달라집니다. 연락은 읽지 않아도 게임이 멈추지 않습니다.</p>
+<div class="msg">
+<div><small>처음 재를 넣었을 때</small>입고 확인. 재 12. 단가는 계약서 3쪽과 같습니다.</div>
+<div><small>라이터를 샀을 때</small>물품 출고 완료. 반품은 받지 않습니다.</div>
+<div><small>첫 밤</small>야간 작업 수당은 없습니다. 참고하세요.</div>
+<div><small>다람쥐가 처음 왔을 때</small>현지 동물의 민원은 접수 대상이 아닙니다. 무시하고 진행하세요.</div>
+<div><small>1구역을 절반 태웠을 때</small>진행률 확인했습니다. 전임자보다 빠릅니다.</div>
+<div><small>오래 재를 넣지 않았을 때</small>입고가 40분째 없습니다. 근무 중인지 확인 바랍니다.</div>
+<div><small>헬리콥터를 샀을 때</small>해당 기체는 이전 계약자가 반납하지 못한 물품입니다. 사유는 기록에 없습니다.</div>
+<div><small>위성 포격을 처음 썼을 때</small>궤도 자산 사용이 확인되었습니다. 사용료는 재에서 차감하지 않습니다. 이유는 묻지 마세요.</div>
+</div>
+<p class="draft">연락은 60개 안팎을 생각합니다. 진행에 따라 한 번씩 뜨는 것 40개, 상황에 따라 되풀이되는 것 20개입니다. 처음 2시간 동안 평균 2분에 한 번꼴입니다.</p>
+
+<h3>태울 거리: 전임 개간팀이 버리고 간 것</h3>
+<p>먼저 왔다가 포기한 팀들의 시설이 숲 곳곳에 남아 있습니다. 나무와 다르게 타고, 하나를 태우면 주변에 한꺼번에 불이 붙습니다. 멀리서도 보이는 크기여서 "저기까지 가 보자"는 목표가 됩니다.</p>
+<div class="tw"><table>
+<tr><th>시설</th><th>타는 모습</th><th>효과</th><th>수</th></tr>
+<tr><td>연료 저장소</td><td>잠깐 타다가 크게 터짐</td><td>반경 60m의 나무에 한꺼번에 불</td><td class="n">구역마다 2~3</td></tr>
+<tr><td>벌목 장비</td><td>기름이 새어 나와 길게 흐르며 탐</td><td>내리막을 따라 100m쯤 불길이 달림</td><td class="n">구역마다 4~6</td></tr>
+<tr><td>숙소</td><td>오래 타며 불똥을 날림</td><td>2분 동안 주변 80m에 불똥이 계속 떨어짐</td><td class="n">구역마다 1~2</td></tr>
+<tr><td>통신탑</td><td>밑동이 타면 한쪽으로 쓰러짐</td><td>쓰러진 방향으로 70m 한 줄에 불</td><td class="n">구역마다 1</td></tr>
+</table></div>
+<p>재도 나무보다 많이 나옵니다. 값은 밸런스를 잰 뒤 정하고, 지금 진행 속도(강화 전부 구매 120분대)가 빨라지지 않게 그만큼 다른 곳에서 덜어 냅니다.</p>
+
+<h3>동물: 항의하러 오는 다람쥐</h3>
+<p>불을 끄지도, 방해하지도 않습니다. 살던 나무가 타면 다람쥐들이 작은 팻말을 들고 와서 내 앞에 섭니다. 태울수록 수가 늘고 팻말 글이 바뀝니다.</p>
+<ul>
+<li><b>처음</b>: 한 마리가 "여기 삽니다"라고 적힌 팻말을 들고 옵니다.</li>
+<li><b>중반</b>: 열 마리쯤이 줄지어 따라다닙니다. 팻말은 "그만", "우리 집", "본사 나와라".</li>
+<li><b>후반</b>: 헬리콥터를 타면 착륙장에 모여 팻말을 흔듭니다. 위성 포격 뒤에는 팻말이 "…"로 바뀝니다.</li>
+<li><b>불을 붙이면</b>: 꼬리에 불이 붙어 연기를 끌며 지그재그로 달아나고, 달아난 길의 나무에 불이 옮겨붙습니다. 죽지는 않고, 꼬리가 그을린 채 다시 팻말을 들고 돌아옵니다.</li>
+</ul>
+<p>몸통·꼬리·팻말을 따로 움직이는 방식이라 뼈대 애니메이션 없이 만들 수 있습니다. 사슴 같은 큰 동물은 넣지 않습니다.</p>
+
+<h3>발견물: 전임자들의 일지</h3>
+<p>버려진 시설 안에 전임자들이 남긴 일지가 있습니다. 모두 12장이고, 순서대로 읽으면 왜 다들 그만뒀는지가 조금씩 드러납니다. 일지 한 장을 주우면 <b>지금 든 무기의 손에 익기 한 칸이 바로 열립니다</b>(아래 3번). 그래서 돌아다니는 일과 무기 성장이 이어집니다.</p>
+<div class="msg">
+<div><small>1장 · 1구역 숙소</small>3일째. 성냥이 다섯 개뿐이라고 따졌더니 "충분합니다"라는 답이 왔다.</div>
+<div><small>5장 · 2구역 통신탑</small>태운 자리에 벌써 싹이 올라왔다. 본사에는 말하지 않았다. 말하면 계약이 늘어난다.</div>
+</div>
+<p class="draft">일지의 내용과 결말은 엔딩과 이어지므로, 엔딩을 정할 때 함께 확정합니다. 그 전에는 1~4장만 넣는 방법도 있습니다.</p>
+
+<h3>끝</h3>
+<p>엔딩은 보류 상태 그대로 둡니다. 후보는 "다 태우면 회사가 여기에 무엇을 지으려 했는지 보인다"와 "탄 자리에 새싹이 난다" 두 가지이고, 둘을 섞을 수도 있습니다. 따로 의논하겠습니다.</p>
+
+<h2>3. 손에 익기: 무기별 특별 강화</h2>
+<p>그 무기로 직접 불붙인 나무 수만큼 그 무기만의 기술이 열립니다. 재를 쓰지 않습니다. 기술 30개의 표는 <a href="plan2.html">계획 2</a>의 것을 그대로 씁니다.</p>
+<div class="tw"><table>
+<tr><th>무기</th><th>첫째 칸</th><th>둘째 칸</th><th>셋째 칸</th><th>쓰는 기간(예상)</th></tr>
+<tr><td>성냥</td><td class="n">10그루</td><td class="n">30</td><td class="n">70</td><td>0~5분</td></tr>
+<tr><td>라이터</td><td class="n">60</td><td class="n">180</td><td class="n">400</td><td>5~16분</td></tr>
+<tr><td>가스 토치</td><td class="n">300</td><td class="n">900</td><td class="n">2,000</td><td>16~28분</td></tr>
+<tr><td>드립 토치</td><td class="n">800</td><td class="n">2,400</td><td class="n">5,500</td><td>28~39분</td></tr>
+<tr><td>화염방사기</td><td class="n">2,000</td><td class="n">6,000</td><td class="n">14,000</td><td>39~50분</td></tr>
+<tr><td>연료 드럼</td><td class="n">4,000</td><td class="n">12,000</td><td class="n">28,000</td><td>50~59분</td></tr>
+<tr><td>소이 폭탄</td><td class="n">8,000</td><td class="n">24,000</td><td class="n">55,000</td><td>59~81분</td></tr>
+<tr><td>집속 소이탄</td><td class="n">15,000</td><td class="n">45,000</td><td class="n">100,000</td><td>81~89분</td></tr>
+<tr><td>항공 살포</td><td class="n">25,000</td><td class="n">75,000</td><td class="n">170,000</td><td>89~107분</td></tr>
+<tr><td>위성 포격</td><td class="n">40,000</td><td class="n">120,000</td><td class="n">270,000</td><td>107분~</td></tr>
+</table></div>
+<p class="draft">쓰는 기간은 지금 빌드의 자동 플레이에서 각 무기를 사는 시점입니다. 그루 수는 초안이고, 자동 플레이로 재서, 각 무기를 쓰는 기간의 30%·60%·90% 지점에서 칸이 열리도록 맞춥니다.</p>
+<ul>
+<li><b>화면 표시</b>: 무기 이름 옆의 얇은 막대 세 칸. 칸이 열리면 그 기술을 쓰는 법이 한 줄로 뜹니다.</li>
+<li><b>앞 무기가 뒷 무기를 넘지 않게</b>: 세 칸을 다 열어도 태우는 속도가 1.4배를 넘지 않고, 다음 무기는 처음부터 2배 이상입니다. 자동 플레이로 무기마다 확인합니다.</li>
+<li><b>발견물과의 연결</b>: 일지 한 장이 지금 든 무기의 한 칸을 바로 엽니다.</li>
+<li><b>F 키</b>: 지금 숨어 있는 "쓰는 방식 바꾸기"는 이 체계로 합칩니다.</li>
+</ul>
+
+<h2>4. 만드는 순서</h2>
+<div class="tw"><table>
+<tr><th>빌드</th><th>들어가는 것</th><th>이유</th></tr>
+<tr><td class="n">v0.9</td><td>그림 판, 손에 익기 30개</td><td>설정과 상관없이 만들 수 있고, 다음 무기까지의 지루함을 바로 줄입니다.</td></tr>
+<tr><td class="n">v0.10</td><td>본사 연락, 태울 거리 4종, 작업장 장면</td><td>고요함과 30~50분 구간의 단조로움을 채웁니다.</td></tr>
+<tr><td class="n">v0.11</td><td>다람쥐, 일지</td><td>일지 내용은 엔딩과 함께 정해야 해서 마지막에 둡니다.</td></tr>
+</table></div>
+<p>빌드마다 계획 승인, 개발, QA, 승준 승인, 드라이브 업로드 순서를 지킵니다.</p>
+
+<h2>정해 주실 것</h2>
+<ol class="q">
+<li><b>강화 판 시안 3</b>이 괜찮은지. 아니면 어디가 걸리는지.</li>
+<li><b>본사 담당자</b>의 건조한 말투가 맞는지, 글만 뜨는 방식이 괜찮은지.</li>
+<li><b>태울 거리 네 가지</b> 중 빼거나 바꿀 것.</li>
+<li><b>다람쥐</b>에게 불이 붙었을 때 죽지 않고 돌아오는 것이 괜찮은지.</li>
+<li><b>일지</b>가 손에 익기 한 칸을 여는 연결이 괜찮은지.</li>
+<li><b>만드는 순서</b>(v0.9는 그림 판과 손에 익기부터)가 괜찮은지.</li>
+</ol>
+</main>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>불씨 하나 · 강화 판 시안 3 (그림 판)</title>
+<style>
+@font-face{font-family:"Pretendard";font-weight:500;src:url(fonts/Pretendard-Medium.otf) format("opentype")}
+@font-face{font-family:"Pretendard";font-weight:800;src:url(fonts/Pretendard-ExtraBold.otf) format("opentype")}
+:root{
+  --ink:#0d0c0a;        /* 판 바탕 */
+  --paper:#e9e3d6;      /* 글자 */
+  --dim:#9a9486;        /* 덜 중요한 글자 */
+  --rule:#3b372f;       /* 가는 줄 */
+  --ember:#e2672a;      /* 살 수 있음 */
+  --u:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#161512;color:var(--paper);font-family:"Pretendard","Malgun Gothic",sans-serif;font-weight:500}
+main{max-width:1500px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:22px;font-weight:800;margin:0 0 6px}
+p.lead{margin:0 0 18px;color:#b9b3a5;line-height:1.6;max-width:70ch;font-size:15px}
+.bar{display:flex;gap:16px;align-items:center;margin:0 0 10px;font-size:14px;color:#b9b3a5}
+.bar button{font:inherit;color:var(--paper);background:none;border:1px solid #5a5548;padding:9px 14px;min-height:44px;cursor:pointer}
+.bar button:hover{border-color:var(--paper)}
+.bar button:focus-visible,.row:focus-visible,.buy:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
+#wrap{width:100%;overflow:hidden}
+#wrap.big{overflow:auto}
+ul.notes{margin:22px 0 0;padding-left:20px;color:#b9b3a5;line-height:1.7;font-size:15px;max-width:76ch}
+ul.notes b{color:var(--paper);font-weight:800}
+
+/* ── 게임 화면 (3440x1440과 같은 비율, 2248x941로 그림) ── */
+#frame{position:relative;width:2248px;height:941px;transform-origin:0 0;background:var(--ink);font-variant-numeric:tabular-nums}
+#scene{position:absolute;left:0;top:0;width:1672px;height:941px;background:url(img/camp_board.jpg) 0 0/1672px 941px}
+#scene::after{content:"";position:absolute;inset:0;background:linear-gradient(#0d0c0a66,#0d0c0a40 30%,#0d0c0a40 60%,#0d0c0a8c)}
+#lines{position:absolute;left:0;top:0;width:1672px;height:941px;pointer-events:none}
+#lines path{fill:none;stroke:var(--paper);stroke-width:1;opacity:.55}
+#lines circle{fill:none;stroke:var(--paper);stroke-width:1.5;opacity:.8}
+.title{position:absolute;left:28px;top:22px;font-size:15px;color:var(--dim)}
+.title b{color:var(--paper);font-weight:800;font-size:19px;margin-right:12px}
+
+.grp{position:absolute;width:330px;text-shadow:0 1px 3px #000,0 0 10px #000a}
+.grp h2{margin:0 0 6px;padding:0 0 6px;font-size:14px;font-weight:500;color:var(--dim);border-bottom:1px solid #e9e3d655;display:flex;justify-content:space-between}
+.grp h2 b{font-weight:800;color:var(--paper);font-size:17px}
+.row{display:grid;grid-template-columns:128px 1fr auto;align-items:center;gap:10px;width:100%;height:29px;padding:0 0 0 14px;margin:0;border:0;background:none;color:var(--dim);font:inherit;font-size:16px;text-align:left;cursor:pointer;position:relative;text-shadow:inherit}
+.row .n{white-space:nowrap}
+.row .c{font-size:15px}
+.row i{display:flex;gap:3px}
+.row i u{width:2px;height:10px;background:#e9e3d640}
+.row i u.f{background:#e9e3d6}
+.row.can{color:var(--paper)}
+.row.can::before{content:"";position:absolute;left:0;top:11px;width:7px;height:7px;background:var(--ember)}
+.row.can .c{color:#f2a274}
+.row.max{color:#8d877a}
+.row.max i u.f{background:#7d786c}
+.row:hover .n{text-decoration:underline;text-underline-offset:4px}
+.row.sel{color:#fff}
+.row.sel::after{content:"";position:absolute;left:-8px;right:-8px;top:0;bottom:0;border:1px solid var(--paper)}
+.row.new{margin-top:6px;border-top:1px solid #e9e3d633;height:34px;grid-template-columns:1fr auto}
+.row.new .n small{font-size:13px;color:var(--dim);margin-right:8px}
+
+/* ── 오른쪽 설명 칸 ── */
+#side{position:absolute;left:1672px;top:0;width:576px;height:941px;padding:26px 40px 30px;border-left:1px solid var(--rule);display:flex;flex-direction:column}
+.ash{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:14px;border-bottom:1px solid var(--rule);color:var(--dim);font-size:15px}
+.ash b{font-size:30px;font-weight:800;color:var(--paper)}
+.cat{margin-top:34px;font-size:15px;color:var(--dim)}
+.nm{font-size:46px;font-weight:800;line-height:1.1;margin:4px 0 14px;letter-spacing:-.01em}
+.steps{display:flex;gap:4px;align-items:center;font-size:15px;color:var(--dim)}
+.steps u{width:4px;height:16px;background:#e9e3d630}
+.steps u.f{background:var(--paper)}
+.steps u.nx{background:var(--ember)}
+.steps span{margin-left:10px}
+.what{margin-top:34px;font-size:15px;color:var(--dim)}
+.val{font-size:38px;font-weight:800;margin-top:2px}
+.val s{text-decoration:none;color:var(--dim);font-weight:500}
+.val em{font-style:normal;color:var(--dim);font-weight:500;margin:0 10px;font-size:26px}
+.desc{margin-top:22px;font-size:17px;line-height:1.65;color:#cfc9bc}
+table{margin-top:26px;border-collapse:collapse;width:100%;font-size:15px;color:var(--dim)}
+table caption{text-align:left;padding-bottom:6px}
+td{padding:6px 0;border-top:1px solid var(--rule)}
+td:nth-child(n+2){text-align:right}
+.foot{margin-top:auto}
+.buy{display:flex;justify-content:space-between;align-items:center;width:100%;height:64px;padding:0 22px;border:0;background:var(--paper);color:#12110e;font:inherit;font-weight:800;font-size:20px;cursor:pointer}
+.buy:hover{background:#fff}
+.buy[disabled]{background:none;border:1px solid var(--rule);color:var(--dim);cursor:default}
+.hint{margin-top:12px;font-size:14px;color:var(--dim);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<main>
+<h1>강화 판 시안 3 · 그림 판</h1>
+<p class="lead">야영지 그림 위에 강화를 직접 적어 넣은 판입니다. 상자, 둥근 모서리, 빛나는 테두리, 색 띠를 모두 빼고 글자와 가는 줄만 남겼습니다. 줄을 눌러 고르고, 오른쪽 아래 버튼으로 사 보실 수 있습니다. 숫자와 값은 보여 주기 위한 예시이고, 배경 그림은 실제 게임에서는 게임 모델로 그립니다.</p>
+<div class="bar"><button id="zoom" type="button" aria-pressed="false">실제 크기로 보기</button><span>화면이 좁으면 판 전체가 줄어듭니다. 실제 크기에서는 옆으로 밀어서 봅니다.</span></div>
+<div id="wrap">
+<div id="frame">
+  <div id="scene"></div>
+  <svg id="lines" viewBox="0 0 1672 941" aria-hidden="true"></svg>
+  <div class="title"><b>강화 판</b>지금 살 수 있는 것 <span id="cnt"></span></div>
+  <div id="groups"></div>
+  <aside id="side" aria-live="polite"></aside>
+</div>
+</div>
+<ul class="notes">
+<li><b>살 수 있는 것</b>은 이름 앞의 작은 주황색 네모와 밝은 글자로만 표시합니다. 재가 모자란 줄은 흐리게, 다 배운 줄은 더 흐리게 둡니다.</li>
+<li><b>단계</b>는 이름 옆의 세로 눈금입니다. 채워진 눈금이 배운 단계입니다.</li>
+<li><b>새 무기와 탈것</b>은 그 물건이 놓인 자리의 맨 아랫줄에 따로 적습니다.</li>
+<li><b>오른쪽 칸</b>은 고른 줄 하나만 크게 보여 줍니다. 판이 열려 있는 동안에도 왼쪽 그림은 살아 있는 장면으로 둘 수 있습니다.</li>
+</ul>
+</main>
+<script>
+// 예시 값. b=0단계 값, inc=단계마다 느는 양, d=소수 자리
+const G=[
+ {id:'fire',name:'불',sub:'타는 나무',x:330,y:64,ax:205,ay:150,tx:322,ty:76,rows:[
+  {n:'옮겨붙기',lv:6,max:14,cost:2600,what:'불 한 번에 타는 나무',b:1.3,inc:0.62,d:1,unit:'그루',desc:'나무에 불이 붙을 때 근처 나무로 옮겨붙을 확률이 오릅니다. 불은 옮겨붙을 때마다 약해지다가 꺼집니다.'},
+  {n:'빨리 타기',lv:3,max:6,cost:4100,what:'나무 한 그루가 다 타는 시간',b:14,inc:-1.5,d:1,unit:'초',desc:'나무가 더 빨리 재가 됩니다. 재를 줍기까지 기다리는 시간이 줄어듭니다.'},
+  {n:'멀리 옮겨붙기',lv:2,max:7,cost:7800,what:'불이 건너뛰는 거리',b:4,inc:0.8,d:1,unit:'m',desc:'불이 더 먼 나무까지 건너갑니다. 나무가 성긴 곳에서도 불이 이어집니다.'},
+  {n:'같이 붙이기',lv:1,max:3,cost:19000,what:'한 번에 같이 붙는 나무',b:1,inc:1,d:0,unit:'그루',desc:'손으로 붙인 나무 옆의 나무에도 같은 순간 불이 붙습니다.'},
+  {n:'불똥',lv:8,max:8,cost:0,what:'불똥이 날아가는 거리',b:6,inc:3,d:0,unit:'m',desc:'타는 나무에서 불똥이 튀어 멀리 떨어진 나무에 붙습니다.'}]},
+ {id:'tool',name:'무기',sub:'어느 무기에나 통함',x:150,y:690,ax:400,ay:640,rows:[
+  {n:'넓게',lv:5,max:12,cost:6200,what:'소이 폭탄 폭발 반경',b:9,inc:1,d:0,unit:'m',desc:'모든 무기가 더 넓게 태웁니다. 손으로 붙인 불은 더 멀리 번지고, 불줄기·기름줄·드럼·폭탄·위성 포격은 닿는 범위가 넓어집니다.'},
+  {n:'빠르게',lv:6,max:10,cost:2100,what:'소이 폭탄 장전 시간',b:1.6,inc:-0.12,d:2,unit:'초',desc:'모든 무기를 더 자주 씁니다.'},
+  {n:'멀리',lv:4,max:8,cost:7400,what:'소이 폭탄이 날아가는 거리',b:60,inc:9,d:0,unit:'m',desc:'모든 무기가 더 먼 곳에 닿습니다.'},
+  {n:'넉넉하게',lv:6,max:10,cost:2300,what:'들고 다니는 폭탄',b:4,inc:2,d:0,unit:'발',desc:'소모품을 더 많이 들고 다닙니다.'},
+  {n:'여러 발',lv:2,max:6,cost:46000,what:'한 번에 쏘는 수',b:1,inc:1,d:0,unit:'발',desc:'한 번에 여러 발이 나갑니다.'},
+  {n:'집속 소이탄',shop:'새 무기',cost:120000,desc:'공중에서 여러 발로 갈라져 넓은 땅을 한꺼번에 태웁니다.'}]},
+ {id:'ash',name:'재',sub:'수거함과 자루',x:640,y:700,ax:790,ay:580,rows:[
+  {n:'자루',lv:7,max:16,cost:3200,what:'자루에 담기는 재',b:60,inc:60,d:0,unit:'',desc:'한 번에 더 많은 재를 들고 다닙니다.'},
+  {n:'빠른 붓기',lv:4,max:10,cost:1800,what:'수거함에 붓는 속도',b:20,inc:15,d:0,unit:'개/초',desc:'수거함 앞에 서 있는 시간이 줄어듭니다.'},
+  {n:'자석',lv:3,max:8,cost:5200,what:'재가 끌려오는 거리',b:2,inc:1.5,d:1,unit:'m',desc:'가까이 가지 않아도 재가 자루로 들어옵니다.'},
+  {n:'수북한 재',lv:1,max:6,cost:12000,what:'나무 한 그루의 재',b:1,inc:0.4,d:1,unit:'개',desc:'나무 한 그루가 남기는 재가 많아집니다.'}]},
+ {id:'drone',name:'드론',sub:'재를 대신 나름',x:1010,y:64,ax:1085,ay:330,rows:[
+  {n:'드론 수',lv:5,max:14,cost:8400,what:'일하는 드론',b:0,inc:2,d:0,unit:'대',desc:'재를 주워 수거함으로 나르는 드론이 늘어납니다.'},
+  {n:'드론 짐칸',lv:3,max:10,cost:9600,what:'드론 한 대가 싣는 재',b:16,inc:15,d:0,unit:'',desc:'드론이 한 번에 더 많이 싣습니다.'},
+  {n:'드론 속도',lv:4,max:8,cost:6800,what:'드론이 나는 속도',b:6,inc:1.5,d:1,unit:'m/초',desc:'드론이 더 빨리 오갑니다.'}]},
+ {id:'heli',name:'헬기',sub:'착륙장',x:1300,y:660,ax:1400,ay:610,rows:[
+  {n:'수거 헬기',lv:1,max:4,cost:88000,what:'일하는 수거 헬기',b:0,inc:1,d:0,unit:'대',desc:'먼 곳의 재 더미를 통째로 실어 오는 헬기입니다.'},
+  {n:'헬기 흡입구',lv:0,max:3,cost:54000,what:'수거 헬기가 빨아들이는 폭',b:8,inc:4,d:0,unit:'m',desc:'수거 헬기가 한 번에 더 넓게 빨아들입니다.'},
+  {n:'탈것 손보기',lv:3,max:6,cost:7700,what:'탈것 속도',b:100,inc:8,d:0,unit:'%',desc:'타고 있는 탈것이 더 빨라집니다.'},
+  {n:'헬리콥터',shop:'새 탈것',cost:240000,desc:'어디서든 뜨고 내릴 수 있고, 높은 곳에서 폭탄을 떨어뜨립니다.'}]}
+];
+let ash=8420, sel=G[1].rows[0];
+const fmt=n=>n.toLocaleString('ko-KR');
+const val=(r,l)=>(r.b+r.inc*l).toFixed(r.d)+(r.unit||'');
+const costAt=(r,k)=>{const c=r.cost*Math.pow(1.6,k);const m=Math.pow(10,Math.floor(Math.log10(c))-1);return Math.round(c/m)*m};
+const state=r=>r.shop?(r.bought?'max':r.cost<=ash?'can':''):(r.lv>=r.max?'max':r.cost<=ash?'can':'');
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+
+function draw(){
+  const box=document.getElementById('groups');box.textContent='';
+  const svg=document.getElementById('lines');svg.textContent='';
+  let can=0;
+  for(const g of G){
+    const d=el('section','grp');d.style.left=g.x+'px';d.style.top=g.y+'px';
+    d.append(el('h2','',`<b>${g.name}</b><span>${g.sub}</span>`));
+    for(const r of g.rows){
+      const st=state(r);if(st==='can')can++;
+      const b=el('button','row '+st+(r.shop?' new':'')+(r===sel?' sel':''));b.type='button';
+      if(r.shop){
+        b.append(el('span','n',`<small>${r.shop}</small>${r.n}`),el('span','c',r.bought?'있음':fmt(r.cost)));
+      }else{
+        let t='';for(let i=0;i<r.max;i++)t+=`<u${i<r.lv?' class="f"':''}></u>`;
+        b.append(el('span','n',r.n),el('i','',t),el('span','c',st==='max'?'끝':fmt(r.cost)));
+        b.setAttribute('aria-label',`${r.n} ${r.lv}/${r.max}단계, 재 ${fmt(r.cost)}`);
+      }
+      b.onclick=()=>{sel=r;draw()};
+      d.append(b);
+    }
+    box.append(d);
+    // 물건에서 묶음 제목까지 가는 줄
+    const above=g.ay<g.y, tx=g.tx??g.x+Math.min(330,Math.max(0,g.ax-g.x)), ty=g.ty??(above?g.y-8:g.y+30+g.rows.length*29+14);
+    const NS='http://www.w3.org/2000/svg';
+    const p=document.createElementNS(NS,'path');p.setAttribute('d',`M${g.ax} ${g.ay} L${tx} ${ty}`);
+    const c=document.createElementNS(NS,'circle');c.setAttribute('cx',g.ax);c.setAttribute('cy',g.ay);c.setAttribute('r',4);
+    svg.append(p,c);
+  }
+  document.getElementById('cnt').textContent=can+'개';
+  side();
+}
+function side(){
+  const s=document.getElementById('side');s.textContent='';
+  const r=sel,g=G.find(x=>x.rows.includes(r)),st=state(r);
+  s.append(el('div','ash',`<span>가진 재</span><b>${fmt(ash)}</b>`));
+  s.append(el('div','cat',r.shop?`${g.name} · ${r.shop}`:`${g.name} · ${g.sub}`),el('div','nm',r.n));
+  if(!r.shop){
+    let t='';for(let i=0;i<r.max;i++)t+=`<u class="${i<r.lv?'f':i===r.lv?'nx':''}"></u>`;
+    s.append(el('div','steps',t+`<span>${r.lv} / ${r.max}단계</span>`));
+    s.append(el('div','what',r.what));
+    s.append(el('div','val',st==='max'?val(r,r.lv):`<s>${val(r,r.lv)}</s><em>→</em>${val(r,r.lv+1)}`));
+  }
+  s.append(el('p','desc',r.desc));
+  if(!r.shop&&r.lv+1<r.max){
+    let h='<caption>그다음 단계</caption>';
+    for(let k=1;k<=3&&r.lv+k<r.max;k++)h+=`<tr><td>${r.lv+k+1}단계</td><td>${val(r,r.lv+k+1)}</td><td>재 ${fmt(costAt(r,k))}</td></tr>`;
+    s.append(el('table','',h));
+  }
+  const f=el('div','foot');
+  const b=el('button','buy');b.type='button';
+  if(st==='max'){b.disabled=true;b.innerHTML=`<span>${r.shop?'이미 있습니다':'다 배웠습니다'}</span>`}
+  else if(st==='can'){b.innerHTML=`<span>사기</span><span>재 ${fmt(r.cost)}</span>`;b.onclick=buy}
+  else{b.disabled=true;b.innerHTML=`<span>재 ${fmt(r.cost-ash)} 모자람</span><span>재 ${fmt(r.cost)}</span>`}
+  f.append(b,el('div','hint','<span>마우스 클릭 · 줄 고르기</span><span>TAB 닫기</span>'));
+  s.append(f);
+}
+function buy(){
+  const r=sel;ash-=r.cost;
+  if(r.shop)r.bought=true;else{r.lv++;r.cost=costAt(r,1)}
+  draw();document.querySelector('.buy').focus();
+}
+draw();
+
+// 좁은 화면에서는 판 전체를 줄여서 보여 준다
+const wrap=document.getElementById('wrap'),frame=document.getElementById('frame'),zoom=document.getElementById('zoom');
+function fit(){
+  const big=wrap.classList.contains('big'),k=big?1:Math.min(1,wrap.clientWidth/2248);
+  frame.style.transform=`scale(${k})`;wrap.style.height=big?'':941*k+'px';
+}
+zoom.onclick=()=>{const b=wrap.classList.toggle('big');zoom.setAttribute('aria-pressed',b);zoom.textContent=b?'화면에 맞추기':'실제 크기로 보기';fit()};
+let lastW=0;
+new ResizeObserver(()=>{if(wrap.clientWidth!==lastW){lastW=wrap.clientWidth;requestAnimationFrame(fit)}}).observe(wrap);fit();
+</script>
+</body>
+</html>
