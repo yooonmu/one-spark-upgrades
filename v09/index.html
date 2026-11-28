@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>불씨 하나 v0.9 · 지금까지 한 일</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#e2672a;--ok:#8fbf6a;--no:#d9784a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.7;font-size:16px}
+main{max-width:900px;margin:0 auto;padding:36px 20px 80px}
+h1{font-size:26px;margin:0 0 8px}
+h2{font-size:21px;margin:52px 0 10px;padding-top:22px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 6px}
+p{margin:8px 0}
+a{color:var(--acc)}
+.lead{color:var(--dim)}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px 9px 0;border-top:1px solid var(--line)}
+th{color:var(--dim);font-weight:500;white-space:nowrap}
+td.n{white-space:nowrap}
+.ok{color:var(--ok)} .no{color:var(--no)}
+ul,ol{padding-left:22px;margin:8px 0}
+li{margin:4px 0}
+.box{background:var(--panel);padding:16px 20px;margin:14px 0}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:12px 0}
+.g figure{margin:0}
+.g img{width:100%;display:block;border:1px solid var(--line)}
+.g figcaption{color:var(--dim);font-size:13px;margin-top:4px}
+.draft{color:var(--dim);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 v0.9 · 지금까지 한 일</h1>
+<p class="lead">v0.8.1을 플레이하시고 주신 말씀을 바탕으로 v0.9를 만드는 중입니다. 대부분은 끝났고, 가격과 무기 세기를 맞추는 일(밸런스)만 오래 걸리고 있습니다. 밸런스를 지금 상태에서 마무리하고 테스트 빌드를 드리는 쪽으로 바꿨습니다.</p>
+
+<div class="box">
+<b>요약.</b> 그림 판, 나무 불 고치기, 착탄 표시, 음악 다시 만들기, 무기별 "손에 익기" 30가지, 예전 저장 이어 하기는 끝났습니다. 가격은 숲이 다 탈 때까지 19번 자동으로 끝까지 돌려 맞추는 중이고, 첫 회차 길이는 약 130분까지 왔습니다. 마지막 무기인 항공 살포가 숲이 거의 다 탄 뒤에 와서 제 몫을 못 하는 것이 남은 가장 큰 문제입니다.
+</div>
+
+<div class="tw"><table>
+<tr><th>항목</th><th>상태</th><th>비고</th></tr>
+<tr><td>그림 판(강화 화면)</td><td class="ok">끝남</td><td>시안 3으로 게임에 넣음</td></tr>
+<tr><td>플레이 지적 1~4</td><td class="ok">끝남</td><td>나무 불, 나무 사라짐, 착탄 표시</td></tr>
+<tr><td>음악 다시 만들기</td><td class="ok">끝남</td><td>5곡. 귀로 들어 보신 확인은 아직</td></tr>
+<tr><td>손에 익기 30가지</td><td class="ok">끝남</td><td>무기 10개 × 3칸</td></tr>
+<tr><td>예전 저장 이어 하기</td><td class="ok">끝남</td><td>v0.8.1 저장이 그대로 열림</td></tr>
+<tr><td>위성 출력과 남은 나무 찾기</td><td class="ok">끝남</td><td>위성은 다시 할 때의 몫으로 남김</td></tr>
+<tr><td>가격과 무기 세기</td><td class="no">마무리 중</td><td>아래 4장</td></tr>
+<tr><td>성능(위성 자동 포격 끊김)</td><td class="no">시작 전</td><td>밸런스가 끝나야 잴 수 있음</td></tr>
+<tr><td>QA와 빌드</td><td class="no">시작 전</td><td>밸런스 마무리 바로 뒤</td></tr>
+</table></div>
+
+<h2>1. 그림 판</h2>
+<p>예전 강화 화면 대신 고르신 시안 3 방식의 그림 판을 게임에 넣었습니다. 강화 줄과 가격은 게임 데이터에서 바로 읽어 와서, 가격이 바뀌어도 그림 판이 따라 바뀝니다.</p>
+<div class="g">
+<figure><img src="board/ko_3440x1440_early.png" alt=""><figcaption>초반 (3440×1440)</figcaption></figure>
+<figure><img src="board/ko_3440x1440_mid.png" alt=""><figcaption>중반</figcaption></figure>
+<figure><img src="board/ko_3440x1440_late.png" alt=""><figcaption>후반</figcaption></figure>
+<figure><img src="board/ko_1920x1080_early.png" alt=""><figcaption>1920×1080 화면</figcaption></figure>
+</div>
+
+<h2>2. 플레이 지적 고친 것</h2>
+<p>v0.8.1에서 주신 지적 1~4번(나무 불 모습, 불붙은 나무가 사라지는 것, 착탄 표시)을 고쳤습니다. 헬기 사격의 손맛은 건드리지 않았습니다. 지금 착탄 표시는 이렇게 보입니다.</p>
+<div class="g">
+<figure><img src="aim/foot_day.jpg" alt=""><figcaption>걸을 때, 낮</figcaption></figure>
+<figure><img src="aim/foot_night.jpg" alt=""><figcaption>걸을 때, 밤</figcaption></figure>
+<figure><img src="aim/heli_fire.jpg" alt=""><figcaption>헬기에서 사격</figcaption></figure>
+<figure><img src="aim/heli_night_cluster.jpg" alt=""><figcaption>헬기, 밤, 집속 소이탄</figcaption></figure>
+<figure><img src="aim/trunk_after.jpg" alt=""><figcaption>줄기에 붙은 불</figcaption></figure>
+</div>
+<h2>3. 음악</h2>
+<p>너무 웅장하다고 하신 배경 음악 5곡을 다시 만들어 게임에 넣었습니다. 예전 곡과 새 곡, 게임 소리와 섞였을 때를 나란히 들어 보실 수 있습니다: <a href="audio/">음악 비교 페이지</a>. 아직 아무도 귀로 확인하지 않아서, 들어 보시고 말씀 주셔야 합니다.</p>
+
+<h2>4. 손에 익기 (무기별 3칸)</h2>
+<p>재로 사는 강화가 아니라, 그 무기로 나무를 많이 태울수록 칸이 하나씩 열립니다. 칸이 열리면 무기 칸에 아래 한 줄이 뜹니다. F는 지금 든 무기의 열린 기술을 쓰는 키입니다.</p>
+<div class="tw"><table>
+<tr><th>무기</th><th>첫째 칸</th><th>둘째 칸</th><th>셋째 칸</th></tr>
+<tr><td class="n">성냥</td><td>한 개비로 두 그루까지 붙입니다.</td><td>F: 그은 성냥을 5m 안의 나무에 던집니다.</td><td>긋지 않은 채 F: 성냥갑째 던져 세 그루에 붙입니다(성냥 3개).</td></tr>
+<tr><td class="n">라이터</td><td>누른 채 걸으면 손 닿는 앞쪽 나무에 붙습니다.</td><td>발밑 덤불을 보고 누르면 불이 앞으로 달려 나갑니다.</td><td>F: 라이터를 던지면 떨어진 자리를 태우고 손에 돌아옵니다.</td></tr>
+<tr><td class="n">가스 토치</td><td>겨눈 나무 곁의 나무도 함께 달아오릅니다.</td><td>탈것에 타고 누른 채 달리면 양옆에 붙습니다.</td><td>지나간 자리에 열이 남아 옆 나무가 3초 뒤 따라 붙습니다.</td></tr>
+<tr><td class="n">드립 토치</td><td>비탈에 흘리면 기름이 내리막으로 흘러갑니다.</td><td>반대편에도 기름 줄이 하나 더 그어집니다.</td><td>기름줄을 따라 불이 2배 빨리 달립니다.</td></tr>
+<tr><td class="n">화염방사기</td><td>지나간 땅에 불길이 남아 놓친 나무를 붙입니다.</td><td>불줄기가 숲 안쪽까지 들어갑니다.</td><td>끈적한 연료: 맞은 나무의 불이 한 번 더 번지기도 합니다.</td></tr>
+<tr><td class="n">연료 드럼</td><td>F: 드럼을 굴려 멈춘 자리에서 터뜨립니다.</td><td>터질 때 불붙은 파편이 폭발 밖으로 날아갑니다.</td><td>더 먼 드럼까지 따라 터지고, 잇달아 터지면 더 넓게 터집니다.</td></tr>
+<tr><td class="n">소이 폭탄</td><td>나무 위에서 터져 파편을 멀리 뿌립니다.</td><td>옆으로 한 번 튕겨 곁의 숲에서 한 번 더 터집니다.</td><td>떨어진 자리에서 10초 동안 불똥이 튑니다.</td></tr>
+<tr><td class="n">집속 소이탄</td><td>자탄이 쏜 방향으로 한 줄로 떨어집니다.</td><td>자탄이 떨어지며 한 번 더 갈라집니다.</td><td>지연 신관: 3초 뒤 한꺼번에 터집니다(F로 켜고 끔).</td></tr>
+<tr><td class="n">항공 살포</td><td>두 대가 나란히 와서 폭이 2배가 됩니다.</td><td>돌아오며 옆줄에 한 번 더 쏟습니다.</td><td>F: 뿌려만 두고 원할 때 우클릭으로 한꺼번에 붙입니다.</td></tr>
+<tr><td class="n">위성 포격</td><td>불기둥이 5초 머물며 더 번집니다.</td><td>줄 포격이 거의 동시에 떨어집니다.</td><td>잇달아 쏠수록 반경이 커집니다(세 발까지).</td></tr>
+</table></div>
+<p>세 칸을 다 열면 그 무기가 약 1.25~1.45배 세지게 맞췄습니다. 다 익힌 무기가 다음 무기보다 세지지 않게 하라고 하신 기준도 지킵니다.</p>
+<p class="draft">칸이 열리는 시점(나무 몇 그루를 태우면 열리는지)은 가격이 확정된 뒤 다시 맞춥니다. 지금은 화염방사기 칸이 사자마자 2분 안에 다 열리는 등 아직 어긋나 있습니다.</p>
+
+<h2>5. 가격과 무기 세기 (마무리 중)</h2>
+<h3>왜 손대는가</h3>
+<p>v0.8.1을 두 시간 해 보시고 주신 말씀입니다. 많은 게 터무니없이 싸고, 살 게 없어 기다리기만 하는 구간이 있고, 사도 바뀌는 게 없는 것이 있었습니다. 시작하자마자 라이터를 재 3개에 살 수 있었습니다.</p>
+
+<h3>정하신 것</h3>
+<ul>
+<li><b>숲을 다 태우면 첫 회차 끝.</b> 첫 회차는 성냥부터 항공 살포까지와 무기 아닌 강화 전부입니다. 위성 포격과 위성 출력은 다시 할 때의 몫으로 남겨 두었고, 다시 할 때 무엇이 이어지는지는 아직 정하지 않았습니다.</li>
+<li><b>연료 드럼과 소이 폭탄의 차이를 줄이기.</b> 다 익힌 드럼보다 소이 폭탄이 약 1.25배만 세도 되게 했습니다. 숲이 그 구간에서 천천히 타게 해서 항공 살포가 숲이 남아 있을 때 오게 하려는 것입니다.</li>
+</ul>
+
+<h3>하면서 찾은 것</h3>
+<ul>
+<li><b>숲이 갑자기 빨리 타던 원인은 자루 비우는 드론이었습니다.</b> 드럼 탓으로 보였지만, 드론을 드럼과 거의 같은 때 사게 되어 있었습니다. 드론이 수거함 왕복을 없애서 벌이가 한꺼번에 뛰었습니다. 드론을 사는 시점을 옮겼습니다.</li>
+<li><b>무기 세기를 잘못 재고 있었습니다.</b> 직접 불붙인 나무만 세서, 번져서 탄 나무가 빠졌습니다. 그래서 폭탄처럼 넓게 태우는 무기가 약하게 잡혔습니다. 지금은 번진 나무까지 셉니다.</li>
+<li><b>자동 플레이가 화염방사기를 제대로 못 썼습니다.</b> 한 그루씩 걸어가 한 번 뿜던 것을 계속 뿜으며 움직이게 고쳤습니다. 플레이 쪽 동작은 바뀌지 않습니다.</li>
+<li>가격은 손으로 정하지 않습니다. 매번 자동 플레이로 숲이 다 탈 때까지 돌리고, 그 실제 벌이에서 가격을 다시 계산합니다.</li>
+</ul>
+
+<h3>지금 수치 (19번째 실행, 계획한 구매 순서)</h3>
+<div class="tw"><table>
+<tr><th>무기</th><th>목표 도착</th><th>지금 도착</th></tr>
+<tr><td>라이터</td><td class="n">5분</td><td class="n">6.9분</td></tr>
+<tr><td>가스 토치</td><td class="n">16분</td><td class="n">21.3분</td></tr>
+<tr><td>드립 토치</td><td class="n">28분</td><td class="n">37.3분</td></tr>
+<tr><td>화염방사기</td><td class="n">39분</td><td class="n">53.8분</td></tr>
+<tr><td>연료 드럼</td><td class="n">50분</td><td class="n">67.5분</td></tr>
+<tr><td>소이 폭탄</td><td class="n">59분</td><td class="n">81.6분</td></tr>
+<tr><td>집속 소이탄</td><td class="n">81분</td><td class="n">111.2분</td></tr>
+<tr><td>항공 살포</td><td class="n">89분</td><td class="n">122.5분</td></tr>
+<tr><td><b>숲이 다 탐</b></td><td class="n">130~180분</td><td class="n"><b>130.1분</b></td></tr>
+</table></div>
+<p class="draft">목표 도착은 숲이 다 타는 시점에 맞춰 비율대로 늘려도 되게 했습니다. 지금 도착은 목표를 약 1.4배 늘린 것과 비슷합니다.</p>
+
+<div class="tw"><table>
+<tr><th>무기가 바뀔 때</th><th>지금</th><th>기준</th></tr>
+<tr><td>화염방사기 → 연료 드럼</td><td class="n">2.5배</td><td class="n">1.8배 이상</td></tr>
+<tr><td>연료 드럼 → 소이 폭탄</td><td class="n">1.34배</td><td class="n">약 1.25배 이상</td></tr>
+<tr><td>소이 폭탄 → 집속 소이탄</td><td class="n">약 2배</td><td class="n">1.4배 이상</td></tr>
+<tr><td>집속 소이탄 → 항공 살포</td><td class="n">약 3.3배</td><td class="n">1.4배 이상 (측정 불확실)</td></tr>
+</table></div>
+<p class="draft">"다 익힌 앞 무기"와 "막 산 다음 무기"를 같은 숲에서 비교한 값입니다. 같은 설정으로 재도 10~20%씩 흔들립니다.</p>
+
+<h3>아직 안 맞는 것</h3>
+<ul>
+<li><b>항공 살포가 너무 늦게 옵니다.</b> 올 때 숲의 98%가 이미 타 있어서, 손에 익기 칸이 하나도 안 열립니다. 집속 소이탄도 한 칸만 열립니다.</li>
+<li>무기가 대부분 목표보다 30~40% 늦게 옵니다. 회차 길이는 맞으니 무기 사이 간격은 괜찮은 편입니다.</li>
+<li>강화 단계마다 값이 크게 뛰는 줄이 있습니다(빨리 타기, 자석).</li>
+</ul>
+
+<h3>왜 오래 걸렸는가</h3>
+<p>값을 하나 바꾸면 벌이가 바뀌고, 그러면 가격과 도착 시각이 다 바뀌어서 처음부터 다시 돌려야 합니다. 한 번 끝까지 돌리는 데 약 14분이 걸리고, 측정이 흔들려서 같은 것을 여러 번 재야 합니다. 여기에 제가 기준을 너무 많이, 너무 촘촘하게 걸어서 한쪽을 맞추면 다른 쪽이 어긋났습니다. 그래서 지금 상태로 마무리하고 직접 해 보실 수 있게 하는 쪽으로 바꿨습니다.</p>
+
+<h3>가격표</h3>
+<p class="draft">마무리 실행이 끝나면 예전 가격과 새 가격을 나란히 놓은 표를 여기에 넣습니다.</p>
+
+<h2>6. 위성 출력과 남은 나무 찾기</h2>
+<ul>
+<li>위성 포격 뒤에 "위성 출력" 줄을 새로 넣었습니다. 1~4단계는 포격 반경을 100m에서 148m까지 넓히고, 5단계는 남은 나무를 스스로 쏩니다.</li>
+<li>남은 나무가 5% 아래로 줄면 지도(M)에 위치가 점으로 표시됩니다. 마지막 몇 그루를 찾아 헤매지 않게 하려는 것입니다.</li>
+<li>위성은 다시 할 때의 몫으로 남겼고, 5단계 자동 포격이 화면을 끊는 문제(프레임 24→52ms)는 밸런스가 끝난 뒤 따로 고칩니다.</li>
+</ul>
+
+<h2>7. 예전 저장</h2>
+<p>v0.8.1 저장이 그대로 열립니다. 단계 수를 줄인 줄(빨리 타기, 자석, 드론)은 산 만큼 올림해서 옮깁니다. 위성 포격까지 산 저장에서 새로 끼어든 드립 토치, 연료 드럼, 항공 살포를 다시 사야 하던 문제도 고쳤습니다.</p>
+
+<h2>8. 다음 순서</h2>
+<ol>
+<li>밸런스를 지금 상태에서 마무리합니다(가격 파일 정리, 손에 익기 문턱 맞추기, 새 판·예전 저장 확인).</li>
+<li>QA로 실제 실행해 확인합니다.</li>
+<li>v0.9 테스트 빌드를 만들어 승인을 받고 드라이브에 올립니다.</li>
+<li>해 보신 소감을 듣고 항공 살포와 가격을 다음 판에서 다듬습니다.</li>
+</ol>
+
+<h3>기다리고 있는 결정</h3>
+<ul>
+<li>환기 방식: <a href="plan4.html">계획 4</a> (작업 지시, 구역 검수, 날씨, 태울 거리 등)</li>
+<li>다시 할 때 무엇이 이어지는지 (손에 익기, 무기, 재, 위성)</li>
+<li>헬기를 산 뒤 패러글라이더로 돌아가는 키를 붙일지</li>
+<li>본사 말투, 다람쥐, 일지</li>
+</ul>
+</main>
+</body>
+</html>
