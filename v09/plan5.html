@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>불씨 하나 계획 5 · 무기 강화 작업대</title>
+<style>
+:root{--bg:#15130f;--panel:#1e1b16;--line:#35302a;--text:#ece6da;--dim:#a79f90;--acc:#e2672a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.7;font-size:16px}
+main{max-width:920px;margin:0 auto;padding:36px 20px 80px}
+h1{font-size:26px;margin:0 0 8px}
+h2{font-size:21px;margin:52px 0 10px;padding-top:22px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 6px}
+p{margin:8px 0}
+a{color:var(--acc)}
+.lead{color:var(--dim)}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px 9px 0;border-top:1px solid var(--line)}
+th{color:var(--dim);font-weight:500;white-space:nowrap}
+td.n{white-space:nowrap}
+td small{display:block;color:var(--dim);font-size:13px}
+ul,ol{padding-left:22px;margin:8px 0}
+li{margin:4px 0}
+.draft{color:var(--dim);font-size:14px}
+.q{background:var(--panel);padding:18px 22px;margin-top:14px}
+.q li{margin:10px 0}
+/* 화면 배치 스케치 */
+.mock{position:relative;aspect-ratio:21/9;background:linear-gradient(#2a241c,#14110d 70%);border:1px solid var(--line);margin:14px 0;overflow:hidden;font-size:13px}
+.mock .bench{position:absolute;left:24%;right:24%;bottom:0;height:36%;background:#3a2f22;border-top:2px solid #5a4733}
+.mock .gun{position:absolute;left:36%;right:36%;bottom:30%;height:16%;border:1px dashed #b9a27f;color:#d9c8a8;display:flex;align-items:center;justify-content:center;text-align:center}
+.mock .part{position:absolute;bottom:47%;left:57%;width:9%;height:9%;border:1px solid var(--acc);color:var(--acc);display:flex;align-items:center;justify-content:center}
+.mock .list{position:absolute;left:2%;top:6%;bottom:6%;width:19%;border-right:1px solid #4a4033;padding:6px 8px;color:var(--dim)}
+.mock .list div{display:flex;justify-content:space-between;border-bottom:1px solid #2f2a22;padding:2px 0}
+.mock .list .on{color:var(--text)}
+.mock .side{position:absolute;right:2%;top:6%;bottom:6%;width:20%;border-left:1px solid #4a4033;padding:6px 10px;color:var(--dim)}
+.mock .side b{color:var(--text);font-weight:600}
+.mock .btn{margin-top:8px;border:1px solid var(--acc);color:var(--acc);text-align:center;padding:4px}
+.mock .bar{height:4px;background:#3a3328;margin:3px 0 8px}
+.mock .bar i{display:block;height:100%;background:#c9a56b}
+</style>
+</head>
+<body>
+<main>
+<h1>불씨 하나 계획 5 · 무기 강화 작업대</h1>
+<p class="lead">말씀하신 내용입니다. 손에 익기는 F로 쓰는 기술이 아니라 그 무기 자체가 세지는 것으로 바꾸고, 따로 강화하는 장면을 둡니다. 그 장면에서 숙련도를 보고 강화 버튼을 직접 누르며, 강화하면 무기에 부품이 붙어 모양이 바뀝니다. 아직 아무것도 만들지 않았습니다. 이름과 숫자는 모두 초안입니다.</p>
+
+<h2>1. 흐름</h2>
+<ol>
+<li>무기를 쓰면 그 무기의 숙련도가 찹니다. 지금처럼 그 무기로 태운 나무 수로 찹니다.</li>
+<li>한 칸이 차면 화면 구석에 한 줄이 뜹니다. "화염방사기 · 강화할 수 있음". 바로 세지지는 않습니다.</li>
+<li>작업대로 가서 E를 누르면 강화 장면으로 들어갑니다.</li>
+<li>무기를 고르고 강화 버튼을 누르면 부품을 붙이는 연출이 나오고, 시험 삼아 한 번 불을 냅니다.</li>
+<li>나오면 그 무기는 계속 강화된 채로 쓰입니다. 따로 누를 키는 없습니다.</li>
+</ol>
+<p>F 키는 없앱니다. 지금 F로 쓰던 기술(성냥 던지기, 라이터 던지기, 드럼 굴리기, 지연 신관 켜고 끄기, 연료 뿌려 두기)은 아래 3장처럼 저절로 붙는 효과로 바꿉니다.</p>
+
+<h2>2. 강화 장면</h2>
+<p>회사 트럭 옆의 정비 작업대를 1인칭으로 내려다보는 장면입니다. 화면 한가운데 작업대 위에 무기 실물이 놓이고, 글은 양옆의 얇은 칸에만 둡니다. 큰 카드나 반짝이는 버튼은 쓰지 않습니다.</p>
+<div class="mock">
+<div class="list">
+<div class="on"><span>화염방사기</span><span>2/3</span></div>
+<div><span>드립 토치</span><span>3/3</span></div>
+<div><span>가스 토치</span><span>3/3</span></div>
+<div><span>라이터</span><span>3/3</span></div>
+<div><span>성냥</span><span>3/3</span></div>
+<div style="opacity:.5"><span>연료 드럼</span><span>—</span></div>
+</div>
+<div class="bench"></div>
+<div class="gun">작업대 위 무기 실물<br>(돌려 볼 수 있음)</div>
+<div class="part">새 부품</div>
+<div class="side">
+<b>화염방사기</b><br>숙련 6,240 / 9,400그루
+<div class="bar"><i style="width:66%"></i></div>
+<b>Ⅰ 점성 노즐</b> · 끝남<br>
+<b>Ⅱ 압력 펌프</b> · 끝남<br>
+<b>Ⅲ 증점제 탱크</b><br>맞은 나무의 불이 한 번 더 번지기도 합니다.
+<div class="btn">강화</div>
+</div>
+</div>
+<p class="draft">배치 스케치입니다. 실제 화면은 게임 안 작업대와 무기 모델로 만듭니다. 칸이 아직 안 찼으면 강화 버튼이 흐리고, 남은 그루 수가 보입니다.</p>
+
+<h3>강화할 때의 연출 (약 4~6초, 클릭하면 건너뜀)</h3>
+<ol>
+<li>무기 곁으로 카메라가 다가가고 새 부품이 작업대에 놓입니다.</li>
+<li>장갑 낀 손이 부품을 끼우고 볼트를 조입니다. 금속 소리와 딸깍 소리가 납니다.</li>
+<li>무기를 들어 올려 허공에 한 번 시험 점화합니다. 강화 전보다 큰 불꽃이 나옵니다.</li>
+<li>옆 칸에 바뀐 수치가 한 줄 뜹니다. 예: "불이 붙는 거리 13m → 15m".</li>
+</ol>
+<p>들판에서도 강화한 무기는 불꽃, 폭발, 불길이 조금씩 커 보이게 합니다. 손에 든 모델에도 붙인 부품이 그대로 보입니다.</p>
+
+<h2>3. 무기별 강화 세 칸 (초안)</h2>
+<p>효과는 지금 30가지에서 가져오되 모두 저절로 붙는 효과로 바꿨습니다. "부품"은 강화할 때 무기에 실제로 붙는 모양입니다.</p>
+<div class="tw"><table>
+<tr><th>무기</th><th>Ⅰ</th><th>Ⅱ</th><th>Ⅲ</th></tr>
+<tr><td class="n">성냥</td><td>긴 성냥<small>한 개비로 두 그루까지 붙습니다.</small></td><td>방수 성냥<small>긋자마자 세게 타서 더 빨리 붙습니다. (던지기 대신)</small></td><td>금속 성냥갑<small>붙인 나무의 불이 더 잘 옮겨붙습니다. (성냥갑 던지기 대신)</small></td></tr>
+<tr><td class="n">라이터</td><td>바람막이 캡<small>누른 채 걸으면 앞쪽 나무에 저절로 붙습니다.</small></td><td>터보 노즐<small>덤불에 대면 불이 앞으로 달려 나갑니다.</small></td><td>큰 가스 칸<small>손 닿는 거리가 늘고 더 빨리 붙습니다. (던지기 대신)</small></td></tr>
+<tr><td class="n">가스 토치</td><td>넓은 노즐<small>겨눈 나무 곁의 나무도 달아오릅니다.</small></td><td>연장관<small>탈것에서 양옆 나무에 함께 붙습니다.</small></td><td>예열 코일<small>지나간 자리 옆 나무가 3초 뒤 따라 붙습니다.</small></td></tr>
+<tr><td class="n">드립 토치</td><td>흐름 밸브<small>비탈에서 기름이 내리막으로 흘러갑니다.</small></td><td>쌍 노즐<small>기름 줄이 두 줄로 그어집니다.</small></td><td>혼합 연료통<small>기름줄을 따라 불이 2배 빨리 달립니다.</small></td></tr>
+<tr><td class="n">화염방사기</td><td>점성 노즐<small>불줄기가 지나간 땅에 불길이 남습니다.</small></td><td>압력 펌프<small>불줄기가 숲 안쪽까지 들어갑니다.</small></td><td>증점제 탱크<small>맞은 나무의 불이 한 번 더 번지기도 합니다.</small></td></tr>
+<tr><td class="n">연료 드럼</td><td>점화 캡<small>더 넓게 터집니다. (굴리기 대신)</small></td><td>금속 띠<small>터질 때 불붙은 파편이 날아갑니다.</small></td><td>연결 도화선<small>더 먼 드럼까지 따라 터지고, 잇달아 터지면 더 넓게 터집니다.</small></td></tr>
+<tr><td class="n">소이 폭탄</td><td>근접 신관<small>나무 위에서 터져 파편을 멀리 뿌립니다.</small></td><td>강화 외피<small>옆으로 한 번 튕겨 한 번 더 터집니다.</small></td><td>잔류 소이제<small>떨어진 자리에서 10초 동안 불똥이 튑니다.</small></td></tr>
+<tr><td class="n">집속 소이탄</td><td>꼬리 날개<small>자탄이 쏜 방향으로 한 줄로 떨어집니다.</small></td><td>자탄 칸 추가<small>자탄이 한 번 더 갈라집니다.</small></td><td>지연 신관<small>늘 3초 뒤 한꺼번에 터집니다. (켜고 끄기 대신)</small></td></tr>
+<tr><td class="n">항공 살포</td><td>2번기<small>두 대가 나란히 와서 폭이 2배가 됩니다.</small></td><td>회항 경로<small>돌아오며 옆줄에 한 번 더 쏟습니다.</small></td><td>선행 살포기<small>앞 비행기가 연료를 먼저 뿌리고 뒤 비행기가 붙여 더 넓게 탑니다. (뿌려 두기 대신)</small></td></tr>
+<tr><td class="n">위성 포격</td><td>집광 렌즈<small>불기둥이 5초 머물며 더 번집니다.</small></td><td>다중 조준<small>줄 포격이 거의 동시에 떨어집니다.</small></td><td>냉각 장치<small>잇달아 쏠수록 반경이 커집니다(세 발까지).</small></td></tr>
+</table></div>
+<p class="draft">항공 살포와 위성 포격은 들고 있는 무전기·조준 단말기에 부품이 붙고, 부르는 비행기와 위성 쪽 모습도 함께 바뀝니다. 세 칸을 다 열면 그 무기가 약 1.25~1.45배 세지는 기준은 그대로 둡니다.</p>
+
+<h2>4. 만들 때 드는 것</h2>
+<ul>
+<li><b>강화 장면:</b> 작업대 장면, 무기 고르기, 숙련 표시, 강화 버튼, 연출, 저장.</li>
+<li><b>모델:</b> 무기 10개마다 부품 3개씩, 모두 30개. 손에 든 모델과 작업대 모델 둘 다에 붙습니다.</li>
+<li><b>효과 바꾸기:</b> F 기술 6가지를 저절로 붙는 효과로 바꾸고, 강화 단계마다 불꽃과 폭발 크기를 키웁니다.</li>
+<li><b>소리:</b> 부품 끼우기, 볼트 조이기, 시험 점화.</li>
+<li><b>밸런스:</b> 효과가 바뀌므로 무기 세기를 다시 재야 합니다. 이번에는 무기별로 한 번씩만 재고, 판 전체를 끝까지 돌려 가격을 맞추는 일은 하지 않습니다.</li>
+</ul>
+
+<div class="q">
+<b>정해 주실 것</b>
+<ol>
+<li><b>강화 장면에 들어가는 곳:</b> (가) 수거함 옆 작업대까지 걸어가서 E (추천: 1인칭·현실적인 느낌), (나) 어디서나 단축키로, (다) 둘 다.</li>
+<li><b>강화 값:</b> (가) 숙련도만 차면 공짜로 강화 (추천), (나) 숙련도에 재도 조금 듦.</li>
+<li><b>순서:</b> (가) 지금 v0.9를 F 방식 그대로 먼저 드려서 가격·흐름을 해 보시고, 작업대는 v0.10에서 만듦 (추천: 바로 테스트하실 수 있음), (나) 작업대까지 만들어서 v0.9로 드림.</li>
+<li>3장 무기별 강화 이름과 효과, 붙는 부품 중 바꾸고 싶은 것.</li>
+</ol>
+</div>
+</main>
+</body>
+</html>
